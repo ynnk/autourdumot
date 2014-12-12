@@ -1,0 +1,20 @@
+GLAFF-1.2.1.tar.bz2
+GLAFF-1.2.1/
+
+
+# virtualenv
+venv
+
+# the lib
+app/cello_libjs
+
+# ignore editor temp files
+*~
+# ignore pyc files
+*.pyc
+
+# ignore _rep in documentation dir
+/docs/_*
+
+/.private/
+.ipynb_checkpoints/

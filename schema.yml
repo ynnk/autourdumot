@@ -1,0 +1,37 @@
+mappings:
+    graph:
+        properties:
+            gid: {type: "integer"}
+            graph: 
+                type: "string"
+                index: "not_analyzed"              
+            lang: 
+                type: "string"
+                index: "not_analyzed"
+            form: 
+                type: "string"
+                index: "not_analyzed"
+            pos: 
+                type: "string"
+                index: "not_analyzed"
+            neighborhood :  
+                type: "integer"
+                index: 'no'
+            rank: 
+                type: "integer"
+            neighbors : 
+                type: "integer"
+            prox:
+                type: "float"
+                index: 'no'
+                store: false
+            form_suggest: 
+                type: "completion"
+                #index: "not_analyzed"
+                #index_analyzer :  "not_analyzed"
+                #search_analyzer : "not_analyzed"
+                payloads: true
+                context: 
+                    prefix: 
+                        type: "category"
+                        default: ['*']
