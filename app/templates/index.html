@@ -27,6 +27,7 @@ require([
 
     <!--  our CSS    -->
     <link rel="stylesheet" href="{{url_for('static', filename='app_graph.css')}}" type="text/css" />
+    <link rel="stylesheet" href="{{url_for('static', filename='engine.css')}}" type="text/css" />
 
 
     <script type="text/template" id="KebButton">
@@ -64,8 +65,9 @@ require([
     </div>
 
 
-    
-    <div class="content">
+        <div class="container text-center">
+            <h1>Dictionnaires et synonymes</h1>
+        </div>
         <div id="query_home_contener" class="container text-center">
             <div id="query_form"></div>
             <div id='engine' class='pane engine'>
@@ -75,17 +77,66 @@ require([
 
         </div>
 
-
-
-
-    </div><!-- /.content -->
-
-    <div id='vz_threejs_main' class='text-center'></div>
-    <div id='clustering_items' style=''></div>
-    <div id='proxemy_items' style=''></div>
     
+    
+
+    <div id="myCarousel" class="carousel slide" data-ride="carousel" style="">
+
+        <!-- Carousel items -->
+
+        <div class="carousel-inner">
+
+            <div class="item active">
+                <h1>Graph</h1>
+                <div id='vz_threejs_main' class=''></div>            
+
+            </div>
+
+            <div class="item">
+                <h1>Clustering</h1>
+                <div id='clustering_items' class='container text-center' style=''></div>
+
+            </div>
+
+            <div class="item">
+                <h1>Liste</h1>
+                <div id='proxemy_items' class='' style=''></div>
+
+            </div>
+            
+            <div class="item">
+                <h1>Définition</h1>
+                <div id='wkdef' class='' style=''>
+                
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Carousel indicators -->
+
+        
+        <div class="container text-center" >
+            <div class="carousel-indicators btn-group text-center" role="group" >
+                  <button data-target="#myCarousel" data-slide-to="0" type="button" class="btn btn-default active">Graph</button>
+                  <button data-target="#myCarousel" data-slide-to="1" type="button" class="btn btn-default">Clustering</button>
+                  <button data-target="#myCarousel" data-slide-to="2" type="button" class="btn btn-default">Liste</button>
+                  
+                  <button data-target="#myCarousel" data-slide-to="3" type="button" class="btn btn-default">Définition</button>
+            </div>
+        </div>
+    
+    </div>
+
+
+
+
+
     <div id='footer'>
         <div class="container text-center">
+            Données synonymiques <a href='http://jeuxdemots.org'>Jeux de mots</a> - 
+            Définitions <a href='http://wiktionary.org'>Wiktionary.org</a> - 
+            Réalisation <a href="http://kodexlab.com">Kodex·Lab</a> 2014 
         </div>
     </div>
 

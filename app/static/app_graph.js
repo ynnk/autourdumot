@@ -72,6 +72,12 @@ define([
                 }
             }
         },
+        
+        set_form: function(form){
+            var query = this.query;
+            query.form = form;
+            this.query = query;            
+        },
 
         // called when engine play is done
         play_completed: function(response){
@@ -170,10 +176,7 @@ define([
              */
             event.preventDefault(); // this will stop the event from further propagation and the submission will not be executed
             // note: this is not necessary for Chrome, but needed for FF
-            var query = this.model.query;
-            query.form = this.query_str();
-            
-            this.model.query = query;
+            this.model.set_form(this.query_str())
             this.model.run_search();
 
             event.stopPropagation(); //not always necessary
@@ -211,7 +214,7 @@ define([
 
             // --- Clustering model ---
             // Clustering model and view
-            app.models.clustering = new Cello.Clustering({color_saturation:30});
+            app.models.clustering = new Cello.Clustering({color_saturation:50});
             app.models.vertices = new Cello.DocList({sort_key:'label'});
        },
 
@@ -273,10 +276,12 @@ define([
             var app = this;
 
             /** Create views for clustering */
+
             // label view
             // Note: the inheritage is not absolutely needed here, except for label overriding.
             // however if one want to add clustom events on each label it should
             // do that, so as documentation/exemple it is usefull the 'extend'.
+
             var ClusterLabel = Cello.ui.clustering.LabelView.extend({
                 template: _.template($('#ClusterLabel').html().trim()),
 
@@ -297,13 +302,13 @@ define([
                     // 'this.model' is a label not a vertex !
                     var vertices = app.models.graph.select_vertices({label:this.model.label});
                     var vertex = vertices[0];
-                    app.models.graph.vs.set_selected(vertex);
+                    app.navigate_to_label(this.model.label);
                 },
 
                 //RMQ: this computation may also be done directly in the template
                 before_render: function(data){
                     //console.log(data.label, data.score)
-                    data.size = 9 + data.score / 17.;
+                    data.size = Math.max(10,data.score * 26.);
                     return data
                 },
             });
@@ -356,10 +361,7 @@ define([
 
                 /* Click sur le label, */
                 clicked: function(event){
-                    if (event.ctrlKey)
-                        app.models.graph.vs.add_selected(this.model);
-                    else
-                        app.models.graph.vs.set_selected(this.model);
+                    app.navigate_to_label(this.model.label);
                 },
 
                 mouseover: function(){
@@ -378,23 +380,22 @@ define([
 
 
 
+            /** Create view for liste */
+
             app.views.proxemy = new Cello.ui.list.ListView({
                 model : app.models.vertices,
                 ItemView: ItemView,
                 el: $("#proxemy_items"),
             }).render();
 
-            // when #proxemy_items is "show" change graph colors
-            $('#proxemy_items').on('show.bs.collapse', function () {
-                //app.models.graph.vs.copy_attr('prox_color', 'color', {silent:true});
-            });
+
 
             /** Create view for graph */
 
             var gviz = new Cello.gviz.ThreeViz({
                 el: "#vz_threejs_main",
                 model: app.models.graph,
-                background_color: 0x888888,
+                background_color: 0xEEEEEE,
                 wnode_scale: function(vtx){
                     return 10 + vtx.get("neighbors") / 8.;
                 },
@@ -409,7 +410,7 @@ define([
                     'shape': 'circle',
                     'scale':1,
                     //'shape': 'triangle',
-                    'lineWidth' : 0.05,
+                    'lineWidth' : 0.01,
                     'fontScale'  :  0.2,
                     'fontFillStyle'  : '#333',  //#366633',           
                     'fontStrokeStyle'  : '#333',
@@ -424,7 +425,7 @@ define([
                     'shape': 'square',
                     'scale':1,
                     'strokeStyle': "gradient:#1D1D1D",
-                    'fontScale'  :  0.13,
+                    'fontScale'  :  0.3,
             } );
 
             /* Events */
@@ -491,7 +492,7 @@ define([
             var app = this;
             var q = app.models.query.query
             q.form = label
-            app.models.query.query = q ;
+            app.models.query.set_query(q) ;
             app.models.query.run_search();
 
         },
@@ -627,27 +628,22 @@ define([
                 });
             });
             
-            // remove loaded images
-            //$('#imgs').html();
             
             // materials & images
             app.models.graph.vs.each(function(vtx){
-                var type = vtx.get('type');
-                if(type){
-                    vtx.add_flag("depute");
-                    // image
-                    var slug = vtx.get('slug');
-                    $('#imgs').append( "<img id='"+slug+"' src='/static/img/deputes/"+ slug +"-120.png'/>" );
-                    // groupe
-                    var groupe = vtx.get("groupe").toLowerCase();
-                    vtx.add_flag(groupe);
-                    // label
-                    vtx.label  = function(){ return this.get('label') + " (" + this.get("groupe").toLowerCase() + ")" };
-                } else {
                     vtx.add_flag("form");
                     vtx.label = function(){ return this.get('label') };
-                }
             });
+            
+            // definition
+            var lang = response.results.query.lang;
+            var form = response.results.query.form;
+            $.ajax( "def/"+lang+"/"+form, {
+                    success : function(data){
+                        $('#wkdef').html(data.content)
+                    }
+                });
+            
         },
 
 

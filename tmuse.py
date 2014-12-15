@@ -82,17 +82,20 @@ def engine(index):
     ## Search
     def tmuse_subgraph( query, size=50):
         graph = "dicosyn.V"
+        
         print query
         pzeros = query['form']
         
         return subgraph(index, graph, pzeros, size=size)
         
+    from cello.graphs.transform import VtxAttr
+
     graph_search = Optionable("GraphSearch")
     graph_search._func = Composable(tmuse_subgraph)
     graph_search.add_option("size", Numeric( vtype=int, default=50))
 
-    from cello.graphs.transform import VtxAttr
     graph_search |= VtxAttr(color=[(45, 200, 34), ])
+    graph_search |= VtxAttr(type=1)
 
     engine.graph.set(graph_search)
 
@@ -102,12 +105,19 @@ def engine(index):
     #RMQ infomap veux un pds, donc on en ajoute un bidon
     walktrap = EdgeAttr(weight=1.) |Walktrap()
     infomap = EdgeAttr(weight=1.) | Infomap()
-    engine.clustering.set(walktrap, infomap)
+    engine.clustering.set(infomap, walktrap)
 
     ## Labelling
+    
     from cello.clustering.labelling.model import Label
-    from cello.clustering.labelling.basic import VertexAsLabel
-    engine.labelling.set(VertexAsLabel(lambda graph, cluster, vtx: Label(vtx["label"], role="default")))
+    from cello.clustering.labelling.basic import VertexAsLabel, TypeFalseLabel, normalize_score_max
+        
+    def _labelling(graph, cluster, vtx):
+        score = TypeFalseLabel.scoring_prop_ofclust(graph, cluster, vtx)
+        return  Label(vtx["label"], score=score, role="default")
+    
+    labelling = VertexAsLabel( _labelling ) | normalize_score_max
+    engine.labelling.set(labelling)
 
     ## Layout
     from cello.layout.simple import KamadaKawaiLayout
@@ -115,13 +125,14 @@ def engine(index):
     from cello.layout.proxlayout import ProxLayoutPCA
     from cello.layout.transform import Shaker
     engine.layout.set(
-        ProxLayoutPCA(dim=3) | Shaker(),
-        KamadaKawaiLayout(dim=3),
+        KamadaKawaiLayout(dim=2, name="KamadaKawai2D"),
+        ProxLayoutPCA(dim=3) | Shaker(), 
+        KamadaKawaiLayout(dim=3, name="KamadaKawai3D"),
     )
     return engine
 
 
-def subgraph(index, graph, pzeros, size=50):
+def subgraph(index, graphname, pzeros, size=50):
     """
     :param index: <EsINndex>  forms 
     :param graph: <str>  graph name 
@@ -129,10 +140,10 @@ def subgraph(index, graph, pzeros, size=50):
     :param size: <int>  resultset size 
     """
     # get vertex ids
-    proxs = dict(extract(index, graph, pzeros, size))
+    proxs = dict(extract(index, graphname, pzeros, size))
     ids = proxs.keys()
     # request es with ids
-    res = search_docs(index, graph, ids)
+    res = search_docs(index, graphname, ids)
     # convert res to docs
     docs = to_docs(res)
     
@@ -142,6 +153,8 @@ def subgraph(index, graph, pzeros, size=50):
     # build graph from docs
     graph = to_graph(docs)
 
+    print 'graphname', graphname
+    print 'pzeros', pzeros
     print 'ids', ids
     print 'docs', len(docs)
     print 'g', graph.summary()
@@ -185,6 +198,7 @@ def extract(index, graph, pzeros, size=50):
     }
 
     res = index.search(body=q, size=size)
+    
     if 'hits' in res and 'hits' in res['hits']:
         docs = [ doc['_source'] for doc in res['hits']['hits']]
         proxs  = [  p for doc in docs for p in doc['prox'] ]
@@ -204,7 +218,7 @@ def search_docs(index, graph, ids):
     
     docs = []
     q = { 
-        "_source":['form', 'gid','neighbors', 'neighborhood'],
+        "_source":['graph', 'form', 'gid','neighbors', 'neighborhood'],
         "query": {
             "filtered" : {
                 "query": { 

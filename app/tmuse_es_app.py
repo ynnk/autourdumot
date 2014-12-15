@@ -19,7 +19,7 @@ from cello.providers.es import EsIndex
 from cello.utils.web import CelloFlaskView
 
 import tmuse
-
+import wiktionary
 
 # Build the app & 
 app = Flask(__name__)
@@ -58,11 +58,45 @@ def complete(text):
     es_res = tmuse.complete(app.es_index, text)
     return jsonify( es_res )
 
-@app.route("/extract/<string:graph>/<string:text>")
-def test(graph, text):
+@app.route("/_extract/<string:graph>/<string:text>")
+def _extract(graph, text):
     es_res = tmuse.extract(app.es_index, graph, text)
     return jsonify({ 'res': es_res})
     
+@app.route("/_search/<string:graph>/<string:text>")
+def _search(graph, text):
+    proxs = dict(tmuse.extract(app.es_index, graph, text, 10))
+    ids = proxs.keys()
+    # request es with ids
+    es_res = tmuse.search_docs(app.es_index, graph, ids)
+    return jsonify({ 'ids': ids, 'res': es_res})
+        
+@app.route("/def/<string:domain>/<string:query>")
+def wkdef(domain, query):
+    """ get and parse definition from wiktionary
+        @returns html code of the definition
+    """
+    data = {}
+    try : 
+
+        data = wiktionary.get_wk_definition(domain, query)
+        
+    except Exception as error:
+
+        print "errorrr" , error
+
+        resp = "<table><tr><td><img src='../static/images/warning.png'/></td><td>" + \
+        "can't get definition from <a href='"+url+"' target='_blank'>"+url+"</a>" + \
+        "</td></tr></table>"
+
+        data = { 
+            'content' : resp,
+            'error' : error.message
+        }
+
+    finally :
+        return jsonify(data)
+
 def main():
     INDEX = "tmuse"
     #INDEX = "test"
