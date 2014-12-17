@@ -8,7 +8,7 @@ import logging
 import igraph
 
 from flask import Flask
-from flask import render_template, url_for, abort, jsonify
+from flask import request, render_template, url_for, abort, jsonify
 
 from cello.types import GenericType, Text, Numeric
 from cello.graphs import export_graph, IN, OUT, ALL
@@ -57,6 +57,12 @@ def index(query=None):
 def complete(text):
     es_res = tmuse.complete(app.es_index, text)
     return jsonify( es_res )
+
+@app.route("/ajax_complete")
+def ajax_complete():
+    return complete(request.args.get('query'))
+    
+
 
 @app.route("/_extract/<string:graph>/<string:text>")
 def _extract(graph, text):
