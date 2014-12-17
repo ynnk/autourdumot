@@ -28,8 +28,20 @@ logger = get_basic_logger(logging.DEBUG)
 
 class ComplexQuery(GenericType):
     def parse(self, value):
-        return value
+        
+        q = [ Query(**v) for v in value ]
+        return q[0]
 
+
+def Query( **kwargs):
+    default = {
+        'graph' : 'dicosyn.V',
+        'lang'  : 'fr',
+        'pos'   : 'V',
+        'form'  : None
+    }
+    default.update(kwargs)
+    return default
 
 def tmuse_api(index, *args, **kwargs):
     """ Build the Cello/Naviprox API over a graph
@@ -61,22 +73,7 @@ def complete(text):
 @app.route("/ajax_complete")
 def ajax_complete():
     return complete(request.args.get('query'))
-    
-
-
-@app.route("/_extract/<string:graph>/<string:text>")
-def _extract(graph, text):
-    es_res = tmuse.extract(app.es_index, graph, text)
-    return jsonify({ 'res': es_res})
-    
-@app.route("/_search/<string:graph>/<string:text>")
-def _search(graph, text):
-    proxs = dict(tmuse.extract(app.es_index, graph, text, 10))
-    ids = proxs.keys()
-    # request es with ids
-    es_res = tmuse.search_docs(app.es_index, graph, ids)
-    return jsonify({ 'ids': ids, 'res': es_res})
-        
+ 
 @app.route("/def/<string:domain>/<string:query>")
 def wkdef(domain, query):
     """ get and parse definition from wiktionary
@@ -103,10 +100,38 @@ def wkdef(domain, query):
     finally :
         return jsonify(data)
 
+
+# debug
+
+@app.route("/_search/<string:graph>/<string:text>")
+def _search(graph, text):
+    query = Query(graph=graph, form=text)     
+    source = request.args.get('_source',"*").split(',')
+    
+    es_res = tmuse.search(app.es_index, query, source=source)
+    return jsonify({ 'res': es_res})
+
+@app.route("/_extract/<string:graph>/<string:text>")
+def _extract(graph, text):
+
+    query = Query(graph=graph, form=text)     
+    es_res = tmuse.extract(app.es_index, query)
+    return jsonify({ 'res': es_res})
+    
+@app.route("/_prox/<string:graph>/<string:text>")
+def _prox(graph, text):
+    
+    query = Query(graph=graph, form=text)     
+
+    proxs = dict(tmuse.extract(app.es_index, query, 10))
+    ids = proxs.keys()
+    # request es with ids
+    es_res = tmuse.search_docs(app.es_index, graph, ids)
+    return jsonify({ 'ids': ids, 'res': es_res})
+
+       
 def main():
     INDEX = "tmuse"
-    #INDEX = "test"
-    app.graphs = {"dicosyn.V", }
     app.es_index = EsIndex(INDEX, doc_type="graph", host="localhost" )
 
     api = tmuse_api(app.es_index)
