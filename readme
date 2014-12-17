@@ -1,5 +1,3 @@
-
-
 = TMuse reloaded = 
 
 HOW TO :
@@ -11,8 +9,7 @@ HOW TO :
   
   Glaff 1.2.1
   
-  $ wget http://redac.univ-tlse2.fr/lexiques/glaff/GLAFF-1.2.1.tar.bz2  
-  $ tar -xjf GLAFF-1.2.1.tar.bz2
+  $ make get_glaff
   
 
 * install virtualenv and requirements
@@ -46,6 +43,6 @@ HOW TO :
 
 TODO :
 
-* more doc 
+* more doc
 * flatten jdm syns
 * a lot of work needed on js app
