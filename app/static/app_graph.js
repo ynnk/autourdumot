@@ -51,7 +51,7 @@ define([
         model : Backbone.Model.extend({
             defaults : {
                 graph: "",
-                lang : "",
+                lang: "",
                 pos: "",
                 form: ""
             },
@@ -64,7 +64,7 @@ define([
 
     var TmuseQueryUnit = Backbone.Model.extend({
         defaults: {
-            graphname: null,
+            graph: null,    // name of the graph
             lang: null,
             pos: null,
             form: null,
@@ -75,25 +75,52 @@ define([
 
         initialize: function(){
             // validate on each change
-            this.on("change:graphname change:lang change:pos change:form", this.validate);
+            this.on("change:graph change:lang change:pos change:form", this.validate);
         },
 
-        /* Set the Query unit from a raw string, ex fr.V.manger
+        /* Set the Query unit from a raw string, 
+         * ex 
+         *  * "DS_V.fr.V.manger"
+         *  * "fr.V.manger"
+         *  * "V.jouer"
+         *  * "rire"
         */
+        //TODO: add boost parsing ("fr.V.manger:50")
         set_from_str: function(query_str){
             var qsplit = query_str.trim().split(".");
             data = {}
             data.form = qsplit[qsplit.length-1];
-            if(qsplit.lenght >= 2){
+            if(qsplit.length >= 2){
                 data.pos = qsplit[qsplit.length-2];
             }
-            if(qsplit.lenght >= 3){
+            if(qsplit.length >= 3){
                 data.lang = qsplit[qsplit.length-3];
             }
-            if(qsplit.lenght >= 4){
-                data.graphname = qsplit[qsplit.length-4];
+            if(qsplit.length >= 4){
+                data.graph = qsplit[qsplit.length-4];
             }
             this.set(data);
+        },
+
+        to_string: function(){
+            var str = [];
+            //TODO: Cello.get !
+            //TODO loop on graph, lang, pos
+            if(!_.isNull(this.get("graph"))){
+                str.push(this.get("graph"));
+            }
+            if(!_.isNull(this.get("lang"))){
+                str.push(this.get("lang"));
+            }
+            if(!_.isNull(this.get("pos"))){
+                str.push(this.get("pos"));
+            }
+            str.push(this.get("form"));
+            str = str.join(".")
+            if(this.get("boost") != 1.){
+                str = str + ":" + this.get("boost");
+            }
+            return str;
         },
 
         /* Ajax call to check if this query unit exist (and so is valid)
@@ -106,11 +133,11 @@ define([
     var TmuseQueryUnits = Backbone.Collection.extend({
         model: TmuseQueryUnit,
 
-        /* Set the QueryUnit collection from a raw string, ex "fr.V.manger fr.V.boufer"
+        /* Reset the QueryUnit collection from a raw string, ex "fr.V.manger;fr.V.boufer"
         */
-        set_from_str: function(query_str){
+        reset_from_str: function(query_str){
             var data = [];
-            var qsplit = query_str.split(" ");
+            var qsplit = query_str.split(";");
             _.each(qsplit, function(qstr){
                 var query_elem = new TmuseQueryUnit();
                 query_elem.set_from_str(qstr);
@@ -119,7 +146,12 @@ define([
             this.reset(data);
         },
 
+        to_string: function(){
+            return this.models.map(function(qunit){ return qunit.to_string() }).join(", ");
+        },
+
         validate: function(){
+            //TODO
         },
 
         export_for_engine: function(){
@@ -128,66 +160,7 @@ define([
     });
 
 
-    var QueryModel = Backbone.Model.extend({
-        defaults: {
-            cellist: null,      // a Cello.engine
-            query: null,        // collection of query elements (QueryUnit)
-
-            // surfase attr
-            loaded: false,      // wheter the curent query is loaded or not
-            //TODO: for now loaded only compare the last resieved query
-            // to the curent one but it should also be bind to any engine
-            // configuration change
-        },
-
-        loaded_query: null,
-
-        initialise: function(attrs){
-            _.bindAll(this, "play_completed", "query_changed");
-            // add getter
-            Cello.get(this, 'cellist');
-            Cello.get(this, 'loaded');
-            Cello.get(this, 'query');
-            Cello.set(this, 'query');
-            
-            // set the query
-            this.query = attrs.query
-            
-            // connect to cellist, when play succed => mark the query loaded until it changed
-            this.listenTo(this.cellist, "play:complete", this.play_completed)
-            // change on query attr marl loaded as false
-            this.on("change:query", this.query_changed)
-        },
-
-        /* Callback when query has changed
-        */
-        query_changed: function(){
-            this.set("loaded", false)
-        },
-
-        /* callback when engine play is done
-        */
-        play_completed: function(response){
-            if(response.results.query != this.query.export_for_engine()){
-                this.query.reset(response.results.query);
-            }
-            this.loaded_query = response.results.query;
-            this.set('loaded', true);
-        },
-
-        // run the engine
-        run_search: function(){
-            // TODO Prevents "empty" query
-            // if (this.query === "") return false;
-            this.trigger('search:loading', this.query);
-            this.cellist.play({
-                query: this.query.export_for_engine(),
-            }); 
-        },
-    });
-
-
-
+    //XXX: A REPRENDRE...
     var QueryView = Backbone.View.extend({
         //note: the template should have an input with class 'query_input'
         template: Cello.ui.getTemplate(Cello.ui.templates.basic, '#query_form_tmpl'),
@@ -219,7 +192,7 @@ define([
 
         // update query value in the input
         update_query: function(){
-            this.$input.val(this.model.query.form);
+            this.$input.val(this.model.to_string());
         },
 
         // update query value in the input
@@ -302,15 +275,10 @@ define([
             // query specific tmuse (ici c'est une collection)
             // note: "query" should have an export_for_engine mth
             app.models.query = new TmuseQueryUnits();
-
+            app.models.query.reset_from_str("fr.V.manger")
+            
             // register the query model on the engine input "query"
             app.models.cellist.register_input("query", app.models.query);
-
-//            // generic "query" model
-//            app.models.query = new QueryModel({
-//                cellist: app.models.cellist,
-//                query: app.models.tmquery,
-//            });
 
             // --- Graph model ---
             app.models.graph = new Cello.Graph({}) //warn: it is updated when result comes
@@ -347,12 +315,12 @@ define([
         create_query_engine_views: function(home){
             var app = this;
             var searchdiv = '#query_form';
-            app.views.query = null
-//            new QueryView({
-//                model: app.models.query,
-//                el: $(searchdiv),
-//            }).render();
-//            $(searchdiv).show();
+            app.views.query = new QueryView({
+                model: app.models.query,
+                el: $(searchdiv),
+            }).render();
+            $(searchdiv).show();
+            console.log("OP")
 
 //            app.views.querycomplete = new AutoComplete.View({
 //               model : app.models.query.completion, 
@@ -604,7 +572,7 @@ define([
         navigate_to_label: function(label){
             var app = this;
             //XXX: rename label to ??
-            app.models.query.set_from_str(label) ;
+            app.models.query.reset_from_str(label) ;
             app.models.cellist.play();
 
         },
