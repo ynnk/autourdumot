@@ -29,7 +29,7 @@ logger = get_basic_logger(logging.DEBUG)
 class ComplexQuery(GenericType):
     def parse(self, value):
         
-        q = [ Query(**v) for v in value ]
+        q = [ Query(**{ k:v for k,v in val.iteritems() if v is not None}) for val in value ]
         return q[0]
 
 
