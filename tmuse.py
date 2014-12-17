@@ -80,19 +80,14 @@ def engine(index):
     engine.layout.setup(in_name="graph", out_name="layout")
 
     ## Search
-    def tmuse_subgraph( query, size=50):
-        graph = "dicosyn.V"
-        
-        print query
-        pzeros = query['form']
-        
-        return subgraph(index, graph, pzeros, size=size)
+    def tmuse_subgraph( query, length=50):        
+        return subgraph(index, query, length=length)
         
     from cello.graphs.transform import VtxAttr
 
     graph_search = Optionable("GraphSearch")
     graph_search._func = Composable(tmuse_subgraph)
-    graph_search.add_option("size", Numeric( vtype=int, default=50))
+    graph_search.add_option("length", Numeric( vtype=int, default=50))
 
     graph_search |= VtxAttr(color=[(45, 200, 34), ])
     graph_search |= VtxAttr(type=1)
@@ -132,7 +127,7 @@ def engine(index):
     return engine
 
 
-def subgraph(index, graphname, pzeros, size=50):
+def subgraph(index, query, length=50):
     """
     :param index: <EsINndex>  forms 
     :param graph: <str>  graph name 
@@ -140,10 +135,10 @@ def subgraph(index, graphname, pzeros, size=50):
     :param size: <int>  resultset size 
     """
     # get vertex ids
-    proxs = dict(extract(index, graphname, pzeros, size))
+    proxs = dict(extract(index, query, length))
     ids = proxs.keys()
     # request es with ids
-    res = search_docs(index, graphname, ids)
+    res = search_docs(index, query['graph'], ids)
     # convert res to docs
     docs = to_docs(res)
     
@@ -153,8 +148,8 @@ def subgraph(index, graphname, pzeros, size=50):
     # build graph from docs
     graph = to_graph(docs)
 
-    print 'graphname', graphname
-    print 'pzeros', pzeros
+    print 'graphname', query['graph']
+    print 'pzeros', query['form']
     print 'ids', ids
     print 'docs', len(docs)
     print 'g', graph.summary()
@@ -163,7 +158,7 @@ def subgraph(index, graphname, pzeros, size=50):
     return graph
     
         
-def extract(index, graph, pzeros, size=50):
+def search(index, query, source="*", size=10):
     """
     prox tuples are stored in _source.prox as [ [idx, prox_value], .... ]
     sorted by prox desc
@@ -173,37 +168,46 @@ def extract(index, graph, pzeros, size=50):
     """
     proxs = []
 
+    pzeros = query["form"]
     if isinstance(pzeros , (str, unicode)):
         pzeros = pzeros.split(',')
-        
+        print ">>>>>>>>>>>>>", type(pzeros), pzeros
+    
     q = {
-        "_source":['graph', 'form','prox', 'neighbors'],
-        "query": { 
-            "filtered" : {
-                "filter" : {
-                    "bool" : {
-                        "must" : {
-                            "term" : {
-                                "form" : pzeros,
-                                "graph" : graph,
-                                "lang" : 'fr',
-                                "pos" : 'V'
-                            }
+            "_source": source,
+            "query": {
+                "filtered": {
+                    "query": {
+                        "query_string" : {
+                            "default_field" : "form",
+                            "query" : " OR ".join(pzeros)
                         }
-                    }
-                }
-
+                    },
+                    "filter": {
+                        "and": [
+                            { "term": {"graph": query['graph']} },
+                            { "term": {"lang": query['lang']} },
+                            { "term": {"pos": query['pos']} },
+ 
+                        ]
+                   }
+                }  
             }
         }
-    }
 
     res = index.search(body=q, size=size)
-    
+    res["q"] = q
+    return res
+
+def extract(index, query,  length=50):
+    source = ['graph', 'form','prox', 'neighbors']
+    res = search(index, query, source=source, size=1)
+        
     if 'hits' in res and 'hits' in res['hits']:
         docs = [ doc['_source'] for doc in res['hits']['hits']]
         proxs  = [  p for doc in docs for p in doc['prox'] ]
         
-    return proxs[:size]
+    return proxs[:length]
 
 def to_graph(docs):
     

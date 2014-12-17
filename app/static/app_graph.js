@@ -735,7 +735,7 @@ define([
             }
 
             var alert = Cello.ui.getAlert(text);
-            $("#other_side").prepend(alert);
+            $("body").prepend(alert);
         },
 
 
