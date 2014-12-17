@@ -129,13 +129,22 @@ def _prox(graph, text):
     es_res = tmuse.search_docs(app.es_index, graph, ids)
     return jsonify({ 'ids': ids, 'res': es_res})
 
-       
+
 def main():
-    INDEX = "tmuse"
-    app.es_index = EsIndex(INDEX, doc_type="graph", host="localhost" )
+    ## run the app
+    from flask.ext.runner import Runner
+
+    ES_HOST = os.environ.get('ES_HOST', "localhost:9200")
+    ES_INDEX = os.environ.get('ES_INDEX', "tmuse")
+
+    app.es_index = EsIndex(ES_INDEX, doc_type="graph", host=ES_HOST)
 
     api = tmuse_api(app.es_index)
-    app.register_blueprint(api, url_prefix="/api" )
+    app.register_blueprint(api, url_prefix="/api")
+
+    runner = Runner(app)
+    runner.run()
+
 
     app.run("0.0.0.0")
 
