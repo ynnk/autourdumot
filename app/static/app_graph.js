@@ -5,12 +5,13 @@ define([
     'jquery',
     'underscore',
     'backbone',
+    'autocomplete',
     'bootstrap',
     // cello
     'cello_core',
     'cello_ui',  // user interface
     'cello_gviz' // graph visualisation
-], function($, _, Backbone, bootstrap, Cello){
+], function($, _, Backbone, AutoComplete, bootstrap, Cello){
 // Above we have passed in jQuery, Underscore and Backbone
 // They will not be accessible in the global scope
 
@@ -29,6 +30,36 @@ define([
     /** The app itself
      * defines models, views, and actions binding all that !
     */
+    
+    var CompletionItem = AutoComplete.ItemView.extend({
+        template: _.template('<a href="#"><%= lang %> <%= pos %> <%= form %></a>'),
+        
+        render: function () {
+            this.$el.html( this.template(this.model.attributes) );
+            return this;
+        },
+
+        select: function () {
+            this.parent.hide().select(this.model);
+            return false;
+        }
+
+    });
+    
+    var CompleteCollection = Backbone.Collection.extend({
+        url : "/ajax_complete",
+        model : Backbone.Model.extend({
+            defaults : {
+                graph: "",
+                lang : "",
+                pos: "",
+                form: ""
+            },
+        }),
+        parse: function(data){
+            return data.complete;
+        }    
+    });
     
     var QueryModel = Backbone.Model.extend({
         defaults: {
@@ -56,6 +87,8 @@ define([
             Cello.set(this, 'query', this.set_query);
             // connect to cellist, when play succed => mark the query loaded until it changed
             this.listenTo(this.cellist, "play:complete", this.play_completed)
+            
+            this.completion = new CompleteCollection();
         },
 
         // Query setter (mapped to this.query affectation)
@@ -117,6 +150,7 @@ define([
 
         events: {
             'submit': 'submit',
+            'keypress':'keypress'
             //'click .query_randomq': 'randomq',
         },
 
@@ -126,9 +160,16 @@ define([
             this.listenTo(this.model, 'change:query', this.update_query);
             this.listenTo(this.model, 'change:loaded', this.update_loaded);
             // getter for the input field
+
             Cello.get(this, "$input", function(){
-                return this.$('input.query_input', this.$el);
+                var inputs = this.$('input.query_input', this.$el);
+                return this.$(inputs[0])
             });
+            
+            console.log(this.$input)
+            
+            // autocomplete
+           
             return this;
         },
 
@@ -156,10 +197,10 @@ define([
             }
             // setup the template
             this.$el.html(this.template(data));
-
             // update the query input
             this.update_query();
             this.update_loaded();
+            
             return this;
         },
 
@@ -169,6 +210,16 @@ define([
             return this.$input.val();
         },
 
+        keypress: function(event){
+            //q = this.query_str();
+            //$.ajax('complete/'+ q, {
+               //success: function(data){
+                    //console.log(data)
+                //}, 
+            //});
+            //this.complete.refresh()
+        },
+        
         // exec the search
         submit: function(event){
             /* 
@@ -249,6 +300,16 @@ define([
                 el: $(searchdiv),
             }).render();
             $(searchdiv).show();
+
+             
+            app.views.querycomplete = new AutoComplete.View({
+               model : app.models.query.completion, 
+               input : app.views.query.$input,
+               itemView: CompletionItem
+            });
+            
+            
+            $("#query_complete", app.views.query.$el).append(app.views.querycomplete.render().$el)
 
             // Configuration view for Cello engine
             app.views.keb = new Cello.ui.engine.Keb({

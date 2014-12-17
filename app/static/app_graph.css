@@ -3,6 +3,7 @@ html, body{
     width: 100%;
     margin: 0;
     font-family: sans-serif;
+    background: #373434;
 /*
     overflow: hidden; /* no overflow, gviz canvas may create undesirable scroll */
 */
@@ -12,7 +13,6 @@ html, body{
     display: table;
     height: 100%;
     width: 100%;
-    background: #373434;
 }
 
 h1 {
@@ -24,8 +24,26 @@ h1 {
 #footer {
     margin-top:6px;
     color:#E1D7D7;
+    padding-bottom:26px;
 }
 
+ul.autocomplete {
+    position:absolute;
+    z-index:200;
+    background-color:#FFF
+}
+ul.autocomplete li{
+    list-style-type:none;
+    text-align:left;
+    margin-left: -40px;
+    padding-left: 12px;
+}
+ul.autocomplete li:hover{
+    background-color:#373434
+}
+ul.autocomplete li.active{
+    background-color:#373434
+}
 
 /* Loading GIF */
 #loading-indicator {
@@ -34,7 +52,7 @@ h1 {
     left:0;
     right:0;
 }
-#loading-indicator>div {
+#loading-indicator>div {.input = app.views.query.$input
     text-align: left
 }
 #loading-indicator>div>img {
@@ -137,7 +155,7 @@ h1 {
 
 /* Graph */
 #vz_threejs_main {
-    height:80%;
+    height:100%;
 }
 
 #vz_threejs_main canvas{
