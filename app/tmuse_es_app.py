@@ -52,7 +52,7 @@ def tmuse_api(index, *args, **kwargs):
     # build the API from this engine
     api = CelloFlaskView(engine)
     api.set_input_type(ComplexQuery())
-    api.add_output("query", lambda x : { k:v.encode('utf8') for k,v in x.iteritems()} )
+    api.add_output("query")
     api.add_output("graph", export_graph)
     api.add_output("layout", export_layout)
     api.add_output("clusters", export_clustering)
