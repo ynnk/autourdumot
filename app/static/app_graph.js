@@ -60,15 +60,79 @@ define([
             return data.complete;
         }    
     });
-    
+
+
+    var TmuseQueryUnit = Backbone.Model.extend({
+        defaults: {
+            graphname: null,
+            lang: null,
+            pos: null,
+            form: null,
+            boost: 1,
+            // surface attr
+            valid: false,
+        },
+
+        initialize: function(){
+            // validate on each change
+            this.on("change:graphname change:lang change:pos change:form", this.validate);
+        },
+
+        /* Set the Query unit from a raw string, ex fr.V.manger
+        */
+        set_from_str: function(query_str){
+            var qsplit = query_str.trim().split(".");
+            data = {}
+            data.form = qsplit[qsplit.length-1];
+            if(qsplit.lenght >= 2){
+                data.pos = qsplit[qsplit.length-2];
+            }
+            if(qsplit.lenght >= 3){
+                data.lang = qsplit[qsplit.length-3];
+            }
+            if(qsplit.lenght >= 4){
+                data.graphname = qsplit[qsplit.length-4];
+            }
+            this.set(data);
+        },
+
+        /* Ajax call to check if this query unit exist (and so is valid)
+        */
+        validate: function() {
+            //TODO
+        },
+    })
+
+    var TmuseQueryUnits = Backbone.Collection.extend({
+        model: TmuseQueryUnit,
+
+        /* Set the QueryUnit collection from a raw string, ex "fr.V.manger fr.V.boufer"
+        */
+        set_from_str: function(query_str){
+            var data = [];
+            var qsplit = query_str.split(" ");
+            _.each(qsplit, function(qstr){
+                var query_elem = new TmuseQueryUnit();
+                query_elem.set_from_str(qstr);
+                data.push(query_elem);
+            });
+            this.reset(data);
+        },
+
+        validate: function(){
+        },
+
+        export_for_engine: function(){
+            return this.toJSON();
+        },
+    });
+
+
     var QueryModel = Backbone.Model.extend({
         defaults: {
             cellist: null,      // a Cello.engine
-            query: {
-                    lang: 'fr',
-                    pos : 'V',
-                    form : ''
-                }, 
+            query: null,        // collection of query elements (QueryUnit)
+
             // surfase attr
             loaded: false,      // wheter the curent query is loaded or not
             //TODO: for now loaded only compare the last resieved query
@@ -78,72 +142,52 @@ define([
 
         loaded_query: null,
 
-        initialize: function(attrs, opts){
-            _.bindAll(this, "set_query", "play_completed");
+        initialise: function(attrs){
+            _.bindAll(this, "play_completed", "query_changed");
             // add getter
             Cello.get(this, 'cellist');
             Cello.get(this, 'loaded');
             Cello.get(this, 'query');
-            Cello.set(this, 'query', this.set_query);
+            Cello.set(this, 'query');
+            
+            // set the query
+            this.query = attrs.query
+            
             // connect to cellist, when play succed => mark the query loaded until it changed
             this.listenTo(this.cellist, "play:complete", this.play_completed)
-            
-            this.completion = new CompleteCollection();
+            // change on query attr marl loaded as false
+            this.on("change:query", this.query_changed)
         },
 
-        // Query setter (mapped to this.query affectation)
-        set_query: function(query){
-            //TODO: add validate ?
-            if( _.isEqual( query, this.query) === false  )  {
-                console.log("set_query", query, this.query, this.loaded_query)
-                this.set('query', query);
-                
-                if(this.loaded){
-                    this.set('loaded', false);
-                } else if(_.isEqual( query, this.loaded_query)){
-                    this.set('loaded', true);
-                }
-            }
-        },
-        
-        set_form: function(form){
-            var query = this.query;
-            query.form = form;
-            this.query = query;            
+        /* Callback when query has changed
+        */
+        query_changed: function(){
+            this.set("loaded", false)
         },
 
-        // called when engine play is done
+        /* callback when engine play is done
+        */
         play_completed: function(response){
-            if( _.isEqual( response.results.query, this.query) == false){
-                this.query = response.results.query;
+            if(response.results.query != this.query.export_for_engine()){
+                this.query.reset(response.results.query);
             }
-            this.loaded_query = this.query;
+            this.loaded_query = response.results.query;
             this.set('loaded', true);
         },
 
         // run the engine
         run_search: function(){
-            // Prevents empty query
-            if ( this.can_run(this.query) === false )  
-                return false;
-            
+            // TODO Prevents "empty" query
+            // if (this.query === "") return false;
             this.trigger('search:loading', this.query);
             this.cellist.play({
-                query: this.query,
+                query: this.query.export_for_engine(),
             }); 
         },
-        
-        can_run: function(query){
-            if ( _.isString(query) )
-                return query !== "";
-            else if ( _.isObject(query) )
-                return  ! _.isEmpty(query);
-            else 
-                return false;
-        },
     });
-    
-    
+
+
+
     var QueryView = Backbone.View.extend({
         //note: the template should have an input with class 'query_input'
         template: Cello.ui.getTemplate(Cello.ui.templates.basic, '#query_form_tmpl'),
@@ -234,19 +278,18 @@ define([
             return false;
         },
     });
-    
+
+
+
     var App = Backbone.View.extend({
         // the main models, created in create_models()
         models: {},
         // the views, created in create_*_views()
         views: {},
 
-        search_results: false, // true if some data are loaded !
-
         initialize: function(options){
             this.root_url = options.root_url || "/"
         },
-
 
         // create the models
         create_models: function(){
@@ -256,9 +299,18 @@ define([
             app.models.cellist = new Cello.Engine({url: app.root_url+"api"});
             //NOTE: the url is from root, issue comming if "api" entry point is not at root
 
-            app.models.query = new QueryModel({
-                cellist: app.models.cellist,
-            });
+            // query specific tmuse (ici c'est une collection)
+            // note: "query" should have an export_for_engine mth
+            app.models.query = new TmuseQueryUnits();
+
+            // register the query model on the engine input "query"
+            app.models.cellist.register_input("query", app.models.query);
+
+//            // generic "query" model
+//            app.models.query = new QueryModel({
+//                cellist: app.models.cellist,
+//                query: app.models.tmquery,
+//            });
 
             // --- Graph model ---
             app.models.graph = new Cello.Graph({}) //warn: it is updated when result comes
@@ -295,21 +347,21 @@ define([
         create_query_engine_views: function(home){
             var app = this;
             var searchdiv = '#query_form';
-            app.views.query = new QueryView({
-                model: app.models.query,
-                el: $(searchdiv),
-            }).render();
-            $(searchdiv).show();
+            app.views.query = null
+//            new QueryView({
+//                model: app.models.query,
+//                el: $(searchdiv),
+//            }).render();
+//            $(searchdiv).show();
 
-             
-            app.views.querycomplete = new AutoComplete.View({
-               model : app.models.query.completion, 
-               input : app.views.query.$input,
-               itemView: CompletionItem
-            });
-            
-            
-            $("#query_complete", app.views.query.$el).append(app.views.querycomplete.render().$el)
+//            app.views.querycomplete = new AutoComplete.View({
+//               model : app.models.query.completion, 
+//               input : app.views.query.$input,
+//               itemView: CompletionItem
+//            });
+//            
+//            
+//            $("#query_complete", app.views.query.$el).append(app.views.querycomplete.render().$el)
 
             // Configuration view for Cello engine
             app.views.keb = new Cello.ui.engine.Keb({
@@ -551,10 +603,9 @@ define([
         */
         navigate_to_label: function(label){
             var app = this;
-            var q = app.models.query.query
-            q.form = label
-            app.models.query.set_query(q) ;
-            app.models.query.run_search();
+            //XXX: rename label to ??
+            app.models.query.set_from_str(label) ;
+            app.models.cellist.play();
 
         },
 
@@ -735,7 +786,7 @@ define([
             }
 
             var alert = Cello.ui.getAlert(text);
-            $("#other_side").prepend(alert);
+            $("body").prepend(alert);
         },
 
 
