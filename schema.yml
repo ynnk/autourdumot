@@ -2,36 +2,37 @@ mappings:
     graph:
         properties:
             gid: {type: "integer"}
-            graph: 
-                type: "string"
-                index: "not_analyzed"              
-            lang: 
+            graph:                  # graph name
                 type: "string"
                 index: "not_analyzed"
-            form: 
+            lang:                   # vtx lang
                 type: "string"
                 index: "not_analyzed"
-            pos: 
+            form:                   # vtx form (i.e. it is the lemma)
                 type: "string"
                 index: "not_analyzed"
-            neighborhood :  
+            pos:                    # vtx Part Of Speech
+                type: "string"
+                index: "not_analyzed"
+            neighborhood:           # list of neighbors
                 type: "integer"
                 index: 'no'
-            rank: 
+            rank:                   # global rank
                 type: "integer"
-            neighbors : 
+            neighbors:              # number of neighbors
                 type: "integer"
-            prox:
+            prox:                   # prox vector, tupples of (gid, score)
                 type: "float"
                 index: 'no'
                 store: false
-            form_suggest: 
+            form_suggest:           # all possible forms for autocompletion
                 type: "completion"
                 #index: "not_analyzed"
-                #index_analyzer :  "not_analyzed"
-                #search_analyzer : "not_analyzed"
+                #index_analyzer:  "not_analyzed"
+                #search_analyzer: "not_analyzed"
                 payloads: true
-                context: 
-                    prefix: 
+                context:
+                    prefix:
                         type: "category"
                         default: ['*']
+
