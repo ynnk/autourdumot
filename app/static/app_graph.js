@@ -58,7 +58,7 @@ define([
     });
     
     var CompleteCollection = Backbone.Collection.extend({
-        url : "/ajax_complete",
+        url : "ajax_complete",
         model : Backbone.Model.extend({
             defaults : {
                 graph: "",
