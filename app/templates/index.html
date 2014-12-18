@@ -58,7 +58,7 @@ require([
 </head>
 
 <body>
-<div id='page' >
+<div class='page' >
 
     <div id="loading-indicator" style="display:none;" >
         <div class="container"><img src="{{url_for('static', filename='loading.gif')}}" /></div>
@@ -81,39 +81,31 @@ require([
     
     
 
-    <div id="myCarousel" class="carousel slide" data-ride="carousel" style="">
+    <div id="myCarousel" class="itembox carousel slide" data-ride="carousel" style="">
 
         <!-- Carousel items -->
-
         <div class="carousel-inner">
 
             <div class="item active">
-<!--
-                <h1>Graph</h1>
--->
+<!--                <h1>Graph</h1> -->
                 <div id='vz_threejs_main' class=''></div>            
-
             </div>
 
             <div class="item">
                 <h1>Clustering</h1>
                 <div id='clustering_items' class='container text-center' style=''></div>
-
             </div>
 
             <div class="item">
                 <h1>Liste</h1>
                 <div id='proxemy_items' class='' style=''></div>
-
             </div>
             
             <div class="item">
                 <h1>Définition</h1>
-                <div id='wkdef' class='' style=''>
-                
-                </div>
-
+                <div id='wkdef' class='' style=''></div>
             </div>
+
         </div>
 
         <!-- Carousel indicators -->
@@ -128,20 +120,35 @@ require([
                   <button data-target="#myCarousel" data-slide-to="3" type="button" class="btn btn-default">Définition</button>
             </div>
         </div>
-    
     </div>
+    
 
 
 
 
 
-    <div id='footer'>
+    <div class='footer'>
         <div class="container text-center">
             Données synonymiques <a href='http://jeuxdemots.org'>Jeux de mots</a> - 
             Définitions <a href='http://wiktionary.org'>Wiktionary.org</a> - 
             Réalisation <a href="http://kodexlab.com">Kodex·Lab</a> 2014 
         </div>
     </div>
+    
+    <div class="alert alert-success" role="alert">
+        <div class="page-header text-center">
+          <h1><small>Idees et commentaires sur le pad specialement ouvert pour l'occasion</small></h1>
+          <a href='https://proxteam.eu/pad/p/cello_tmuse' target='_blank'>https://proxteam.eu/pad/p/cello_tmuse</a>
+          <p/>
+          <p>pad de development:
+          <a href='https://proxteam.eu/pad/p/cello_tmuse_dev' target='_blank'>https://proxteam.eu/pad/p/cello_tmuse_dev</a>
+          </p>
+          
+          <p>git: git clone corpusrail:/var-hdd/git/tmuse</p>
+          
+        </div>
+    </div>
+    
 
 </div> <!-- /.page -->
 

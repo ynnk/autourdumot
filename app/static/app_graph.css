@@ -9,22 +9,29 @@ html, body{
 */
 }
 
-#page {
+.page {
     display: table;
     height: 100%;
     width: 100%;
 }
 
-h1 {
-    color:#333;
-    color:#E1D7D7;
+
+.itembox {
+    left: 50%;
+    width: 80%;
+    margin-left: -40%;
+    padding-top: 20px;
 }
 
-
-#footer {
+.footer {
     margin-top:6px;
     color:#E1D7D7;
     padding-bottom:26px;
+}
+
+h1 {
+    color:#333;
+    color:#E1D7D7;
 }
 
 ul.autocomplete {
@@ -71,10 +78,6 @@ ul.autocomplete li.active{
 
 
 #myCarousel {
-    left: 50%;
-    width: 80%;
-    margin-left: -40%;
-    padding-top: 20px;
 }
 #myCarousel h1{
     color:#666;
@@ -188,7 +191,7 @@ ul.autocomplete li.active{
 
 #clustering_items>ul li.cluster{
     margin-top: 0px;
-    margin-bottom: 2px;
+    margin-bottom: 8px;
     border-radius: 6px;
     padding: 0px 1px;
     border: 1px solid white;

@@ -7,11 +7,12 @@ define([
     'backbone',
     'autocomplete',
     'bootstrap',
+    'mousetrap',
     // cello
     'cello_core',
     'cello_ui',  // user interface
     'cello_gviz' // graph visualisation
-], function($, _, Backbone, AutoComplete, bootstrap, Cello){
+], function($, _, Backbone, AutoComplete, bootstrap, Mousetrap, Cello){
 // Above we have passed in jQuery, Underscore and Backbone
 // They will not be accessible in the global scope
 
@@ -32,10 +33,20 @@ define([
     */
     
     var CompletionItem = AutoComplete.ItemView.extend({
-        template: _.template('<a href="#"><%= lang %> <%= pos %> <%= form %></a>'),
+        template: _.template("<a href='#' class='lang'> <%= lang %> <%= pos %> <%= form %></a>"),
         
         render: function () {
-            this.$el.html( this.template(this.model.attributes) );
+            //this.$el.html( this.template(this.model.attributes) );
+            
+            var attrs = this.model.attributes;
+            var html = _.map( ['lang', 'pos','form' ], function(e){
+                return "<span class='"+e+"'>"+attrs[e]+"</span>";
+            }).join(" ");
+            
+            this.$el.html(html);
+            
+            //console.log("log", html);
+            
             return this;
         },
 
@@ -275,7 +286,9 @@ define([
             // query specific tmuse (ici c'est une collection)
             // note: "query" should have an export_for_engine mth
             app.models.query = new TmuseQueryUnits();
-            app.models.query.reset_from_str("fr.V.manger")
+            app.models.query.reset_from_str("fr.V.manger");
+            
+            app.models.completion = new CompleteCollection();
             
             // register the query model on the engine input "query"
             app.models.cellist.register_input("query", app.models.query);
@@ -320,16 +333,15 @@ define([
                 el: $(searchdiv),
             }).render();
             $(searchdiv).show();
-            console.log("OP")
 
-//            app.views.querycomplete = new AutoComplete.View({
-//               model : app.models.query.completion, 
-//               input : app.views.query.$input,
-//               itemView: CompletionItem
-//            });
-//            
-//            
-//            $("#query_complete", app.views.query.$el).append(app.views.querycomplete.render().$el)
+            // commpletion
+            app.views.querycomplete = new AutoComplete.View({
+               model : app.models.completion, 
+               input : app.views.query.$input,
+               itemView: CompletionItem
+            });
+                       
+            $("#query_complete", app.views.query.$el).append(app.views.querycomplete.render().$el)
 
             // Configuration view for Cello engine
             app.views.keb = new Cello.ui.engine.Keb({
@@ -790,6 +802,21 @@ define([
             this.listenTo(app.models.cellist, 'play:complete', app.engine_play_completed);
             //when search failed
             this.listenTo(app.models.cellist, 'play:error', app.engine_play_error);
+
+            // keyboard shortcuts
+            Mousetrap.bind('?', function(){
+                $("#searchQueryInput").focus();
+                return false;
+            });
+            
+            var kevents = { 'g,G' : 0, 'c,C':1, 'l,L':2, 'd,D':3 }
+            _.each(kevents , function(v,k){
+                console.log(k,v)
+                Mousetrap.bind(k.split(','), function(){
+                    $("#myCarousel").carousel(v)
+                });
+            });
+
 
 
             // Router

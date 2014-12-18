@@ -20,6 +20,7 @@ require.config({
     autocomplete: 'lib/backbone.autocomplete',
 
     moment:  'lib/moment.min',
+    mousetrap:  'lib/mousetrap.min',
 
     cello_core: 'build/cello-lib',
     cello_ui: 'build/cello-ui',
