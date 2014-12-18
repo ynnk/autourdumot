@@ -20,3 +20,6 @@ link_libjs:
 python_dep:
 	pip install -r requirements.txt
 
+get_glaff:
+	wget http://redac.univ-tlse2.fr/lexiques/glaff/GLAFF-1.2.1.tar.bz2  
+	tar -xjf GLAFF-1.2.1.tar.bz2
