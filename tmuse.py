@@ -23,14 +23,17 @@ class TmuseEsGraphBuilder(OptionableGraphBuilder):
          # Graph builder init 
         self.declare_vattr("docnum")
         self.declare_vattr("_doc") 
-        self.declare_vattr("label")  
+        self.declare_vattr("graph")  
+        self.declare_vattr("lang")  
+        self.declare_vattr("pos")  
+        self.declare_vattr("form")  
         self.declare_vattr("score")
         self.declare_vattr("neighbors")
         
         self.declare_eattr("weight")
     
     @Optionable.check
-    def __call__(self, docs, vtx_attr='title', links_attr='out_links', label_attr='title'):
+    def __call__(self, docs, vtx_attr='form', links_attr='out_links', label_attr='form'):
 
         encode = lambda x: x.encode('utf8') if  type(x) == unicode else str(x)
         kdocs = list(docs)
@@ -45,7 +48,10 @@ class TmuseEsGraphBuilder(OptionableGraphBuilder):
             self.set_vattr(doc_gid, "_doc", kdoc)
             self.set_vattr(doc_gid, "docnum", kdoc['docnum'])
             self.set_vattr(doc_gid, "neighbors", kdoc['neighbors'])
-            self.set_vattr(doc_gid, "label", encode(kdoc[label_attr]))
+            self.set_vattr(doc_gid, "graph", encode(kdoc['graph']))
+            self.set_vattr(doc_gid, "lang", encode(kdoc['lang']))
+            self.set_vattr(doc_gid, "pos", encode(kdoc['pos']))
+            self.set_vattr(doc_gid, "form", encode(kdoc['form']))
             self.set_vattr(doc_gid, "score", kdoc['score'])
             
         for kdoc in kdocs:
@@ -109,7 +115,7 @@ def engine(index):
         
     def _labelling(graph, cluster, vtx):
         score = TypeFalseLabel.scoring_prop_ofclust(graph, cluster, vtx)
-        return  Label(vtx["label"], score=score, role="default")
+        return  Label(vtx["form"], score=score, role="default")
     
     labelling = VertexAsLabel( _labelling ) | normalize_score_max
     engine.labelling.set(labelling)
@@ -222,7 +228,7 @@ def search_docs(index, graph, ids):
     
     docs = []
     q = { 
-        "_source":['graph', 'form', 'gid','neighbors', 'neighborhood'],
+        "_source":['graph', 'lang', 'pos', 'form', 'gid','neighbors', 'neighborhood'],
         "query": {
             "filtered" : {
                 "query": { 
@@ -249,6 +255,9 @@ def search_docs(index, graph, ids):
 TmuseDocSchema = Schema(
     docnum=Numeric(),
     # stored fields
+    graph=Text(vtype=str),
+    lang=Text(vtype=str),
+    pos=Text(vtype=str),
     form=Text(vtype=str),
     neighbors=Numeric(),
     out_links=Numeric(multi=True, uniq=True),
@@ -263,6 +272,9 @@ def to_docs(es_res):
         for doc in es_res['hits']['hits']:
             data = {}
             data["docnum"] = doc["_source"]["gid"]
+            data["graph"] = doc["_source"]["graph"].encode('utf8')
+            data["lang"] = doc["_source"]["lang"].encode('utf8')
+            data["pos"] = doc["_source"]["pos"].encode('utf8')
             data["form"] = doc["_source"]["form"].encode('utf8')
             data["out_links"] = doc["_source"]["neighborhood"]
             data["neighbors"] = doc["_source"]["neighbors"]
