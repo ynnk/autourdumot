@@ -1,5 +1,13 @@
 //Filename: app.js
 
+/*
+ requires boostrap-carousel & mousetrap
+     http://timschlechter.github.io/bootstrap-tagsinput/examples/
+     http://www.tutorialspoint.com/bootstrap/bootstrap_carousel_plugin.htm 
+     http://craig.is/killing/mice
+*/
+
+
 define([
   // These are path alias that we configured in our main.js
     'jquery',
@@ -10,8 +18,11 @@ define([
     'mousetrap',
     // cello
     'cello_core',
-    'cello_ui',  // user interface
-    'cello_gviz' // graph visualisation
+    'cello_ui',  
+    'cello_gviz',
+    // jquery plugins
+    'bootstrap_tagsinput'
+    
 ], function($, _, Backbone, AutoComplete, bootstrap, Mousetrap, Cello){
 // Above we have passed in jQuery, Underscore and Backbone
 // They will not be accessible in the global scope
@@ -32,45 +43,6 @@ define([
      * defines models, views, and actions binding all that !
     */
     
-    var CompletionItem = AutoComplete.ItemView.extend({
-        template: _.template("<a href='#' class='lang'> <%= lang %> <%= pos %> <%= form %></a>"),
-        
-        render: function () {
-            //this.$el.html( this.template(this.model.attributes) );
-            
-            var attrs = this.model.attributes;
-            var html = _.map( ['lang', 'pos','form' ], function(e){
-                return "<span class='"+e+"'>"+attrs[e]+"</span>";
-            }).join(" ");
-            
-            this.$el.html(html);
-            
-            //console.log("log", html);
-            
-            return this;
-        },
-
-        select: function () {
-            this.parent.hide().select(this.model);
-            return false;
-        }
-
-    });
-    
-    var CompleteCollection = Backbone.Collection.extend({
-        url : "ajax_complete",
-        model : Backbone.Model.extend({
-            defaults : {
-                graph: "",
-                lang: "",
-                pos: "",
-                form: ""
-            },
-        }),
-        parse: function(data){
-            return data.complete;
-        }    
-    });
 
 
     var TmuseQueryUnit = Backbone.Model.extend({
@@ -146,6 +118,21 @@ define([
 
         /* Reset the QueryUnit collection from a raw string, ex "fr.V.manger;fr.V.boufer"
         */
+        reset_from_models: function(models){
+            if ( _.isArray(models) === false  ){
+                models = [models]
+            }
+            
+            var data = [];
+            _.each(models, function(model){
+                attrs = model.pick('graph', 'lang', 'pos', 'form')
+                var query_elem = new TmuseQueryUnit(attrs);
+                data.push(query_elem);
+            });
+            this.reset(data);
+            
+        },
+    
         reset_from_str: function(query_str){
             var data = [];
             var qsplit = query_str.split(";");
@@ -158,7 +145,7 @@ define([
         },
 
         to_string: function(){
-            return this.models.map(function(qunit){ return qunit.to_string() }).join(", ");
+            return this.models.map(function(qunit){ return qunit.to_string() }).join("; ");
         },
 
         validate: function(){
@@ -171,39 +158,98 @@ define([
     });
 
 
-    //XXX: A REPRENDRE...
     var QueryView = Backbone.View.extend({
         //note: the template should have an input with class 'query_input'
         template: Cello.ui.getTemplate(Cello.ui.templates.basic, '#query_form_tmpl'),
 
         events: {
             'submit': 'submit',
-            'keypress':'keypress'
-            //'click .query_randomq': 'randomq',
         },
 
         initialize: function(attr){
-            _.bindAll(this, "update_query", "update_loaded")
+            var _this = this;
+            _.bindAll(this, "render")
+            /* events */
             // re-render when the model change
-            this.listenTo(this.model, 'change:query', this.update_query);
-            this.listenTo(this.model, 'change:loaded', this.update_loaded);
-            // getter for the input field
-
-            Cello.get(this, "$input", function(){
-                var inputs = this.$('input.query_input', this.$el);
-                return this.$(inputs[0])
+            //this.listenTo(this.model, 'change:query', this.render);
+            //this.listenTo(this.model, 'change:loaded', this.render);
+            this.listenTo(this.model, 'add change reset', function(e){
+                _this.render();
             });
             
-            console.log(this.$input)
+
+            /* form */
+            var data = {
+                "label": "search :",
+                "placeholder": "Enter a search ...",
+                "submit": "search !",
+            }
+            this.$el.html(this.template(data));
             
-            // autocomplete
+            /* tagsinput */
+            this.$input = $('#searchQueryInput');
+            this.$input.tagsinput({
+              itemValue: function(model){return model},
+              itemText: function(model){return [model.get('lang'), model.get('pos'), model.get('form')].join(' ')},
+              tagClass: 'label label-primary'
+            });
+
+            this.$input.on('itemRemoved',function(event){
+                var item = event.item;
+                console.log("itemRemoved", item)
+                app.models.query.remove(item);
+            });
+
+            /* completion */
+            
+            var CompletionItem = AutoComplete.ItemView.extend({
+                // item completion view 
+                template: _.template(""+
+                         "<span class='label label-primary'><%= lang %></span> " +
+                         "<span class='label label-default'><%= pos %></span> " +
+                         "<span class=''><%= form %></span>"
+                     ),
+                    
+                render: function () {
+                    this.$el.html( this.template(this.model.attributes) );
+                    return this;
+                },
+
+                select: function () {
+                    console.log("completion select ", this.model.attributes)
+                    app.models.query.add(new TmuseQueryUnit(this.model.attributes) );
+                    this.parent.hide();
+                    //this.parent.
+                    return false;
+                }
+            });
+            
+            // completion view 
+            app.views.querycomplete = new AutoComplete.View({
+               model : app.models.completion,          // CompleteCollection
+               input : this.$input.tagsinput('input'), // meta input created by tagsinput
+               itemView: CompletionItem,               // item view
+               queryParameter: "form",                 // options.data key for input
+            });
+
+            // append completion to the view
+            $("#query_complete", this.$el).append(app.views.querycomplete.render().$el);
+            
+
            
-            return this;
+            return this.render();
         },
 
         // update query value in the input
         update_query: function(){
-            this.$input.val(this.model.to_string());
+            //this.$input.val(this.model.to_string());
+            var view = this;
+            view.$input.tagsinput('removeAll');
+            view.model.each(function(unit){
+                view.$input.tagsinput('add', unit);
+            });
+            view.$input.tagsinput('input').val("");
+            view.$input.tagsinput('input').focus();
         },
 
         // update query value in the input
@@ -218,34 +264,11 @@ define([
         },
 
         render: function(){
-            var data = {
-                "label": "search :",
-                "placeholder": "Enter a search ...",
-                "submit": "search !",
-            }
-            // setup the template
-            this.$el.html(this.template(data));
             // update the query input
             this.update_query();
-            this.update_loaded();
+            //this.update_loaded();
             
             return this;
-        },
-
-        /** Return the string of the typed query
-         */
-        query_str: function(){
-            return this.$input.val();
-        },
-
-        keypress: function(event){
-            //q = this.query_str();
-            //$.ajax('complete/'+ q, {
-               //success: function(data){
-                    //console.log(data)
-                //}, 
-            //});
-            //this.complete.refresh()
         },
         
         // exec the search
@@ -255,8 +278,7 @@ define([
              */
             event.preventDefault(); // this will stop the event from further propagation and the submission will not be executed
             // note: this is not necessary for Chrome, but needed for FF
-            this.model.set_form(this.query_str())
-            this.model.run_search();
+            app.models.cellist.play();
 
             event.stopPropagation(); //not always necessary
             return false;
@@ -286,15 +308,62 @@ define([
             // query specific tmuse (ici c'est une collection)
             // note: "query" should have an export_for_engine mth
             app.models.query = new TmuseQueryUnits();
-            app.models.query.reset_from_str("fr.V.manger");
-            
+            //app.models.query.reset_from_str("fr.V.manger");
+
+
+            /* completion  */
+            // Completion collection & models 
+            var CompleteCollection = Backbone.Collection.extend({
+                url : "ajax_complete",
+                model : Backbone.Model.extend({
+                    defaults : {
+                        graph: "",
+                        lang: "",
+                        pos: "",
+                        form: ""
+                    },
+                }),
+                
+                parse: function(data){
+                    return data.complete;
+                },
+
+                update_data: function(data){
+                    var units = app.models.query.models;
+                    // prevents fetching completion with a different pos or lang
+                    // if any item in query
+                    if (units.length){
+                        data.lang = units[0].get('lang')
+                        data.pos = units[0].get('pos')
+                    }
+                    
+                    return data;
+                },
+
+                fetch: function(options) {
+                    
+                    options || (options = {});
+                    var data = (options.data || {});
+                    options.data = this.update_data(data);
+                    console.log('CompleteCollection', 'fetch', options.data)
+                    
+                    return Backbone.Collection.prototype.fetch.call(this, options);
+                  }, 
+            });
+
             app.models.completion = new CompleteCollection();
+            
             
             // register the query model on the engine input "query"
             app.models.cellist.register_input("query", app.models.query);
 
             // --- Graph model ---
-            app.models.graph = new Cello.Graph({}) //warn: it is updated when result comes
+            var Vertex = Cello.Vertex.extend({
+                 _format_label : function(){
+                    return [ {form : this.get('form'), css : "normal"} ];
+                }
+            });
+            app.models.graph = new Cello.Graph({vertex_model: Vertex}) //warn: it is updated when result comes
 
             // --- Clustering model ---
             // Clustering model and view
@@ -328,21 +397,15 @@ define([
         create_query_engine_views: function(home){
             var app = this;
             var searchdiv = '#query_form';
+            
             app.views.query = new QueryView({
                 model: app.models.query,
                 el: $(searchdiv),
             }).render();
+            //$("input",searchdiv).attr('data-role',"tagsinput");
             $(searchdiv).show();
 
-            // commpletion
-            app.views.querycomplete = new AutoComplete.View({
-               model : app.models.completion, 
-               input : app.views.query.$input,
-               itemView: CompletionItem
-            });
-                       
-            $("#query_complete", app.views.query.$el).append(app.views.querycomplete.render().$el)
-
+            
             // Configuration view for Cello engine
             app.views.keb = new Cello.ui.engine.Keb({
                 model:app.models.cellist,
@@ -388,13 +451,12 @@ define([
                     event.preventDefault();
                     event.stopPropagation();
 
-                    /* navigate */
-                    //app.navigate_to_label(this.model.label);
-
-                    /* select vertex */
                     // 'this.model' is a label not a vertex !
+                    /* select vertex */
                     var vertices = app.models.graph.select_vertices({label:this.model.label});
                     var vertex = vertices[0];
+                    
+                    /* navigate */
                     app.navigate_to_label(this.model.label);
                 },
 
@@ -426,6 +488,7 @@ define([
                 //app.views.gviz.update();
             });
 
+    
             // vertex sorted by proxemy
             var ItemView = Cello.ui.doclist.DocItemView.extend({
                 template: _.template($("#ListLabel").html()),
@@ -454,7 +517,8 @@ define([
 
                 /* Click sur le label, */
                 clicked: function(event){
-                    app.navigate_to_label(this.model.label);
+                    console.log("item clicked", this.model)
+                    app.navigate_to_label(this.model);
                 },
 
                 mouseover: function(){
@@ -470,6 +534,7 @@ define([
                 },
 
             });
+
 
 
 
@@ -492,7 +557,7 @@ define([
                 wnode_scale: function(vtx){
                     return 10 + vtx.get("neighbors") / 8.;
                 },
-                force_position_no_delay: true
+                force_position_no_delay: false
             });
             
             /* Materials 
@@ -578,16 +643,6 @@ define([
         },
 
         //### actions ###
-
-        /** Navigate (=play engine) to a vertex by giving it exact label
-        */
-        navigate_to_label: function(label){
-            var app = this;
-            //XXX: rename label to ??
-            app.models.query.reset_from_str(label) ;
-            app.models.cellist.play();
-
-        },
 
         /** When a cluster is selected
          *
@@ -724,7 +779,7 @@ define([
             // materials & images
             app.models.graph.vs.each(function(vtx){
                     vtx.add_flag("form");
-                    vtx.label = function(){ return this.get('label') };
+                    vtx.label = function(){ return this.get('form') };
             });
             
             // definition
@@ -770,6 +825,20 @@ define([
         },
 
 
+        /** Navigate (=play engine) to a vertex by giving it exact label
+        */
+        navigate_to_label: function(model){
+            var app = this;
+            //XXX: rename label to ??
+            if (_.isString(model) )
+                app.models.query.reset_from_str(model) ;
+            else
+                app.models.query.reset_from_models(model) ;
+
+            app.models.cellist.play();
+
+        },
+
         // main function
         start: function(){
             var app = this;
@@ -803,12 +872,28 @@ define([
             //when search failed
             this.listenTo(app.models.cellist, 'play:error', app.engine_play_error);
 
-            // keyboard shortcuts
-            Mousetrap.bind('?', function(){
-                $("#searchQueryInput").focus();
+            /* keyboard shortcuts */
+
+            var carousel = $("#myCarousel").carousel
+            Mousetrap.bind(['?', ','], function(){
+                $("#query_form div.bootstrap-tagsinput input").focus().select();
                 return false;
             });
+
+            // engine
+            Mousetrap.bind('p,P'.split(','), function(){
+                $("a.engine_on_off").click();
+            });
             
+            
+            // arrows
+            Mousetrap.bind('right', function(){
+                $("#myCarousel").carousel("next");
+            });
+            Mousetrap.bind('left', function(){
+                $("#myCarousel").carousel("prev");
+            });
+            // direct slide access
             var kevents = { 'g,G' : 0, 'c,C':1, 'l,L':2, 'd,D':3 }
             _.each(kevents , function(v,k){
                 console.log(k,v)
@@ -833,7 +918,6 @@ define([
                 index: function() {
                     console.log('<router> root /');
                     app.open_home_view();
-                    app.navigate_to_label("causer");
                 },
 
                 search: function( query){

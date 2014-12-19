@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Naviprox - nosdeputes.fr </title>
+    <title> Dictionnaires et synonymes - tmuse - </title>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -24,6 +24,7 @@ require([
 
     <!--  Bootstrap CSS    -->
     <link rel="stylesheet" href="{{url_for('static', filename='lib/bootstrap/css/bootstrap.min.css')}}" type="text/css" />
+    <link rel="stylesheet" href="{{url_for('static', filename='lib/bootstrap-tagsinput.css')}}" type="text/css" />
 
     <!--  our CSS    -->
     <link rel="stylesheet" href="{{url_for('static', filename='app_graph.css')}}" type="text/css" />
@@ -50,7 +51,7 @@ require([
     <script id="ListLabel" type="text/template">
         <span>
             <div class='puce' style='background-color:rgb(<%=color%>);'></div>
-            <a class='' href="#"><%=label %></a>
+            <a class='' href="#"><%=form %></a>
         </span>
     </script>
     
@@ -70,6 +71,8 @@ require([
         </div>
         <div id="query_home_contener" class="container text-center">
             <div id="query_form"></div>
+
+
             <div id="query_complete"></div>
             <div id='engine' class='pane engine'>
                 <div class='optbuttons'></div>

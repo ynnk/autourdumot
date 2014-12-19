@@ -34,21 +34,40 @@ h1 {
     color:#E1D7D7;
 }
 
+.bootstrap-tagsinput .tag {
+        font-size: 16px;
+}
+
+.bootstrap-tagsinput {
+    margin-bottom:0px;
+}
+
 ul.autocomplete {
+    display:none;
     position:absolute;
+    margin-top:2px;
+    margin-left:-2px;
+    margin-left:-2px;
     z-index:200;
-    background-color:#FFF
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
+    background-color:#FFF;
 }
 ul.autocomplete li{
+    min-width: 200px;
     list-style-type:none;
     text-align:left;
     margin-left: -40px;
     padding-left: 12px;
+    padding-bottom:3px;
 }
 ul.autocomplete li:hover{
     background-color:#373434
+    color:#FFFFFF;
 }
 ul.autocomplete li.active{
+    color:#FFFFFF;
     background-color:#373434
 }
 

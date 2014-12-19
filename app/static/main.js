@@ -11,6 +11,7 @@ require.config({
     backbone_forms: 'lib/backbone-forms.min',
 
     bootstrap: 'lib/bootstrap/js/bootstrap.min',
+    bootstrap_tagsinput: 'lib/bootstrap-tagsinput.min',
 
     threejs: 'lib/three.min',
     threejs_trackball: 'lib/three-TrackballControls',

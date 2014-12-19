@@ -67,12 +67,16 @@ def index(query=None):
 
 @app.route("/complete/<string:text>")
 def complete(text):
+    logger.info( "complete: %s" % text )
     es_res = tmuse.complete(app.es_index, text)
     return jsonify( es_res )
 
 @app.route("/ajax_complete")
 def ajax_complete():
-    return complete(request.args.get('query'))
+    print request.args
+    terms = [ request.args.get(e,"") for e in ('lang', 'pos', 'form') ]
+    term = ".".join( t for t in terms if t != "" )
+    return complete(term)
  
 @app.route("/def/<string:domain>/<string:query>")
 def wkdef(domain, query):
