@@ -31,6 +31,7 @@ require.config({
   shim: {
       // bootstrap need jquery
       'bootstrap': {deps: ["jquery"]},
+      'bootstrap_tagsinput': {deps: ["bootstrap"]},
       // threejs not require compatible...
       'threejs_trackball': {
             exports: 'THREE',
