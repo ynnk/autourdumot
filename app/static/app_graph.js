@@ -205,6 +205,7 @@ define([
             var CompletionItem = AutoComplete.ItemView.extend({
                 // item completion view 
                 template: _.template(""+
+                         "<span class='label label-primary'><%= graph %></span> " +
                          "<span class='label label-primary'><%= lang %></span> " +
                          "<span class='label label-default'><%= pos %></span> " +
                          "<span class=''><%= form %></span>"
@@ -240,33 +241,17 @@ define([
             return this.render();
         },
 
-        // update query value in the input
-        update_query: function(){
-            //this.$input.val(this.model.to_string());
+        render: function(){
+            // update the query input
             var view = this;
+
             view.$input.tagsinput('removeAll');
             view.model.each(function(unit){
                 view.$input.tagsinput('add', unit);
             });
+
             view.$input.tagsinput('input').val("");
             view.$input.tagsinput('input').focus();
-        },
-
-        // update query value in the input
-        update_loaded: function(){
-            console.log("loaded", this.model.loaded);
-            if(this.model.loaded){
-                this.$el.find("[type='submit'] span.glyphicon").remove();
-            } else {
-                var play_icon = $("<span class='glyphicon glyphicon-play'></span>")
-                this.$el.find("[type='submit']").prepend(" ").prepend(play_icon);
-            }
-        },
-
-        render: function(){
-            // update the query input
-            this.update_query();
-            //this.update_loaded();
             
             return this;
         },
@@ -402,7 +387,6 @@ define([
                 model: app.models.query,
                 el: $(searchdiv),
             }).render();
-            //$("input",searchdiv).attr('data-role',"tagsinput");
             $(searchdiv).show();
 
             
@@ -783,8 +767,8 @@ define([
             });
             
             // definition
-            var lang = response.results.query.lang;
-            var form = response.results.query.form;
+            var lang = response.results.query[0].lang;
+            var form = response.results.query[0].form;
             $.ajax( "def/"+lang+"/"+form, {
                     success : function(data){
                         $('#wkdef').html(data.content)
@@ -902,6 +886,20 @@ define([
                 });
             });
 
+            /* resize window event */
+            var _window_resized = function(){
+                
+                  var win = $(this); //this = window
+                  size =  $(window).height()-240;
+                  size = size < 550 ? 550 : size;
+                  $("#myCarousel .item").height(size);
+            }
+            _window_resized();
+            
+            $(window).on('resize', function(){
+                _window_resized();
+            });
+
 
 
             // Router
@@ -934,6 +932,7 @@ define([
                 // start history
                 Backbone.history.start({pushState: true, root: app.root_url});
             }});
+
 
         },
     });

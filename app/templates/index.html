@@ -17,7 +17,7 @@ require([
             // The "app" dependency is passed in as "App"
             app = new App({root_url:"{{ root_url }}" });
             app.start();
-        });
+        })();
 
 
     </script>
@@ -101,12 +101,12 @@ require([
 
             <div class="item">
                 <h1>Liste</h1>
-                <div id='proxemy_items' class='' style=''></div>
+                <div id='proxemy_items' class='subitem' style=''></div>
             </div>
             
             <div class="item">
                 <h1>Définition</h1>
-                <div id='wkdef' class='' style=''></div>
+                <div id='wkdef' class='subitem' style=''></div>
             </div>
 
         </div>
@@ -121,6 +121,9 @@ require([
                   <button data-target="#myCarousel" data-slide-to="2" type="button" class="btn btn-default">Liste</button>
                   
                   <button data-target="#myCarousel" data-slide-to="3" type="button" class="btn btn-default">Définition</button>
+                  
+                  <button type="button" class="btn btn-primary" style="margin-left:20px;width:40px;"><span class='glyphicon glyphicon-play'></span></button>
+                  
             </div>
         </div>
     </div>
