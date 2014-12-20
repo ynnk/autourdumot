@@ -135,16 +135,27 @@ def engine(index):
 
 def subgraph(index, query, length=50):
     """
+    no test on query [{}, {}, ...]
     :param index: <EsINndex>  forms 
     :param graph: <str>  graph name 
     :param pzeros: [<str>] or <str>  forms 
     :param size: <int>  resultset size 
     """
+
+    
     # get vertex ids
-    proxs = dict(extract(index, query, length))
+    proxs = {}
+    for q in query:
+        vect = dict(extract(index, q, 500))
+        for k,v in vect.iteritems():
+            proxs[k] = proxs.get(k,0) + v;
+    proxs = proxs.items()
+    proxs.sort(key=lambda x : x[1], reverse=True)
+    proxs = dict(proxs[:length])
+    
     ids = proxs.keys()
     # request es with ids
-    res = search_docs(index, query['graph'], ids)
+    res = search_docs(index, query[0]['graph'], ids)
     # convert res to docs
     docs = to_docs(res)
     
@@ -154,8 +165,8 @@ def subgraph(index, query, length=50):
     # build graph from docs
     graph = to_graph(docs)
 
-    print 'graphname', query['graph']
-    print 'pzeros', query['form']
+    print 'graphname', query[0]['graph']
+    print 'pzeros', [ q['form'] for q in query ]
     print 'ids', ids
     print 'docs', len(docs)
     print 'g', graph.summary()
@@ -212,7 +223,7 @@ def extract(index, query,  length=50):
     if 'hits' in res and 'hits' in res['hits']:
         docs = [ doc['_source'] for doc in res['hits']['hits']]
         proxs  = [  p for doc in docs for p in doc['prox'] ]
-        
+    
     return proxs[:length]
 
 def to_graph(docs):

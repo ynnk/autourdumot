@@ -28,10 +28,10 @@ logger = get_basic_logger(logging.DEBUG)
 
 class ComplexQuery(GenericType):
     def parse(self, value):
-        
         q = [ Query(**{ k:v for k,v in val.iteritems() if v is not None}) for val in value ]
-        return q[0]
-
+        
+        logger.info( "ComplexeQuery %s" % q )
+        return q
 
 def Query( **kwargs):
     default = {
