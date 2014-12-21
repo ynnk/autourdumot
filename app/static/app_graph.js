@@ -157,7 +157,7 @@ define([
         },
     });
 
-
+    /** Query input & completion **/
     var QueryView = Backbone.View.extend({
         //note: the template should have an input with class 'query_input'
         template: Cello.ui.getTemplate(Cello.ui.templates.basic, '#query_form_tmpl'),
@@ -169,16 +169,15 @@ define([
         initialize: function(attr){
             var _this = this;
             _.bindAll(this, "render")
-            /* events */
-            // re-render when the model change
-            //this.listenTo(this.model, 'change:query', this.render);
-            //this.listenTo(this.model, 'change:loaded', this.render);
+
+            /* model events */
+
             this.listenTo(this.model, 'add change reset', function(e){
                 _this.render();
             });
             
+            /* form template */
 
-            /* form */
             var data = {
                 "label": "search :",
                 "placeholder": "Enter a search ...",
@@ -187,19 +186,21 @@ define([
             this.$el.html(this.template(data));
             
             /* tagsinput */
-            this.$input = $('#searchQueryInput');
-            this.$input.tagsinput({
+
+            var $input = $('#searchQueryInput');
+            $input.tagsinput({
               itemValue: function(model){return model},
               itemText: function(model){return [model.get('lang'), model.get('pos'), model.get('form')].join(' ')},
               tagClass: 'label label-primary'
             });
 
-            this.$input.on('itemRemoved',function(event){
+            $input.on('itemRemoved',function(event){
                 var item = event.item;
                 console.log("itemRemoved", item)
                 app.models.query.remove(item);
             });
-
+            this.$input = $input;
+            
             /* completion */
             
             var CompletionItem = AutoComplete.ItemView.extend({
@@ -220,8 +221,7 @@ define([
                     console.log("completion select ", this.model.attributes)
                     app.models.query.add(new TmuseQueryUnit(this.model.attributes) );
                     this.parent.hide();
-                    //this.parent.
-                    return false;
+                    return this;
                 }
             });
             
@@ -235,21 +235,19 @@ define([
 
             // append completion to the view
             $("#query_complete", this.$el).append(app.views.querycomplete.render().$el);
-            
-
            
             return this.render();
         },
 
         render: function(){
-            // update the query input
             var view = this;
-
+            // clear input 
             view.$input.tagsinput('removeAll');
+            // add unit as tag
             view.model.each(function(unit){
                 view.$input.tagsinput('add', unit);
             });
-
+            
             view.$input.tagsinput('input').val("");
             view.$input.tagsinput('input').focus();
             
@@ -356,30 +354,11 @@ define([
             app.models.vertices = new Cello.DocList({sort_key:'label'});
        },
 
-     // change the views to search results
-        open_results_view: function(force){
-            var app = this;
-            if(!app.search_results || force){
-                app.search_results = true;
-                app.create_results_views();
-            }
-        },
-
-        // change the views to home page
-        open_home_view: function(force){
-            var app = this;
-            if(app.search_results || force){
-                app.search_results = false;
-                app.create_query_engine_views(true);
-            }
-        },
-
-
         /** Create views for query and engine
          *
          * home: if true the app is setted with search input in middle of the page
          */
-        create_query_engine_views: function(home){
+        create_query_engine_views: function(){
             var app = this;
             var searchdiv = '#query_form';
             
@@ -494,7 +473,6 @@ define([
 
                 render: function() {
                     data = this.model.toJSON();
-
                     this.$el.html(this.template(data));
                     return this;
                 },
@@ -705,9 +683,8 @@ define([
                 app.views.gviz.collapse(200);
             }
 
-            app.open_results_view();
             app.update_models(response);
-            //app.router.navigate(response.results.query.form);
+            app.router.navigate(response.results.query.uri);
         },
 
         update_models: function(response){
@@ -767,8 +744,8 @@ define([
             });
             
             // definition
-            var lang = response.results.query[0].lang;
-            var form = response.results.query[0].form;
+            var lang = response.results.query.units[0].lang;
+            var form = response.results.query.units[0].form;
             $.ajax( "def/"+lang+"/"+form, {
                     success : function(data){
                         $('#wkdef').html(data.content)
@@ -838,8 +815,9 @@ define([
             ///// DEBUG: this add the app to global (guardian_app)
             app._add_to_global();
 
-            app.has_search_results = false // indicate that the search result view is not open
-            app.open_home_view(true);
+            // create views
+            app.create_query_engine_views();
+            app.create_results_views();
 
             // --- Binding the app ---
             _.bindAll(this, "engine_play_completed", "cluster_selected", "search_loading");
@@ -858,7 +836,6 @@ define([
 
             /* keyboard shortcuts */
 
-            var carousel = $("#myCarousel").carousel
             Mousetrap.bind(['?', ','], function(){
                 $("#query_form div.bootstrap-tagsinput input").focus().select();
                 return false;
@@ -869,7 +846,6 @@ define([
                 $("a.engine_on_off").click();
             });
             
-            
             // arrows
             Mousetrap.bind('right', function(){
                 $("#myCarousel").carousel("next");
@@ -877,6 +853,7 @@ define([
             Mousetrap.bind('left', function(){
                 $("#myCarousel").carousel("prev");
             });
+
             // direct slide access
             var kevents = { 'g,G' : 0, 'c,C':1, 'l,L':2, 'd,D':3 }
             _.each(kevents , function(v,k){
@@ -900,6 +877,8 @@ define([
                 _window_resized();
             });
 
+            var carousel = $("#myCarousel").carousel();
+            $("#myCarousel").carousel("pause");
 
 
             // Router
@@ -915,7 +894,6 @@ define([
 
                 index: function() {
                     console.log('<router> root /');
-                    app.open_home_view();
                 },
 
                 search: function( query){

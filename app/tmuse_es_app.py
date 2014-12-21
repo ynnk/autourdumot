@@ -32,6 +32,12 @@ class ComplexQuery(GenericType):
         
         logger.info( "ComplexeQuery %s" % q )
         return q
+    @staticmethod
+    def serialize(complexquery):
+        uri = ",".join([  '.'.join( ( q['lang'], q['pos'], q['form'] ) ) for q in complexquery ])
+        return {'units': complexquery,
+                'uri'  : uri  
+               }
 
 def Query( **kwargs):
     default = {
@@ -52,7 +58,7 @@ def tmuse_api(index, *args, **kwargs):
     # build the API from this engine
     api = CelloFlaskView(engine)
     api.set_input_type(ComplexQuery())
-    api.add_output("query")
+    api.add_output("query", ComplexQuery.serialize)
     api.add_output("graph", export_graph)
     api.add_output("layout", export_layout)
     api.add_output("clusters", export_clustering)
