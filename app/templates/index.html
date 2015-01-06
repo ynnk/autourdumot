@@ -51,7 +51,7 @@ require([
     <script id="ListLabel" type="text/template">
         <span>
             <div class='puce' style='background-color:rgb(<%=color%>);'></div>
-            <a class='' href="#"><%=form %></a>
+            <a class='' href="#"><%=rank %>. <%=form %></a>
         </span>
     </script>
     
@@ -91,8 +91,10 @@ require([
         <div class="container text-center" >
             <div class="carousel-indicators btn-group text-center" role="group" >
                   <button data-target="#myCarousel" data-slide-to="0" type="button" class="btn btn-default active">Graph</button>
-                  <button data-target="#myCarousel" data-slide-to="1" type="button" class="btn btn-default">Clustering</button>
-                  <button data-target="#myCarousel" data-slide-to="2" type="button" class="btn btn-default">Liste</button>
+                  <button data-target="#myCarousel" data-slide-to="1" type="button" class="btn btn-default">
+                      <span class="glyphicon glyphicon-th-large"></span> Clustering</button>
+                  <button data-target="#myCarousel" data-slide-to="2" type="button" class="btn btn-default">
+                      <span class="glyphicon glyphicon-th-list"></span> Liste</button>
                   
                   <button data-target="#myCarousel" data-slide-to="3" type="button" class="btn btn-default">Définition</button>
                   
@@ -109,18 +111,22 @@ require([
             </div>
 
             <div class="item">
-                <h1> &nbsp;</h1>
+                <h1> <span class="glyphicon glyphicon-th-large"></span>&nbsp;</h1>
                 <div id='clustering_items' class='subitem' style=''></div>
             </div>
 
             <div class="item">
-                <h1> &nbsp;</h1>
+                <h1> <span class=" glyphicon glyphicon-list"></span>&nbsp;</h1>
                 <div id='proxemy_items' class='subitem' style=''></div>
             </div>
             
             <div class="item">
                 <h1> &nbsp;</h1>
-                <div id='wkdef' class='subitem' style=''></div>
+                <div id='wkdef' class='subitem' style=''>
+                    <ul class="nav nav-pills" data-tabs="tabs"></ul>
+                    <div class="tab-content"></div>
+                </div>
+
             </div>
 
         </div>

@@ -169,8 +169,13 @@ ul.autocomplete li.active{
     definitions
 */
 #wkdef {
-    padding-top: 0px;
+    padding-top: 3px;
 }
+#wkdef .nav-pills>li.active>a, #wkdef .nav-pills>li.active>a:hover, #wkdef .nav-pills>li.active>a:focus {
+    color: #fff;
+    background-color: #428BCA;
+}
+
 #wkdef .mw-editsection {
     display:none;
 }
@@ -220,11 +225,10 @@ ul.autocomplete li.active{
     margin-top: 0px;
     margin-bottom: 5px;
     border-radius: 6px;
-    padding: 0px 1px;
     border: 1px solid white;
     text-align: center;
     cursor:pointer;
-    padding: 12px;
+    padding: 6px;
     margin-right: 5%;
     margin-left: 5%;
 }

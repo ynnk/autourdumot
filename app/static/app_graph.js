@@ -141,7 +141,7 @@ define([
     
         reset_from_str: function(query_str){
             var data = [];
-            var qsplit = query_str.split(";");
+            var qsplit = query_str.split(",");
             _.each(qsplit, function(qstr){
                 var query_elem = new TmuseQueryUnit();
                 query_elem.set_from_str(qstr);
@@ -754,14 +754,25 @@ define([
                     vtx.label = function(){ return this.get('form') };
             });
             
-            // definition
-            var lang = response.results.query.units[0].lang;
-            var form = response.results.query.units[0].form;
-            $.ajax( "def/"+lang+"/"+form, {
-                    success : function(data){
-                        $('#wkdef').html(data.content)
-                    }
-                });
+            /*  definition */
+            // clear nav & .def
+            $('#wkdef .nav').html("");
+            $('#wkdef .tab-content').html("");
+
+            li = _.template("<li class='<%=active%>'><a href='#<%=id%>' data-toggle='tab'><%=lang%> <%=pos%> <%=form%></a></li>")
+            //li = _.template("<li class='<%=active%>'><button data-toggle='tab' data-target='#<%=id%>'  type='button' class='btn btn-default  <%=active%>'> <%=lang%> <%=pos%> <%=form%></button></li>")
+            
+            _.each(response.results.query.units, function(e,i){
+                var unit = _.extend({ active: i == 0 ? 'active' : "", id : 'tabpane'+i }, e );
+                $.ajax( "def/" + unit.lang+"/" + unit.form, {
+                        success : function(data){
+                            $('#wkdef .nav').append(li(unit))
+                            $('#wkdef .tab-content').append("<div class='tab-pane "+ unit.active +"' id='"+unit.id+"'>" + data.content + "</div>")
+                            
+                        }
+                    });
+            });
+            $('#tabs').tab();
             
         },
 
