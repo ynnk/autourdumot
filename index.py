@@ -12,75 +12,6 @@ import cello.graphs.prox as prox
 import glaff
 
 
-dirpath = "%s/Graphs" % os.environ['PTDPATH']
-
-dicosyn =  [ 
-            {   'name': 'dicosyn.V',
-                'path':  "%s/dicosyn/dicosyn/V.dicosyn.pickle" % dirpath,
-                'pos' : 'V',
-                'lang': 'fr',
-                'completion' : glaff_completion
-            },
-            {   'name': 'dicosyn.N',
-                'path':  "%s/dicosyn/dicosyn/N.dicosyn.pickle" % dirpath,
-                'pos' : 'N',
-                'lang': 'fr',
-                'completion' : glaff_completion
-            },
-            {   'name': 'dicosyn.A',
-                'path':  "%s/dicosyn/dicosyn/A.dicosyn.pickle" % dirpath,
-                'pos' : 'A',
-                'lang': 'fr',
-                'completion' : glaff_completion
-            },
-        ]
-jdm = [
-            {   'name': 'jdm.A',
-                'path':  "%s/jdm/fr.A.JDM-01282014-v1-e5-s_avg.pickle" % dirpath,
-                'pos' : 'A',
-                'lang': 'fr',
-                'completion' : glaff_completion
-            },
-            {   'name': 'jdm.N',
-                'path':  "%s/jdm/fr.N.JDM-01282014-v1-e5-s_avg.pickle" % dirpath,
-                'pos' : 'N',
-                'lang': 'fr',
-                'completion' : glaff_completion
-            },
-            {   'name': 'jdm.V',
-                'path':  "%s/jdm/fr.V.JDM-01282014-v1-e5-s_avg.pickle" % dirpath,
-                'pos' : 'V',
-                'lang': 'fr',
-                'completion' : glaff_completion
-            },
-        ]
-
-jdm_flat = [
-            {   'name': 'jdm.A.flat',
-                'path':  "%s/jdm/fr.A.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
-                'pos' : 'A',
-                'lang': 'fr',
-                'completion' : glaff_completion
-            },
-            {   'name': 'jdm.N.flat',
-                'path':  "%s/jdm/fr.N.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
-                'pos' : 'N',
-                'lang': 'fr',
-                'completion' : glaff_completion
-            },
-            {   'name': 'jdm.V.flat',
-                'path':  "%s/jdm/fr.V.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
-                'pos' : 'V',
-                'lang': 'fr',
-                'completion' : glaff_completion
-            },
-            {   'name': 'jdm.E.flat', # adverbes
-                'path':  "%s/jdm/fr.E.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
-                'pos' : 'E',
-                'lang': 'fr',
-                'completion' : glaff_completion
-            },
-        ]
 
 def index(es_index, cut_local = 500, cut_global = -1, **kwargs):
     """
@@ -171,6 +102,77 @@ def main():
         candidates = set([lemma])
         candidates.update( set( glaff_data.get( "%s.%s" % (pos, lemma) , [])) )
         return list(candidates)
+
+        
+    dirpath = "%s/Graphs" % os.environ['PTDPATH']
+
+    dicosyn =  [ 
+                {   'name': 'dicosyn.V',
+                    'path':  "%s/dicosyn/dicosyn/V.dicosyn.pickle" % dirpath,
+                    'pos' : 'V',
+                    'lang': 'fr',
+                    'completion' : glaff_completion
+                },
+                {   'name': 'dicosyn.N',
+                    'path':  "%s/dicosyn/dicosyn/N.dicosyn.pickle" % dirpath,
+                    'pos' : 'N',
+                    'lang': 'fr',
+                    'completion' : glaff_completion
+                },
+                {   'name': 'dicosyn.A',
+                    'path':  "%s/dicosyn/dicosyn/A.dicosyn.pickle" % dirpath,
+                    'pos' : 'A',
+                    'lang': 'fr',
+                    'completion' : glaff_completion
+                },
+            ]
+    jdm = [
+                {   'name': 'jdm.A',
+                    'path':  "%s/jdm/fr.A.JDM-01282014-v1-e5-s_avg.pickle" % dirpath,
+                    'pos' : 'A',
+                    'lang': 'fr',
+                    'completion' : glaff_completion
+                },
+                {   'name': 'jdm.N',
+                    'path':  "%s/jdm/fr.N.JDM-01282014-v1-e5-s_avg.pickle" % dirpath,
+                    'pos' : 'N',
+                    'lang': 'fr',
+                    'completion' : glaff_completion
+                },
+                {   'name': 'jdm.V',
+                    'path':  "%s/jdm/fr.V.JDM-01282014-v1-e5-s_avg.pickle" % dirpath,
+                    'pos' : 'V',
+                    'lang': 'fr',
+                    'completion' : glaff_completion
+                },
+            ]
+
+    jdm_flat = [
+                {   'name': 'jdm.A.flat',
+                    'path':  "%s/jdm/fr.A.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
+                    'pos' : 'A',
+                    'lang': 'fr',
+                    'completion' : glaff_completion
+                },
+                {   'name': 'jdm.N.flat',
+                    'path':  "%s/jdm/fr.N.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
+                    'pos' : 'N',
+                    'lang': 'fr',
+                    'completion' : glaff_completion
+                },
+                {   'name': 'jdm.V.flat',
+                    'path':  "%s/jdm/fr.V.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
+                    'pos' : 'V',
+                    'lang': 'fr',
+                    'completion' : glaff_completion
+                },
+                {   'name': 'jdm.E.flat', # adverbes
+                    'path':  "%s/jdm/fr.E.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
+                    'pos' : 'E',
+                    'lang': 'fr',
+                    'completion' : glaff_completion
+                },
+            ]
     
     if args.index:
         schema = yaml.load(open(schema_path))
