@@ -21,6 +21,7 @@ class TmuseEsGraphBuilder(OptionableGraphBuilder):
         self.add_option("links_attr", Text( vtype=str, default=links_attr))
         
          # Graph builder init 
+        self.declare_vattr("rank")
         self.declare_vattr("docnum")
         self.declare_vattr("_doc") 
         self.declare_vattr("graph")  
@@ -41,11 +42,12 @@ class TmuseEsGraphBuilder(OptionableGraphBuilder):
                 
         self.reset()
 
-        for kdoc in kdocs:
+        for rank, kdoc in enumerate(kdocs):
             # ajout doc
             did = kdoc[vtx_attr]
             doc_gid = self.add_get_vertex(did)
             self.set_vattr(doc_gid, "_doc", kdoc)
+            self.set_vattr(doc_gid, "rank", rank+1)
             self.set_vattr(doc_gid, "docnum", kdoc['docnum'])
             self.set_vattr(doc_gid, "neighbors", kdoc['neighbors'])
             self.set_vattr(doc_gid, "graph", encode(kdoc['graph']))
