@@ -23,7 +23,7 @@ GROUP=wapps
 ## start the app
 cd $BASEDIR
 # if  virtualenv is used 
-source ../venv/bin/activate
+source venv/bin/activate
 
 #pre-start script
 # create log dir if not exist
