@@ -27,6 +27,11 @@ define([
 // Above we have passed in jQuery, Underscore and Backbone
 // They will not be accessible in the global scope
 
+    //$.fn.carousel.defaults = {
+        //interval: false
+      //, pause: 'hover'
+      //}
+
     // indicate if the app is in debug mode or not
     var DEBUG = true;
     Cello.DEBUG = DEBUG;
@@ -82,6 +87,7 @@ define([
             if(qsplit.length >= 4){
                 data.graph = qsplit[qsplit.length-4];
             }
+            console.log(data)
             this.set(data);
         },
 
@@ -661,7 +667,11 @@ define([
             //start waiting
             $("#loading-indicator").show(0);
             $("#engine").hide();
-
+            
+            // placeholder
+            app.views.query.$input.tagsinput('input').attr('placeholder', "          ... Loading ...");
+            
+            
             // force piwik (if any) to track the new 'page'
             Cello.utils.piwikTrackCurrentUrl();
 
@@ -677,6 +687,7 @@ define([
             }
             //stop waiting
             $("#loading-indicator").hide(0);
+            app.views.query.$input.tagsinput('input').attr('placeholder', "Search");
             
             // collapse current graph viz
             if ( app.views.gviz ) {
@@ -865,20 +876,17 @@ define([
 
             /* resize window event */
             var _window_resized = function(){
-                
                   var win = $(this); //this = window
-                  size =  $(window).height()-240;
+                  size =  $(window).height()-200;
                   size = size < 550 ? 550 : size;
                   $("#myCarousel .item").height(size);
+                  app.views.gviz.resize_rendering()
             }
-            _window_resized();
             
             $(window).on('resize', function(){
                 _window_resized();
             });
 
-            var carousel = $("#myCarousel").carousel();
-            $("#myCarousel").carousel("pause");
 
 
             // Router
@@ -911,6 +919,7 @@ define([
                 Backbone.history.start({pushState: true, root: app.root_url});
             }});
 
+            _window_resized();
 
         },
     });

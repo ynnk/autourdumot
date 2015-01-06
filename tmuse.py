@@ -126,9 +126,10 @@ def engine(index):
     from cello.layout.proxlayout import ProxLayoutPCA
     from cello.layout.transform import Shaker
     engine.layout.set(
-        KamadaKawaiLayout(dim=2, name="KamadaKawai2D"),
-        ProxLayoutPCA(dim=3) | Shaker(), 
+        ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(), 
         KamadaKawaiLayout(dim=3, name="KamadaKawai3D"),
+        ProxLayoutPCA(dim=2, name="ProxPca2d") | Shaker(), 
+        KamadaKawaiLayout(dim=2, name="KamadaKawai2D")
     )
     return engine
 
@@ -137,9 +138,8 @@ def subgraph(index, query, length=50):
     """
     no test on query [{}, {}, ...]
     :param index: <EsINndex>  forms 
-    :param graph: <str>  graph name 
-    :param pzeros: [<str>] or <str>  forms 
-    :param size: <int>  resultset size 
+    :param query: [<str>] or <str>  forms 
+    :param length: <int>  resultset size 
     """
 
     
@@ -175,50 +175,25 @@ def subgraph(index, query, length=50):
     return graph
     
         
-def search(index, query, source="*", size=10):
-    """
-    prox tuples are stored in _source.prox as [ [idx, prox_value], .... ]
-    sorted by prox desc
-    :param index : es_index
-    :param graph : graph name
-    :return : ids
-    """
-    proxs = []
-
-    pzeros = query["form"]
-    if isinstance(pzeros , (str, unicode)):
-        pzeros = pzeros.split(',')
-        print ">>>>>>>>>>>>>", type(pzeros), pzeros
-    
-    q = {
-            "_source": source,
+def extract(index, q,  length=50):
+    body = {
+            "_source": ['graph', 'form','prox', 'neighbors'],
             "query": {
                 "filtered": {
-                    "query": {
-                        "query_string" : {
-                            "default_field" : "form",
-                            "query" : " OR ".join(pzeros)
-                        }
-                    },
                     "filter": {
                         "and": [
-                            { "term": {"graph": query['graph']} },
-                            { "term": {"lang": query['lang']} },
-                            { "term": {"pos": query['pos']} },
- 
+                            { "term": {"graph": q['graph']} },
+                            { "term": {"lang" : q['lang']} },
+                            { "term": {"pos"  : q['pos']} },
+                            { "term": {"form" : q['form'].encode('utf8')} },
                         ]
                    }
                 }  
             }
         }
-
-    res = index.search(body=q, size=size)
-    res["q"] = q
-    return res
-
-def extract(index, query,  length=50):
-    source = ['graph', 'form','prox', 'neighbors']
-    res = search(index, query, source=source, size=1)
+        
+    print body
+    res = index.search(body=body, size=1)
         
     if 'hits' in res and 'hits' in res['hits']:
         docs = [ doc['_source'] for doc in res['hits']['hits']]

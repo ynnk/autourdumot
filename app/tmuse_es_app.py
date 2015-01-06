@@ -41,12 +41,12 @@ class ComplexQuery(GenericType):
 
 def Query( **kwargs):
     default = {
-        'graph' : 'dicosyn.V',
         'lang'  : 'fr',
         'pos'   : 'V',
         'form'  : None
     }
     default.update(kwargs)
+    default['graph'] = 'jdm.%s.flat' % default['pos']
     return default
 
 def tmuse_api(index, *args, **kwargs):
@@ -112,14 +112,6 @@ def wkdef(domain, query):
 
 
 # debug
-
-@app.route("/_search/<string:graph>/<string:text>")
-def _search(graph, text):
-    query = Query(graph=graph, form=text)     
-    source = request.args.get('_source',"*").split(',')
-    
-    es_res = tmuse.search(app.es_index, query, source=source)
-    return jsonify({ 'res': es_res})
 
 @app.route("/_extract/<string:graph>/<string:text>")
 def _extract(graph, text):

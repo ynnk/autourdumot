@@ -84,8 +84,22 @@ require([
     
     
 
-    <div id="myCarousel" class="itembox carousel slide" data-ride="carousel" style="">
+    <div id="myCarousel" class="itembox carousel slide" data-ride="carousel" style="" data-interval="false" >
 
+        
+        <!-- Carousel indicators -->
+        <div class="container text-center" >
+            <div class="carousel-indicators btn-group text-center" role="group" >
+                  <button data-target="#myCarousel" data-slide-to="0" type="button" class="btn btn-default active">Graph</button>
+                  <button data-target="#myCarousel" data-slide-to="1" type="button" class="btn btn-default">Clustering</button>
+                  <button data-target="#myCarousel" data-slide-to="2" type="button" class="btn btn-default">Liste</button>
+                  
+                  <button data-target="#myCarousel" data-slide-to="3" type="button" class="btn btn-default">Définition</button>
+                  
+                  <button type="button" class="btn btn-primary" style="margin-right: 20px;width: 45px;margin-left: 12px;"><span class='glyphicon glyphicon-play'></span></button>
+                  
+            </div>
+        </div>
         <!-- Carousel items -->
         <div class="carousel-inner">
 
@@ -95,37 +109,23 @@ require([
             </div>
 
             <div class="item">
-                <h1>Clustering</h1>
-                <div id='clustering_items' class='container text-center' style=''></div>
+                <h1> &nbsp;</h1>
+                <div id='clustering_items' class='subitem' style=''></div>
             </div>
 
             <div class="item">
-                <h1>Liste</h1>
+                <h1> &nbsp;</h1>
                 <div id='proxemy_items' class='subitem' style=''></div>
             </div>
             
             <div class="item">
-                <h1>Définition</h1>
+                <h1> &nbsp;</h1>
                 <div id='wkdef' class='subitem' style=''></div>
             </div>
 
         </div>
 
-        <!-- Carousel indicators -->
 
-        
-        <div class="container text-center" >
-            <div class="carousel-indicators btn-group text-center" role="group" >
-                  <button data-target="#myCarousel" data-slide-to="0" type="button" class="btn btn-default active">Graph</button>
-                  <button data-target="#myCarousel" data-slide-to="1" type="button" class="btn btn-default">Clustering</button>
-                  <button data-target="#myCarousel" data-slide-to="2" type="button" class="btn btn-default">Liste</button>
-                  
-                  <button data-target="#myCarousel" data-slide-to="3" type="button" class="btn btn-default">Définition</button>
-                  
-                  <button type="button" class="btn btn-primary" style="margin-left:20px;width:40px;"><span class='glyphicon glyphicon-play'></span></button>
-                  
-            </div>
-        </div>
     </div>
     
 
