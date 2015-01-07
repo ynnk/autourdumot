@@ -755,12 +755,12 @@ define([
             });
             
             /*  definition */
+
             // clear nav & .def
             $('#wkdef .nav').html("");
             $('#wkdef .tab-content').html("");
 
             li = _.template("<li class='<%=active%>'><a href='#<%=id%>' data-toggle='tab'><%=lang%> <%=pos%> <%=form%></a></li>")
-            //li = _.template("<li class='<%=active%>'><button data-toggle='tab' data-target='#<%=id%>'  type='button' class='btn btn-default  <%=active%>'> <%=lang%> <%=pos%> <%=form%></button></li>")
             
             _.each(response.results.query.units, function(e,i){
                 var unit = _.extend({ active: i == 0 ? 'active' : "", id : 'tabpane'+i }, e );

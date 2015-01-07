@@ -10,13 +10,14 @@ import igraph
 from flask import Flask
 from flask import request, render_template, url_for, abort, jsonify
 
-from cello.types import GenericType, Text, Numeric
+from reliure.types import GenericType, Text, Numeric
+from reliure.utils.log import get_basic_logger
+from reliure.utils.web import ReliureFlaskView
+
 from cello.graphs import export_graph, IN, OUT, ALL
 from cello.layout import export_layout
 from cello.clustering import export_clustering
-from cello.utils.log import get_basic_logger
 from cello.providers.es import EsIndex
-from cello.utils.web import CelloFlaskView
 
 import tmuse
 import wiktionary
@@ -56,7 +57,7 @@ def tmuse_api(index, *args, **kwargs):
     engine = tmuse.engine(index, *args, **kwargs)
 
     # build the API from this engine
-    api = CelloFlaskView(engine)
+    api = ReliureFlaskView(engine)
     api.set_input_type(ComplexQuery())
     api.add_output("query", ComplexQuery.serialize)
     api.add_output("graph", export_graph)

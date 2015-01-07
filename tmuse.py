@@ -3,9 +3,10 @@
 
 import igraph 
 
+from reliure.types import Text, Numeric, Boolean
+from reliure.pipeline import Optionable, Composable
+
 from cello.schema import Doc, Schema
-from cello.types import Text, Numeric, Boolean
-from cello.pipeline import Optionable, Composable
 from cello.graphs.builder import OptionableGraphBuilder
 
 
@@ -20,18 +21,14 @@ class TmuseEsGraphBuilder(OptionableGraphBuilder):
         self.add_option("vtx_attr", Text( vtype=str, default=vtx_attr))
         self.add_option("links_attr", Text( vtype=str, default=links_attr))
         
-         # Graph builder init 
-        self.declare_vattr("rank")
-        self.declare_vattr("docnum")
-        self.declare_vattr("_doc") 
-        self.declare_vattr("graph")  
-        self.declare_vattr("lang")  
-        self.declare_vattr("pos")  
-        self.declare_vattr("form")  
-        self.declare_vattr("score")
-        self.declare_vattr("neighbors")
-        
-        self.declare_eattr("weight")
+         # Graph builder init
+
+        vattrs = ("_doc", "rank", "docnum", "graph","lang", 
+                  "pos", "form", "score","neighbors")
+        map( self.declare_vattr, vattrs )
+
+        eattrs = ("weight",)
+        map( self.declare_eattr, eattrs )
     
     @Optionable.check
     def __call__(self, docs, vtx_attr='form', links_attr='out_links', label_attr='form'):
@@ -77,8 +74,7 @@ def engine(index):
     """ Return a default engine over a lexical graph
     """
     # setup
-    from cello.engine import Engine
-    from cello.types import Text, Numeric, Datetime
+    from reliure.engine import Engine
 
     engine = Engine()
     engine.requires("graph", "clustering", "labelling", "layout")
@@ -127,10 +123,11 @@ def engine(index):
     from cello.layout.proxlayout import ProxLayoutRandomProj
     from cello.layout.proxlayout import ProxLayoutPCA
     from cello.layout.transform import Shaker
+    
     engine.layout.set(
         ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(), 
-        KamadaKawaiLayout(dim=3, name="KamadaKawai3D"),
         ProxLayoutPCA(dim=2, name="ProxPca2d") | Shaker(), 
+        KamadaKawaiLayout(dim=3, name="KamadaKawai3D"),
         KamadaKawaiLayout(dim=2, name="KamadaKawai2D")
     )
     return engine
