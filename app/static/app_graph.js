@@ -673,8 +673,7 @@ define([
             
             
             // force piwik (if any) to track the new 'page'
-            Cello.utils.piwikTrackCurrentUrl();
-
+            //Cello.utils.piwikTrackCurrentUrl();
         },
 
         /** when a search response arrive (in success)
