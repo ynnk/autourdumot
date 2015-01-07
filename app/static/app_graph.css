@@ -4,9 +4,6 @@ html, body{
     margin: 0;
     font-family: sans-serif;
     background: #373434;
-/*
-    overflow: hidden; /* no overflow, gviz canvas may create undesirable scroll */
-*/
 }
 
 .page {

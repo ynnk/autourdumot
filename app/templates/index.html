@@ -10,16 +10,13 @@
     <!--  require JS    -->
     <script data-main="{{url_for('static', filename='main')}}" src="{{url_for('static', filename='lib/require.js')}}"></script>
     <script>
-        
-require([
-        "app_graph"
-    ],  function(App){
+        require([
+            "app_graph"
+        ],  function(App){
             // The "app" dependency is passed in as "App"
             app = new App({root_url:"{{ root_url }}" });
             app.start();
         })();
-
-
     </script>
 
     <!--  Bootstrap CSS    -->
@@ -29,20 +26,6 @@ require([
     <!--  our CSS    -->
     <link rel="stylesheet" href="{{url_for('static', filename='app_graph.css')}}" type="text/css" />
     <link rel="stylesheet" href="{{url_for('static', filename='engine.css')}}" type="text/css" />
-
-
-    <script type="text/template" id="KebButton">
-        <div class='head'><%=name%></div>
-        <div class='value'>...</div>
-    </script>
-
-    <script type="text/template" id="KebComponentPane">
-            <h3><%=name%></h3>
-    </script>
-
-    <script type="text/template" id="KebOptionable">
-            <h1><%=name%></h1>
-    </script>
 
     <script id="ClusterLabel" type="text/template">
         <a href='#' class='clabel' style='font-size:<%= size %>px' alt='graph from \'<%= label %>\''><%= label %></a>
@@ -54,8 +37,6 @@ require([
             <a class='' href="#"><%=rank %>. <%=form %></a>
         </span>
     </script>
-    
-
 </head>
 
 <body>
@@ -66,27 +47,23 @@ require([
     </div>
 
 
-        <div class="container text-center">
-            <h1>Dictionnaires et synonymes</h1>
-        </div>
-        <div id="query_home_contener" class="container text-center">
-            <div id="query_form"></div>
+    <div class="container text-center">
+        <h1>Dictionnaires et synonymes</h1>
+    </div>
+    <div id="query_home_contener" class="container text-center">
+        <div id="query_form"></div>
 
 
-            <div id="query_complete"></div>
-            <div id='engine' class='pane engine'>
-                <div class='optbuttons'></div>
-                <div class='text-center blocks'></div>
-            </div>
-
+        <div id="query_complete"></div>
+        <div id='engine' class='pane engine'>
+            <div class='optbuttons'></div>
+            <div class='text-center blocks'></div>
         </div>
 
-    
-    
+    </div>
+
 
     <div id="myCarousel" class="itembox carousel slide" data-ride="carousel" style="" data-interval="false" >
-
-        
         <!-- Carousel indicators -->
         <div class="container text-center" >
             <div class="carousel-indicators btn-group text-center" role="group" >
@@ -132,11 +109,7 @@ require([
 
         </div>
 
-
     </div>
-    
-
-
 
 
 
