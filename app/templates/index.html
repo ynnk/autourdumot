@@ -62,54 +62,56 @@
 
     </div>
 
-
-    <div id="myCarousel" class="itembox carousel slide" data-ride="carousel" style="" data-interval="false" >
-        <!-- Carousel indicators -->
-        <div class="container text-center" >
-            <div class="carousel-indicators btn-group text-center" role="group" >
-                  <button data-target="#myCarousel" data-slide-to="0" type="button" class="btn btn-default active">Graph</button>
-                  <button data-target="#myCarousel" data-slide-to="1" type="button" class="btn btn-default">
-                      <span class="glyphicon glyphicon-th-large"></span> Clustering</button>
-                  <button data-target="#myCarousel" data-slide-to="2" type="button" class="btn btn-default">
-                      <span class="glyphicon glyphicon-th-list"></span> Liste</button>
-                  
-                  <button data-target="#myCarousel" data-slide-to="3" type="button" class="btn btn-default">
-                      <span class=" glyphicon glyphicon-book"></span> Définition</button>
-                  
-                  <button type="button" class="btn btn-primary" style="margin-right: 20px;width: 45px;margin-left: 12px;"><span class='glyphicon glyphicon-play'></span></button>
-                  
-            </div>
-        </div>
-        <!-- Carousel items -->
-        <div class="carousel-inner">
-
-            <div class="item active">
-<!--                <h1>Graph</h1> -->
-                <div id='vz_threejs_main' class=''></div>            
+    <div class="container">
+        <div id="myCarousel" class="carousel slide" data-ride="carousel" style="" data-interval="false" >
+            <!-- Carousel indicators -->
+            <div class="container text-center" >
+                <div class="carousel-indicators btn-group text-center" role="group" >
+                      <button data-target="#myCarousel" data-slide-to="0" type="button" class="btn btn-default active">Graph</button>
+                      <button data-target="#myCarousel" data-slide-to="1" type="button" class="btn btn-default">
+                          <span class="glyphicon glyphicon-th-large"></span> Clustering</button>
+                      <button data-target="#myCarousel" data-slide-to="2" type="button" class="btn btn-default">
+                          <span class="glyphicon glyphicon-th-list"></span> Liste</button>
+                      
+                      <button data-target="#myCarousel" data-slide-to="3" type="button" class="btn btn-default">
+                          <span class=" glyphicon glyphicon-book"></span> Définition</button>
+                      
+                      <button type="button" class="btn btn-primary" style="margin-right: 20px;width: 45px;margin-left: 12px;"><span class='glyphicon glyphicon-play'></span></button>
+                      
+                </div>
             </div>
 
-            <div class="item">
-                <h1> <span class="glyphicon glyphicon-th-large"></span>&nbsp;</h1>
-                <div id='clustering_items' class='subitem' style=''></div>
-            </div>
+            <!-- Carousel items -->
+            <div class="carousel-inner">
 
-            <div class="item">
-                <h1> <span class=" glyphicon glyphicon-list"></span>&nbsp;</h1>
-                <div id='proxemy_items' class='subitem' style=''></div>
-            </div>
-            
-            <div class="item">
-                <h1> <span class=" glyphicon glyphicon-book"></span>&nbsp;</h1>
-                <div id='wkdef' class='subitem' style=''>
-                    <ul class="nav nav-pills" data-tabs="tabs"></ul>
-                    <div class="tab-content"></div>
+                <div class="item active">
+    <!--                <h1>Graph</h1> -->
+                    <div id='vz_threejs_main' class=''></div>            
+                </div>
+
+                <div class="item">
+                    <h1> <span class="glyphicon glyphicon-th-large"></span>&nbsp;</h1>
+                    <div id='clustering_items' class='subitem' style=''></div>
+                </div>
+
+                <div class="item">
+                    <h1> <span class=" glyphicon glyphicon-list"></span>&nbsp;</h1>
+                    <div id='proxemy_items' class='subitem' style=''></div>
+                </div>
+                
+                <div class="item">
+                    <h1> <span class=" glyphicon glyphicon-book"></span>&nbsp;</h1>
+                    <div id='wkdef' class='subitem' style=''>
+                        <ul class="nav nav-pills" data-tabs="tabs"></ul>
+                        <div class="tab-content"></div>
+                    </div>
+
                 </div>
 
             </div>
 
-        </div>
-
-    </div>
+        </div> <!-- carousel -->
+    </div> <!-- container -->
 
 
 
@@ -121,6 +123,7 @@
         </div>
     </div>
     
+    <!--
     <div class="alert alert-success" role="alert">
         <div class="page-header text-center">
           <h1><small>Idees et commentaires sur le pad specialement ouvert pour l'occasion</small></h1>
@@ -134,7 +137,7 @@
           
         </div>
     </div>
-    
+    -->
 
 </div> <!-- /.page -->
 </body>

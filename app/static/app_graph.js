@@ -503,11 +503,7 @@ define([
 
             });
 
-
-
-
             /** Create view for liste */
-
             app.views.proxemy = new Cello.ui.list.ListView({
                 model : app.models.vertices,
                 ItemView: ItemView,
