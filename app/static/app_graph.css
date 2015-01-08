@@ -4,9 +4,6 @@ html, body{
     margin: 0;
     font-family: sans-serif;
     background: #373434;
-/*
-    overflow: hidden; /* no overflow, gviz canvas may create undesirable scroll */
-*/
 }
 
 .page {
@@ -124,25 +121,15 @@ ul.autocomplete li.active{
     border-bottom:4px solid #428BCA;
 }
 
-.item{
-    background: #EEE;    
-/*
-    text-align: center;
-*/
+#myCarousel .item{
+    background: #EEE;
     border-bottom:1px solid gray;
     height:550px;
-    display: block; 
-    margin: 0;    
-    left: 50%;
+    margin: 0;
     width: 100%;
-    overflow:hidden;
-/*
-    margin-left: 50%;
-*/
 }
 
-.item h1 {
-
+#myCarousel .item h1 {
     padding:20px;
     padding-top:6px;
     padding-bottom:0px;
@@ -150,19 +137,23 @@ ul.autocomplete li.active{
 }
 
 
-.subitem {
-    background-color: #EEEEEE;
-    border: 1px solid #c3d2f0;
+#myCarousel .subitem {
     font-size: 1.2em;
-    margin: 30px;
-    margin-right: 10%;
-    margin-left: 10%;
-    padding: 20px;
-    height: calc(100% - 110px);
+    padding-right: 10px;
+    padding-left: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+/*    background-color: #EEEEEE;*/
+/*    border: 1px solid #c3d2f0;*/
+/*    margin: 30px;*/
+/*    margin-right: 10%;*/
+/*    margin-left: 10%;*/
+/*    padding: 20px;*/
+    height: calc(100% - 70px);
     overflow: auto;
 }
 
-.subitem h3 {
+#myCarousel .subitem h3 {
 }
 
 /*
@@ -277,12 +268,24 @@ ul.autocomplete li.active{
 
 
 /* -- vtx list -- */
-
 #proxemy_items.subitem {
-
-    -webkit-column-count: 3; /* Chrome, Safari, Opera */
-    -moz-column-count: 3; /* Firefox */
-    column-count: 3;    
+    -webkit-column-count: 1; /* Chrome, Safari, Opera */
+    -moz-column-count: 1; /* Firefox */
+    column-count: 1;
+}
+@media (min-width: 768px) {
+    #proxemy_items.subitem {
+        -webkit-column-count: 2; /* Chrome, Safari, Opera */
+        -moz-column-count: 2; /* Firefox */
+        column-count: 2 ;
+    }
+}
+@media (min-width: 970px) {
+    #proxemy_items.subitem {
+        -webkit-column-count: 3; /* Chrome, Safari, Opera */
+        -moz-column-count: 3; /* Firefox */
+        column-count: 3;
+    }
 }
 
 #proxemy_items.subitem ul {

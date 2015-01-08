@@ -138,6 +138,7 @@ ES_HOST = os.environ.get('ES_HOST', "localhost:9200")
 ES_INDEX = os.environ.get('ES_INDEX', "tmuse")
 
 app.es_index = EsIndex(ES_INDEX, doc_type="graph", host=ES_HOST)
+assert app.es_index._es.ping(), "impossible to reach ES server"
 
 api = tmuse_api(app.es_index)
 app.register_blueprint(api, url_prefix="/api")
