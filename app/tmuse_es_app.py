@@ -69,14 +69,21 @@ def tmuse_api(index, *args, **kwargs):
 @app.route("/")
 @app.route("/<string:query>")
 def index(query=None):
+    t = request.args.get("t","")
+    tmpl = "index%s%s.html" % ( "_" if len(t) else "", t)
+    tmpl = "index_nav.html"
     root_url = url_for("index")
-    return render_template('index.html', root_url=root_url)
+    return render_template(tmpl, root_url=root_url)
 
 @app.route("/complete/<string:text>")
 def complete(text):
     logger.info( "complete: %s" % text )
-    es_res = tmuse.complete(app.es_index, text)
-    return jsonify( es_res )
+    response = { 'length':0 }
+    _text = text or ""
+    while len(_text) and response['length'] == 0 :
+        response = tmuse.complete(app.es_index, _text)
+        _text = _text[:-1]
+    return jsonify( response )
 
 @app.route("/ajax_complete")
 def ajax_complete():
