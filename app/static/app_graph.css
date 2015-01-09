@@ -10,6 +10,7 @@ html, body{
     display: table;
     height: 100%;
     width: 100%;
+    margin-top: 12px;
 }
 
 
@@ -35,7 +36,8 @@ h1 {
 }
 
 .bootstrap-tagsinput {
-    margin-bottom:0px;
+    margin-bottom:2px;
+    line-height: 28px;
 }
 
 ul.autocomplete {
@@ -73,7 +75,7 @@ ul.autocomplete li.active{
     left:0;
     right:0;
 }
-#loading-indicator>div {.input = app.views.query.$input
+#loading-indicator>div {
     text-align: left
 }
 #loading-indicator>div>img {
@@ -82,22 +84,34 @@ ul.autocomplete li.active{
 
 /* Query and engine */
 
-#query_home_contener {
+.search.container {
     width: 100%;
-    height: 40px;
-    padding-top: 10px;
-    padding-bottom: 20px;
+    margin-bottom:12px;
 }
 
 
+.search.nav {
+    width: auto;
+    margin-top: 7px;
+    margin-right: 12px;
+}
+
+#query_home_contener .engine_on_off{
+/*
+    display:none;
+*/
+}
 
 #myCarousel {
 }
 
+#myCarousel .carousel-inner{
+    margin-top: -35px;
+}
 
 #myCarousel .carousel-indicators {
     position:relative;
-    top: 48px;
+    top: 10px;
     left:0%;
     width: auto;
     padding-top: 0px;
@@ -273,11 +287,16 @@ ul.autocomplete li.active{
     -moz-column-count: 1; /* Firefox */
     column-count: 1;
 }
-@media (min-width: 768px) {
+@media (min-width: 500px) {
     #proxemy_items.subitem {
         -webkit-column-count: 2; /* Chrome, Safari, Opera */
         -moz-column-count: 2; /* Firefox */
         column-count: 2 ;
+    }
+    #proxemy_items.subitem ul{
+/*
+        max-height: 650px;
+*/
     }
 }
 @media (min-width: 970px) {
@@ -285,6 +304,11 @@ ul.autocomplete li.active{
         -webkit-column-count: 3; /* Chrome, Safari, Opera */
         -moz-column-count: 3; /* Firefox */
         column-count: 3;
+    }
+    #proxemy_items.subitem ul{
+/*
+        max-height: 550px:
+*/
     }
 }
 

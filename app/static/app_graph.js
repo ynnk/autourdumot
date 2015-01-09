@@ -155,7 +155,7 @@ define([
         },
 
         validate: function(){
-            //TODO
+            return this.length > 0
         },
 
         export_for_engine: function(){
@@ -178,8 +178,10 @@ define([
 
             /* model events */
 
-            this.listenTo(this.model, 'add change reset', function(e){
+            this.listenTo(this.model, 'add remove change reset', function(e){
+                console.log("QueryView", e)
                 _this.render();
+                _this.submit();
             });
             
             /* form template */
@@ -265,11 +267,15 @@ define([
             /* 
              * Note: returns false to avoid HTML form submit
              */
-            event.preventDefault(); // this will stop the event from further propagation and the submission will not be executed
+            if (event){
+                event.stopPropagation(); //not always necessary
+                event.preventDefault(); // this will stop the event from further propagation and the submission will not be executed
+            }
             // note: this is not necessary for Chrome, but needed for FF
-            app.models.cellist.play();
+            if (this.model.validate())
+                app.models.cellist.play();
 
-            event.stopPropagation(); //not always necessary
+
             return false;
         },
     });
@@ -812,9 +818,6 @@ define([
                 app.models.query.reset_from_str(model) ;
             else
                 app.models.query.reset_from_models(model) ;
-
-            app.models.cellist.play();
-
         },
 
         // main function
@@ -881,14 +884,21 @@ define([
             });
 
             /* resize window event */
+            var min_height = 250;
+            
             var _window_resized = function(){
                   var win = $(this); //this = window
-                  size =  $(window).height()-200;
-                  size = size < 550 ? 550 : size;
+                  size =  $(window).height()-177;
+                  size = size < min_height ? min_height : size;
                   $("#myCarousel .item").height(size);
                   app.views.gviz.resize_rendering()
             }
-            
+
+            // bug refresh graph viz
+            $('#myCarousel').on('slid.bs.carousel',function(){
+                setTimeout(150,_window_resized);
+                console.log('carousel resize')
+            });
             $(window).on('resize', function(){
                 _window_resized();
             });
