@@ -27,6 +27,12 @@ app = Flask(__name__)
 app.debug = True
 logger = get_basic_logger(logging.DEBUG)
 
+# Configure the app
+
+ES_HOST = os.environ.get('ES_HOST', "localhost:9200")
+ES_INDEX = os.environ.get('ES_INDEX', "tmuse")
+
+
 class ComplexQuery(GenericType):
     def parse(self, value):
         q = [ Query(**{ k:v for k,v in val.iteritems() if v is not None}) for val in value ]
@@ -84,6 +90,19 @@ class TmuseApi(ReliureFlaskView):
             response = tmuse.complete(self.index, text)
             text = text[:-1]
         return jsonify( response )
+
+app.es_index = EsIndex(ES_INDEX, doc_type="graph", host=ES_HOST)
+
+# remote api
+# app.api = RemoteEngineApi("http://ollienary:8044/api")
+
+# locale api
+app.api = TmuseApi("tmuse_v1", app.es_index)
+
+app.register_blueprint(app.api)
+
+
+
 
 # index page
 @app.route("/")
@@ -161,20 +180,6 @@ def _prox(graph, text):
     return jsonify({ 'ids': ids, 'res': es_res})
 
 def main():
-    # Configure the app
-
-    ES_HOST = os.environ.get('ES_HOST', "localhost:9200")
-    ES_INDEX = os.environ.get('ES_INDEX', "tmuse")
-
-    app.es_index = EsIndex(ES_INDEX, doc_type="graph", host=ES_HOST)
-
-    # remote api
-    # app.api = RemoteEngineApi("http://ollienary:8044/api")
-
-    # locale api
-    app.api = TmuseApi("tmuse_v1", app.es_index)
-    
-    app.register_blueprint(app.api)
     ## run the app
     from flask.ext.runner import Runner
     
