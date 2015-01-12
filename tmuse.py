@@ -23,7 +23,7 @@ class TmuseEsGraphBuilder(OptionableGraphBuilder):
         
          # Graph builder init
 
-        vattrs = ("_doc", "rank", "docnum", "graph","lang", 
+        vattrs = ("_doc", "rank", "pzero", "docnum", "graph","lang", 
                   "pos", "form", "score","neighbors")
         map( self.declare_vattr, vattrs )
 
@@ -31,7 +31,7 @@ class TmuseEsGraphBuilder(OptionableGraphBuilder):
         map( self.declare_eattr, eattrs )
     
     @Optionable.check
-    def __call__(self, docs, vtx_attr='form', links_attr='out_links', label_attr='form'):
+    def __call__(self, docs,  vtx_attr='form', links_attr='out_links', label_attr='form'):
 
         encode = lambda x: x.encode('utf8') if  type(x) == unicode else str(x)
         kdocs = list(docs)
@@ -46,6 +46,7 @@ class TmuseEsGraphBuilder(OptionableGraphBuilder):
             self.set_vattr(doc_gid, "_doc", kdoc)
             self.set_vattr(doc_gid, "rank", rank+1)
             self.set_vattr(doc_gid, "docnum", kdoc['docnum'])
+            self.set_vattr(doc_gid, "pzero", kdoc['pzero'])
             self.set_vattr(doc_gid, "neighbors", kdoc['neighbors'])
             self.set_vattr(doc_gid, "graph", encode(kdoc['graph']))
             self.set_vattr(doc_gid, "lang", encode(kdoc['lang']))
@@ -144,10 +145,13 @@ def subgraph(index, query, length=50):
     
     # get vertex ids
     proxs = {}
+    pzeros = []
     for q in query:
-        vect = dict(extract(index, q, 500))
-        for k,v in vect.iteritems():
-            proxs[k] = proxs.get(k,0) + v;
+        p0, vect = extract(index, q, 500)
+        for k,v in vect:
+            proxs[k] = proxs.get(k,0.) + v;
+        pzeros.append(p0)
+        
     proxs = proxs.items()
     proxs.sort(key=lambda x : x[1], reverse=True)
     proxs = dict(proxs[:length])
@@ -156,7 +160,7 @@ def subgraph(index, query, length=50):
     # request es with ids
     res = search_docs(index, query[0]['graph'], ids)
     # convert res to docs
-    docs = to_docs(res)
+    docs = to_docs(res, pzeros)
     
     docs.sort(key=lambda x : proxs[x.docnum], reverse=True)
     
@@ -167,6 +171,7 @@ def subgraph(index, query, length=50):
     print 'graphname', query[0]['graph']
     print 'pzeros', [ q['form'] for q in query ]
     print 'ids', ids
+    print 'pzeros', pzeros
     print 'docs', len(docs)
     print 'g', graph.summary()
     
@@ -176,7 +181,7 @@ def subgraph(index, query, length=50):
         
 def extract(index, q,  length=50):
     body = {
-            "_source": ['graph', 'form','prox', 'neighbors'],
+            "_source": ['graph', 'form','gid', 'prox', 'neighbors'],
             "query": {
                 "filtered": {
                     "filter": {
@@ -195,12 +200,13 @@ def extract(index, q,  length=50):
     res = index.search(body=body, size=1)
         
     if 'hits' in res and 'hits' in res['hits']:
-        docs = [ doc['_source'] for doc in res['hits']['hits']]
-        proxs  = [  p for doc in docs for p in doc['prox'] ]
-    
-    return proxs[:length]
+        doc = res['hits']['hits'][0]['_source']
+        proxs  = [  p for p in doc['prox'] ]
+        return (doc['gid'], proxs[:length])
 
-def to_graph(docs):
+    return []
+
+def to_graph(docs, pzeros=[]):
     
     build_graph = TmuseEsGraphBuilder()
     graph = build_graph(docs)
@@ -243,6 +249,7 @@ TmuseDocSchema = Schema(
     graph=Text(vtype=str),
     lang=Text(vtype=str),
     pos=Text(vtype=str),
+    pzero=Boolean(),
     form=Text(vtype=str),
     neighbors=Numeric(),
     out_links=Numeric(multi=True, uniq=True),
@@ -251,12 +258,14 @@ TmuseDocSchema = Schema(
     score=Numeric(vtype=float, default=0.)
 )    
 
-def to_docs(es_res):
+def to_docs(es_res, pzeros):
+    _pzeros = set(pzeros) or set([]) 
     docs = []
     if 'hits' in es_res and 'hits' in es_res['hits']:
         for doc in es_res['hits']['hits']:
             data = {}
             data["docnum"] = doc["_source"]["gid"]
+            data["pzero"] = doc["_source"]["gid"] in _pzeros
             data["graph"] = doc["_source"]["graph"].encode('utf8')
             data["lang"] = doc["_source"]["lang"].encode('utf8')
             data["pos"] = doc["_source"]["pos"].encode('utf8')
@@ -270,7 +279,6 @@ def to_docs(es_res):
     print [ doc['_source']['form'] for doc in es_res['hits']['hits']]
     
     return docs
-
 
 
 

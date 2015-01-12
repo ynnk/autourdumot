@@ -12,7 +12,7 @@ from flask import request, render_template, url_for, abort, jsonify
 
 from reliure.types import GenericType, Text, Numeric
 from reliure.utils.log import get_basic_logger
-from reliure.utils.web import ReliureFlaskView
+from reliure.utils.web import ReliureFlaskView, EngineView, RemoteApi
 
 from cello.graphs import export_graph, IN, OUT, ALL
 from cello.layout import export_layout
@@ -50,20 +50,40 @@ def Query( **kwargs):
     default['graph'] = 'jdm.%s.flat' % default['pos']
     return default
 
-def tmuse_api(index, *args, **kwargs):
-    """ Build the Cello/Naviprox API over a graph
-    """
-    # use default engine in cello_guardian.py
-    engine = tmuse.engine(index, *args, **kwargs)
+class TmuseApi(ReliureFlaskView):
 
-    # build the API from this engine
-    api = ReliureFlaskView(engine)
-    api.set_input_type(ComplexQuery())
-    api.add_output("query", ComplexQuery.serialize)
-    api.add_output("graph", export_graph)
-    api.add_output("layout", export_layout)
-    api.add_output("clusters", export_clustering)
-    return api
+    def __init__(self, name, index, ):
+        """ Api over tmuse es
+        """
+        assert index._es.ping(), "impossible to reach ES server"
+        
+        super(TmuseApi, self).__init__( url_prefix = "/%s" % name )
+
+        self.name = name
+        self.index = index
+        # build the API from this engine
+        engineapi = EngineView(tmuse.engine(index))
+        engineapi.set_input_type(ComplexQuery())
+        engineapi.add_output("query", ComplexQuery.serialize)
+        engineapi.add_output("graph", export_graph)
+        engineapi.add_output("layout", export_layout)
+        engineapi.add_output("clusters", export_clustering)
+
+        self.add_engine("subgraph", engineapi)
+        
+        # add another route for completion
+        self.add_url_rule("/complete/<string:text>", 'complete', self.complete,  methods=["GET"])
+
+    def repr(self):
+        return self.name
+    
+    def complete(self, text):
+        response = { 'length':0 }
+        text = text or ""
+        while len(text) and response['length'] == 0 :
+            response = tmuse.complete(self.index, text)
+            text = text[:-1]
+        return jsonify( response )
 
 # index page
 @app.route("/")
@@ -72,25 +92,18 @@ def index(query=None):
     t = request.args.get("t","")
     tmpl = "index%s%s.html" % ( "_" if len(t) else "", t)
     tmpl = "index_nav.html"
-    root_url = url_for("index")
-    return render_template(tmpl, root_url=root_url)
+    return render_template(tmpl, root_url=url_for("index"),
+                                 def_url= url_for("wkdef", domain="", query="")[:-1], # rm trailing /
+                                 engine_url= url_for("%s.subgraph" % app.api.name),
+                                 complete_url= url_for("ajax_complete"))
 
-@app.route("/complete/<string:text>")
-def complete(text):
-    logger.info( "complete: %s" % text )
-    response = { 'length':0 }
-    _text = text or ""
-    while len(_text) and response['length'] == 0 :
-        response = tmuse.complete(app.es_index, _text)
-        _text = _text[:-1]
-    return jsonify( response )
 
 @app.route("/ajax_complete")
 def ajax_complete():
     print request.args
     terms = [ request.args.get(e,"") for e in ('lang', 'pos', 'form') ]
     term = ".".join( t for t in terms if t != "" )
-    return complete(term)
+    return app.api.call('complete', term)
  
 @app.route("/def/<string:domain>/<string:query>")
 def wkdef(domain, query):
@@ -101,10 +114,8 @@ def wkdef(domain, query):
     try : 
 
         data = wiktionary.get_wk_definition(domain, query)
-        
-    except Exception as error:
 
-        print "errorrr" , error
+    except Exception as error:
 
         resp = "<table><tr><td><img src='../static/images/warning.png'/></td><td>" + \
         "can't get definition from <a href='"+url+"' target='_blank'>"+url+"</a>" + \
@@ -120,6 +131,16 @@ def wkdef(domain, query):
 
 
 # debug
+
+@app.route("/routes")
+def routes():
+    #for rule in app.url_map.iter_rules():
+    _routes = []
+    for rule in app.url_map.iter_rules() :
+        _routes.append( ( rule.rule, rule.endpoint, list(rule.methods) ) )
+    return jsonify({ 'routes': _routes })
+
+
 
 @app.route("/_extract/<string:graph>/<string:text>")
 def _extract(graph, text):
@@ -139,18 +160,21 @@ def _prox(graph, text):
     es_res = tmuse.search_docs(app.es_index, graph, ids)
     return jsonify({ 'ids': ids, 'res': es_res})
 
-# Configure the app
-
-ES_HOST = os.environ.get('ES_HOST', "localhost:9200")
-ES_INDEX = os.environ.get('ES_INDEX', "tmuse")
-
-app.es_index = EsIndex(ES_INDEX, doc_type="graph", host=ES_HOST)
-assert app.es_index._es.ping(), "impossible to reach ES server"
-
-api = tmuse_api(app.es_index)
-app.register_blueprint(api, url_prefix="/api")
-
 def main():
+    # Configure the app
+
+    ES_HOST = os.environ.get('ES_HOST', "localhost:9200")
+    ES_INDEX = os.environ.get('ES_INDEX', "tmuse")
+
+    app.es_index = EsIndex(ES_INDEX, doc_type="graph", host=ES_HOST)
+
+    # remote api
+    # app.api = RemoteEngineApi("http://ollienary:8044/api")
+
+    # locale api
+    app.api = TmuseApi("tmuse_v1", app.es_index)
+    
+    app.register_blueprint(app.api)
     ## run the app
     from flask.ext.runner import Runner
     

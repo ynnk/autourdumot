@@ -289,7 +289,10 @@ define([
         views: {},
 
         initialize: function(options){
-            this.root_url = options.root_url || "/"
+            this.root_url = options.root_url || "/";
+            this.engine_url = options.engine_url;
+            this.complete_url = options.complete_url;
+            this.def_url = options.def_url;
         },
 
         // create the models
@@ -297,7 +300,7 @@ define([
             var app = this;
 
             // create the engine
-            app.models.cellist = new Cello.Engine({url: app.root_url+"api"});
+            app.models.cellist = new Cello.Engine({url: app.engine_url});
             //NOTE: the url is from root, issue comming if "api" entry point is not at root
 
             // query specific tmuse (ici c'est une collection)
@@ -309,7 +312,7 @@ define([
             /* completion  */
             // Completion collection & models 
             var CompleteCollection = Backbone.Collection.extend({
-                url : "ajax_complete",
+                url : app.complete_url,
                 model : Backbone.Model.extend({
                     defaults : {
                         graph: "",
@@ -335,13 +338,10 @@ define([
                     return data;
                 },
 
-                fetch: function(options) {
-                    
+                fetch: function(options) {                    
                     options || (options = {});
                     var data = (options.data || {});
                     options.data = this.update_data(data);
-                    console.log('CompleteCollection', 'fetch', options.data)
-                    
                     return Backbone.Collection.prototype.fetch.call(this, options);
                   }, 
             });
@@ -525,7 +525,7 @@ define([
                 model: app.models.graph,
                 background_color: 0xEEEEEE,
                 wnode_scale: function(vtx){
-                    return 10 + vtx.get("neighbors") / 8.;
+                    return 8 + vtx.get("neighbors") / 8.;
                 },
                 force_position_no_delay: false
             });
@@ -537,23 +537,36 @@ define([
             gviz.add_material( 'node', '.form', {
                     'shape': 'circle',
                     'scale':1,
+                    'strokeStyle': "gradient:#CCC",
                     //'shape': 'triangle',
-                    'lineWidth' : 0.01,
+                    'lineWidth' : 0.1,
                     'fontScale'  :  0.2,
                     'fontFillStyle'  : '#333',  //#366633',           
                     'fontStrokeStyle'  : '#333',
-                    'textPaddingY'  : -10
+                    'textPaddingY'  : -1,
+                    'textPaddingX'  : 8
             } );
             gviz.add_material( 'node', '.form:intersected', {
-                    'shape': 'square',
-                    'scale':1,
-                    'fontScale'  :  0.2,
+                    'scale':2,
+                    'strokeStyle': "gradient:#DDD",
             } );
             gviz.add_material( 'node', '.form:selected', {
                     'shape': 'square',
                     'scale':1,
                     'strokeStyle': "gradient:#1D1D1D",
                     'fontScale'  :  0.3,
+            } );
+
+            gviz.add_material( 'node', '.target', {
+                    'shape': 'triangle',
+                    'scale':4,
+                    'strokeStyle': "gradient:#FFF",
+                    'fontScale'  :  0.1,
+                    //'textPaddingY'  : 14,
+                    'textPaddingX'  : -2,
+            } );
+            gviz.add_material( 'node', '.target:intersected', {
+                    'strokeStyle': "gradient:#AAA",
             } );
 
             /* Events */
@@ -733,6 +746,7 @@ define([
             
             // edge color on node selection
             app.models.graph.vs.each( function(node){
+                
                 app.views.gviz.listenTo(node, "rmflag:selected", function() {
                     _.each(node.neighbors(), function(edge){
                         edge.remove_flag("selected");
@@ -751,7 +765,10 @@ define([
             
             // materials & images
             app.models.graph.vs.each(function(vtx){
-                    vtx.add_flag("form");
+                    if(vtx.get('pzero'))
+                        vtx.add_flag('target');
+                    else
+                        vtx.add_flag("form");
                     vtx.label = function(){ return this.get('form') };
             });
             
@@ -765,7 +782,7 @@ define([
             
             _.each(response.results.query.units, function(e,i){
                 var unit = _.extend({ active: i == 0 ? 'active' : "", id : 'tabpane'+i }, e );
-                $.ajax( "def/" + unit.lang+"/" + unit.form, {
+                $.ajax( app.def_url + unit.lang+"/" + unit.form, {
                         success : function(data){
                             $('#wkdef .nav').append(li(unit))
                             $('#wkdef .tab-content').append("<div class='tab-pane "+ unit.active +"' id='"+unit.id+"'>" + data.content + "</div>")
@@ -930,6 +947,8 @@ define([
             // create the rooter
             app.router = new AppRouter();
             // Everything is now in place...
+
+            console.log(app.models.cellist.url, {url: app.engine_url})
             app.models.cellist.fetch({ success: function(){
                 // start history
                 Backbone.history.start({pushState: true, root: app.root_url});

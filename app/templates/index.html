@@ -14,7 +14,9 @@
             "app_graph"
         ],  function(App){
             // The "app" dependency is passed in as "App"
-            app = new App({root_url:"{{ root_url }}" });
+            app = new App({root_url:"{{ root_url }}",
+                           engine_url:"{{ engine_url }}", 
+                 });
             app.start();
         })();
     </script>
