@@ -48,6 +48,12 @@ define([
      * defines models, views, and actions binding all that !
     */
     
+    var POS_MAPPING = {
+        "A" : 'Adj.',
+        "V" : 'V.',
+        "N" : 'N.',
+        "E" : 'Adv.',
+    };
 
 
     var TmuseQueryUnit = Backbone.Model.extend({
@@ -166,7 +172,7 @@ define([
     /** Query input & completion **/
     var QueryView = Backbone.View.extend({
         //note: the template should have an input with class 'query_input'
-        template: Cello.ui.getTemplate(Cello.ui.templates.basic, '#query_form_tmpl'),
+        template: _.template($('#query_form_tmpl').html() ),
 
         events: {
             'submit': 'submit',
@@ -198,7 +204,8 @@ define([
             var $input = $('#searchQueryInput');
             $input.tagsinput({
               itemValue: function(model){return model},
-              itemText: function(model){return [model.get('lang'), model.get('pos'), model.get('form')].join(' ')},
+              //itemText: function(model){return [model.get('lang'), model.get('pos'), model.get('form')].join(' ')},
+              itemText: function(model){return [POS_MAPPING[model.get('pos')], model.get('form')].join(' ')},
               tagClass: 'label label-primary'
             });
 
@@ -214,14 +221,16 @@ define([
             var CompletionItem = AutoComplete.ItemView.extend({
                 // item completion view 
                 template: _.template(""+
-                         "<span class='label label-primary'><%= graph %></span> " +
-                         "<span class='label label-primary'><%= lang %></span> " +
+                         //"<span class='label label-primary'><%= graph %></span> " +
+                         //"<span class='label label-primary'><%= lang %></span> " +
                          "<span class='label label-default'><%= pos %></span> " +
                          "<span class=''><%= form %></span>"
                      ),
                     
                 render: function () {
-                    this.$el.html( this.template(this.model.attributes) );
+                    var data = this.model.toJSON();
+                    data.pos = POS_MAPPING[data.pos];
+                    this.$el.html( this.template(data) );
                     return this;
                 },
 
@@ -384,12 +393,13 @@ define([
 
             
             // Configuration view for Cello engine
+            /*
             app.views.keb = new Cello.ui.engine.Keb({
                 model:app.models.cellist,
                 el:"#engine"
             }).render();
             $("#engine").hide(); // hided by default
-
+            
             // toggle for  #engine view
             $(searchdiv).find("form")
                 .append("<a href='#' class='engine_on_off glyphicon glyphicon-cog'></a>")
@@ -398,6 +408,7 @@ define([
                 event.preventDefault();
                 $("#engine").toggle();
             });
+            */
         },
 
 

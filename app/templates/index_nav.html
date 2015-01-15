@@ -28,6 +28,20 @@
             <a class='' href="#"><%=rank %>. <%=form %></a>
         </span>
     </script>
+
+        
+    <script id="query_form_tmpl" type="text/template">
+        <form class="form-inline" role="form">
+            <div class="form-group">
+              <label class="sr-only" for="searchQueryInput"><%= label %></label>
+              <input type='text' id="searchQueryInput" class="form-control query_input" placeholder="<%= placeholder %>" required="" />
+<!--
+            <button class="btn btn-primary query_send" type="submit" ><%= submit %></button>
+-->
+            </div>
+        </form>
+    </script>
+
 </head>
 
 <body>
@@ -56,10 +70,6 @@
       <div id="query_home_contener" class="search nav navbar-nav">
         <div id="query_form"></div>
         <div id="query_complete"></div>
-        <div id='engine' class='pane engine'>
-            <div class='optbuttons'></div>
-            <div class='text-center blocks'></div>
-        </div>
       </div>
       
       <ul class="nav navbar-nav navbar-right">
@@ -79,14 +89,23 @@
             <!-- Carousel indicators -->
             <div class="container text-center" >
                 <div class="carousel-indicators btn-group text-center" role="group" >
-                      <button data-target="#myCarousel" data-slide-to="0" type="button" class="btn btn-default active">Graph</button>
+                      <button data-target="#myCarousel" data-slide-to="0" type="button" class="btn btn-default active">
+                          <span class="glyphicon glyphicon-facetime-video"></span>
+                          <span class='hidden-xs'>Graph</span>
+                      </button>
                       <button data-target="#myCarousel" data-slide-to="1" type="button" class="btn btn-default">
-                          <span class="glyphicon glyphicon-th-large"></span> Clustering</button>
+                          <span class="glyphicon glyphicon-th-large"></span>
+                          <span class='hidden-xs'>Clustering</span>
+                      </button>
                       <button data-target="#myCarousel" data-slide-to="2" type="button" class="btn btn-default">
-                          <span class="glyphicon glyphicon-th-list"></span> Liste</button>
+                          <span class="glyphicon glyphicon-th-list"></span>
+                          <span class='hidden-xs'>Liste</span>
+                      </button>
                       
                       <button data-target="#myCarousel" data-slide-to="3" type="button" class="btn btn-default">
-                          <span class=" glyphicon glyphicon-book"></span> Définition</button>
+                          <span class=" glyphicon glyphicon-book"></span>
+                          <span class='hidden-xs'>Définition</span>
+                      </button>
                       
                 </div>
             </div>
@@ -95,6 +114,7 @@
             <div class="carousel-inner">
 
                 <div class="item active">
+                    <h1> <span class="glyphicon glyphicon-facetime-video"></span>&nbsp;</h1>
     <!--                <h1>Graph</h1> -->
                     <div id='vz_threejs_main' class=''></div>            
                 </div>
@@ -105,7 +125,7 @@
                 </div>
 
                 <div class="item">
-                    <h1> <span class=" glyphicon glyphicon-list"></span>&nbsp;</h1>
+                    <h1> <span class=" glyphicon glyphicon-th-list"></span>&nbsp;</h1>
                     <div id='proxemy_items' class='subitem' style=''></div>
                 </div>
                 

@@ -129,9 +129,13 @@ ul.autocomplete li.active{
     height:35px;
 }
 
+@media (max-width: 768px) {
+    #myCarousel .carousel-indicators button {
+        width:40px;
+    }
+}
 #myCarousel .carousel-indicators button.active{
     color: #000;
-    width:100px;
     border-bottom:4px solid #428BCA;
 }
 
@@ -287,12 +291,13 @@ ul.autocomplete li.active{
     -moz-column-count: 1; /* Firefox */
     column-count: 1;
 }
-@media (min-width: 500px) {
+@media (min-width: 768px) {
     #proxemy_items.subitem {
         -webkit-column-count: 2; /* Chrome, Safari, Opera */
         -moz-column-count: 2; /* Firefox */
         column-count: 2 ;
     }
+    
     #proxemy_items.subitem ul{
 /*
         max-height: 650px;
