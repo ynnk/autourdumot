@@ -9,17 +9,6 @@
 
     <!--  require JS    -->
     <script data-main="{{url_for('static', filename='main')}}" src="{{url_for('static', filename='lib/require.js')}}"></script>
-    <script>
-        require([
-            "app_graph"
-        ],  function(App){
-            // The "app" dependency is passed in as "App"
-            app = new App({root_url:"{{ root_url }}",
-                           engine_url:"{{ engine_url }}", 
-                 });
-            app.start();
-        })();
-    </script>
 
     <!--  Bootstrap CSS    -->
     <link rel="stylesheet" href="{{url_for('static', filename='lib/bootstrap/css/bootstrap.min.css')}}" type="text/css" />
@@ -140,5 +129,19 @@
     -->
 
 </div> <!-- /.page -->
+<script>
+    require([
+        "app_graph"
+    ],  function(App){
+        // The "app" dependency is passed in as "App"
+        app = new App( {
+                       root_url:"{{ root_url }}",
+                       engine_url:"{{ engine_url }}", 
+                       complete_url:"{{ complete_url }}", 
+                       def_url:"{{ def_url }}", 
+        });
+        app.start();
+    })();
+</script>
 </body>
 </html>

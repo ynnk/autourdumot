@@ -4,8 +4,6 @@
 import igraph 
 
 from reliure.types import Text, Numeric, Boolean
-from reliure.pipeline import Optionable, Composable
-
 from cello.schema import Doc, Schema
 from cello.graphs.builder import OptionableGraphBuilder
 
@@ -30,7 +28,7 @@ class TmuseEsGraphBuilder(OptionableGraphBuilder):
         eattrs = ("weight",)
         map( self.declare_eattr, eattrs )
     
-    @Optionable.check
+    @OptionableGraphBuilder.check
     def __call__(self, docs,  vtx_attr='form', links_attr='out_links', label_attr='form'):
 
         encode = lambda x: x.encode('utf8') if  type(x) == unicode else str(x)
@@ -69,69 +67,6 @@ class TmuseEsGraphBuilder(OptionableGraphBuilder):
             del graph.vs['id']
             
         return graph
-
-
-def engine(index):
-    """ Return a default engine over a lexical graph
-    """
-    # setup
-    from reliure.engine import Engine
-
-    engine = Engine()
-    engine.requires("graph", "clustering", "labelling", "layout")
-    engine.graph.setup(in_name="query", out_name="graph")
-    engine.clustering.setup(in_name="graph", out_name="clusters")
-    engine.labelling.setup(in_name="clusters", out_name="clusters", hidden=True)
-    engine.layout.setup(in_name="graph", out_name="layout")
-
-    ## Search
-    def tmuse_subgraph( query, length=50):        
-        return subgraph(index, query, length=length)
-        
-    from cello.graphs.transform import VtxAttr
-
-    graph_search = Optionable("GraphSearch")
-    graph_search._func = Composable(tmuse_subgraph)
-    graph_search.add_option("length", Numeric( vtype=int, default=50))
-
-    graph_search |= VtxAttr(color=[(45, 200, 34), ])
-    graph_search |= VtxAttr(type=1)
-
-    engine.graph.set(graph_search)
-
-    ## Clustering
-    from cello.graphs.transform import EdgeAttr
-    from cello.clustering.common import Infomap, Walktrap
-    #RMQ infomap veux un pds, donc on en ajoute un bidon
-    walktrap = EdgeAttr(weight=1.) |Walktrap()
-    infomap = EdgeAttr(weight=1.) | Infomap()
-    engine.clustering.set(infomap, walktrap)
-
-    ## Labelling
-    
-    from cello.clustering.labelling.model import Label
-    from cello.clustering.labelling.basic import VertexAsLabel, TypeFalseLabel, normalize_score_max
-        
-    def _labelling(graph, cluster, vtx):
-        score = TypeFalseLabel.scoring_prop_ofclust(graph, cluster, vtx)
-        return  Label(vtx["form"], score=score, role="default")
-    
-    labelling = VertexAsLabel( _labelling ) | normalize_score_max
-    engine.labelling.set(labelling)
-
-    ## Layout
-    from cello.layout.simple import KamadaKawaiLayout
-    from cello.layout.proxlayout import ProxLayoutRandomProj
-    from cello.layout.proxlayout import ProxLayoutPCA
-    from cello.layout.transform import Shaker
-    
-    engine.layout.set(
-        ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(), 
-        ProxLayoutPCA(dim=2, name="ProxPca2d") | Shaker(), 
-        KamadaKawaiLayout(dim=3, name="KamadaKawai3D"),
-        KamadaKawaiLayout(dim=2, name="KamadaKawai2D")
-    )
-    return engine
 
 
 def subgraph(index, query, length=50):
@@ -175,7 +110,6 @@ def subgraph(index, query, length=50):
     print 'docs', len(docs)
     print 'g', graph.summary()
     
-
     return graph
     
         

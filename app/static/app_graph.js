@@ -359,10 +359,12 @@ define([
                 }
             });
             app.models.graph = new Cello.Graph({vertex_model: Vertex}) //warn: it is updated when result comes
+            Cello.FlagMethod(app.models.graph.vs, 'faded');
 
             // --- Clustering model ---
             // Clustering model and view
             app.models.clustering = new Cello.Clustering({color_saturation:50});
+            
             app.models.vertices = new Cello.DocList({sort_key:'label'});
        },
 
@@ -529,11 +531,17 @@ define([
                 },
                 force_position_no_delay: false
             });
+            var graph = app.models.graph;
             
             /* Materials 
              * rendering edges & vertices materials 
              */
-
+            gviz.add_material( 'edge',  ':faded', {  
+                'lineWidth'  : 1,
+                'opacity'    : 0.3,
+                'color'      : function(edge){return Cello.gviz.hexcolor(edge.source.get('color'))}
+            });
+          
             gviz.add_material( 'node', '.form', {
                     'shape': 'circle',
                     'scale':1,
@@ -550,11 +558,18 @@ define([
                     'scale':2,
                     'strokeStyle': "gradient:#DDD",
             } );
+            
+            gviz.add_material( 'node', '.form:faded', {
+                    'scale':0.8,
+                    'opacity'   : 0.3,
+                    'strokeStyle': "gradient:#DDD",
+            } );
+
             gviz.add_material( 'node', '.form:selected', {
                     'shape': 'square',
                     'scale':1,
                     'strokeStyle': "gradient:#1D1D1D",
-                    'fontScale'  :  0.3,
+                    'fontScale'  :  0.4,
             } );
 
             gviz.add_material( 'node', '.target', {
@@ -588,13 +603,20 @@ define([
                 gviz.request_animation();
             } );
 
-            // click events
-            gviz.on( 'click:node', function(obj, event){
+            // click eventshttp://www.youtube.com/watch?v=tw1lEOUWmN8
+            gviz.on( 'click:node', function(node, event){
                 // multiple selection
-                if ( event.ctrlKey )
-                    gviz.model.vs.add_selected(obj !== null ? obj : []);
-                else // single 
-                    gviz.model.vs.set_selected(obj !== null ? obj : []);
+                //if ( event.ctrlKey )
+                    //gviz.model.vs.add_selected(obj !== null ? obj : []);
+                //else // single
+                gviz.model.vs.set_selected(node !== null ? node : []);
+
+                var nodes = node.neighbors();
+                graph.vs.add_flag('faded', _.difference(graph.vs.models, nodes));
+
+                var edges = graph.incident(node);
+                graph.es.add_flag('faded', _.difference(graph.es.models, edges));
+                
             });
 
             gviz.on( 'click:edge', function(obj, event){
@@ -603,8 +625,11 @@ define([
             });
             
             gviz.on( 'click', function(obj, event){
-                if( obj === null )
+                if( obj === null ){
                     gviz.model.vs.set_selected(null);
+                    graph.vs.remove_flag('faded');
+                    graph.es.remove_flag('faded');
+                }
                 console.log( obj, event);
                 gviz.request_animation();
             });
@@ -745,23 +770,23 @@ define([
             app.models.vertices.reset(app.models.graph.vs.models);
             
             // edge color on node selection
-            app.models.graph.vs.each( function(node){
+            var graph = app.models.graph;
+            graph.vs.each( function(node){
                 
                 app.views.gviz.listenTo(node, "rmflag:selected", function() {
-                    _.each(node.neighbors(), function(edge){
+                    _.each(graph.incident(node), function(edge){
                         edge.remove_flag("selected");
                     });            
                     app.views.gviz.request_animation();
                 });
 
                 app.views.gviz.listenTo(node, "addflag:selected", function() {
-                    _.each(node.neighbors(), function(edge){
+                    _.each(graph.incident(node), function(edge){
                         edge.add_flag('selected');
                     });
                     app.views.gviz.request_animation();
                 });
             });
-            
             
             // materials & images
             app.models.graph.vs.each(function(vtx){
@@ -905,7 +930,7 @@ define([
             
             var _window_resized = function(){
                   var win = $(this); //this = window
-                  size =  $(window).height()-177;
+                  size =  $(window).height()-122;
                   size = size < min_height ? min_height : size;
                   $("#myCarousel .item").height(size);
                   app.views.gviz.resize_rendering()

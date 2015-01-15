@@ -25,7 +25,6 @@ def get_wk_definition(domain, query):
     useless = ('#contentSub', '#siteSub' ,'#jump-to-nav', '#toc', '#catlinks', '.printfooter', '.visualClear', '.editsection')
     
     url = "http://%s.wiktionary.org/wiki/%s" % (domain, quote(query))
-    
     p = pq(url=url, opener=_pyquery_opener) # using special opener to trick user agent
     definition = p('#bodyContent')
     
