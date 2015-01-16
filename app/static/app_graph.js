@@ -16,6 +16,8 @@ define([
     'autocomplete',
     'bootstrap',
     'mousetrap',
+    // materials
+    //'materials',
     // cello
     'cello_core',
     'cello_ui',  
@@ -31,6 +33,63 @@ define([
         //interval: false
       //, pause: 'hover'
       //}
+
+    
+var Materials = {
+      'edge' : [
+                {  ':faded': {  
+                    'lineWidth'  : 1,
+                    'opacity'    : 0.3,
+                    'color'      : function(edge){return Cello.gviz.hexcolor(edge.source.get('color'))}
+                    }
+                }
+                ],
+        
+      'node': [{ '.form': {
+                        'shape': 'circle',
+                        'scale':1,
+                        'strokeStyle': "gradient:#CCC",
+                        //'shape': 'triangle',
+                        'lineWidth' : 0.1,
+                        'fontScale'  :  0.2,
+                        'fontFillStyle'  : '#333',  //#366633',           
+                        'fontStrokeStyle'  : '#333',
+                        'textPaddingY'  : -1,
+                        'textPaddingX'  : 0
+                } },
+
+                { '.form:intersected':  {
+                        'scale':2,
+                        'strokeStyle': "gradient:#DDD",
+                } },
+
+                {'.form:faded': {
+                        'scale':0.8,
+                        'opacity'   : 0.3,
+                        'strokeStyle': "gradient:#DDD",
+                } },
+
+                { '.form:selected': {
+                        'shape': 'square',
+                        'scale':1,
+                        'strokeStyle': "gradient:#1D1D1D",
+                        'fontScale'  :  0.4,
+                } },
+
+                { '.target': {
+                        'shape': 'triangle',
+                        'scale':4,
+                        'strokeStyle': "gradient:#FFF",
+                        'fontScale'  :  0.1,
+                        //'textPaddingY'  : 14,
+                        'textPaddingX'  : -2,
+                } },
+
+                { '.target:intersected': {
+                        'strokeStyle': "gradient:#AAA",
+                } }
+            ]
+    };
 
     // indicate if the app is in debug mode or not
     var DEBUG = true;
@@ -364,17 +423,71 @@ define([
             // --- Graph model ---
             var Vertex = Cello.Vertex.extend({
                  _format_label : function(){
-                    return [ {form : this.get('form'), css : "normal"} ];
-                }
+                    return [ {form : this.get('form'), css : ".normal-font"} ];
+                },
+                active_flags : ['intersected', 'faded', 'selected']
             });
+            
             app.models.graph = new Cello.Graph({vertex_model: Vertex}) //warn: it is updated when result comes
-            Cello.FlagMethod(app.models.graph.vs, 'faded');
 
             // --- Clustering model ---
             // Clustering model and view
-            app.models.clustering = new Cello.Clustering({color_saturation:50});
+
+            var Cluster = Cello.Cluster.extend({
+                initialize : function(attrs, options){
+                    Cluster.__super__.initialize.apply(this, arguments);
+                    _this = this;
+                    
+                    this.on("change:color", function(){
+                        this.members.vs.each( function(vertex){
+                            vertex.set('cl_color',_this.color);
+                        });
+                    });
+                    
+                    
+                    //add faded flag to the vs of the clusters not selected and remove faded flag to them if useful
+                    this.listenTo(this, "addflag:selected", function(){ 
+                        var other_clusters = this.collection.without(this);
+                        
+                        //if there is other selected clusters remove faded flag to its vertices
+                        if(this.collection.selected.length > 1 ){
+                            this.members.vs.each( function(vertex){
+                                  vertex.remove_flag('faded');
+                            });
+                        }
+                        
+                        _(other_clusters).each(function(cluster){
+                            if (!cluster.selected) {
+                                cluster.members.vs.each( function(vertex){
+                                  vertex.add_flag('faded');
+                                });
+                            }
+                        });
+                    });
+                    //add faded flag to the vs of the clusters not selected
+                    this.listenTo(this, "rmflag:selected", function(){
+                        //if other clusters are still selected, just remove flag faded on the vertices of the current cluster
+                        if( this.collection.some_selected() ){
+                            this.members.vs.each( function(vertex){
+                                vertex.add_flag('faded');
+                            });
+                        }
+                        // else remove faded flag on the vertices of all other clusters
+                        else { 
+                            var other_clusters = this.collection.without(this);
+                            _(other_clusters).each(function(cluster){
+                                cluster.members.vs.each( function(vertex){
+                                    vertex.remove_flag('faded');
+                                });
+                            });
+                        }
+                    });
+                }
+            });
             
-            app.models.vertices = new Cello.DocList({sort_key:'label'});
+            app.models.clustering = new Cello.Clustering({ClusterModel: Cluster, color_saturation:50});
+            
+            app.models.vertices = new Cello.DocList([], {sort_key:'label'});
        },
 
         /** Create views for query and engine
@@ -426,9 +539,9 @@ define([
             // however if one want to add clustom events on each label it should
             // do that, so as documentation/exemple it is usefull the 'extend'.
 
-            var ClusterLabel = Cello.ui.clustering.LabelView.extend({
-                template: _.template($('#ClusterLabel').html().trim()),
-
+            var ClusterVtx = Cello.ui.clustering.ClusterMemberView.extend({
+                //template: _.template($('#ClusterLabel').html().trim()),
+                className : 'clabel',
                 events: {
                     "click": "clicked",
                 },
@@ -455,19 +568,24 @@ define([
                     return data
                 },
             });
+            
+            // vertices list
+            var ClusterVerticesView = Cello.ui.list.CollectionView.extend({
+                className: "vs_list",
+                ChildView: ClusterVtx, 
+            });
 
             // view over a cluster
-            var ClusterItem = Cello.ui.clustering.ClusterItem.extend({
-                tagName: 'li',
-                LabelView: ClusterLabel,
+            var ClusterView = Cello.ui.clustering.ClusterView.extend({
+                MembersViews: {'vs' : ClusterVerticesView }
             });
 
             // Cluster (label lists) view
             // Note: the list of cluster is just a classical ListView
-            app.views.clustering = new Cello.ui.list.ListView({
-                model: app.models.clustering,
-                ItemView: ClusterItem,
-                el: $("#clustering_items"),
+            app.views.clustering = new Cello.ui.list.CollectionView({
+                collection: app.models.clustering.clusters,
+                ChildView: ClusterView,
+                el: $("#clustering_items ul"),
             }).render();
 
             // when #clustering_items is "show" change graph colors
@@ -523,10 +641,10 @@ define([
             });
 
             /** Create view for liste */
-            app.views.proxemy = new Cello.ui.list.ListView({
-                model : app.models.vertices,
-                ItemView: ItemView,
-                el: $("#proxemy_items"),
+            app.views.proxemy = new Cello.ui.list.CollectionView({
+                collection : app.models.vertices,
+                ChildView: ItemView,
+                el: $("#proxemy_items ul"),
             }).render();
 
 
@@ -542,59 +660,11 @@ define([
                 },
                 force_position_no_delay: false
             });
+            //var materials = JSON.parse(Materials);
+            var materials = Materials;
+            
             var graph = app.models.graph;
             
-            /* Materials 
-             * rendering edges & vertices materials 
-             */
-            gviz.add_material( 'edge',  ':faded', {  
-                'lineWidth'  : 1,
-                'opacity'    : 0.3,
-                'color'      : function(edge){return Cello.gviz.hexcolor(edge.source.get('color'))}
-            });
-          
-            gviz.add_material( 'node', '.form', {
-                    'shape': 'circle',
-                    'scale':1,
-                    'strokeStyle': "gradient:#CCC",
-                    //'shape': 'triangle',
-                    'lineWidth' : 0.1,
-                    'fontScale'  :  0.2,
-                    'fontFillStyle'  : '#333',  //#366633',           
-                    'fontStrokeStyle'  : '#333',
-                    'textPaddingY'  : -1,
-                    'textPaddingX'  : 0
-            } );
-            gviz.add_material( 'node', '.form:intersected', {
-                    'scale':2,
-                    'strokeStyle': "gradient:#DDD",
-            } );
-            
-            gviz.add_material( 'node', '.form:faded', {
-                    'scale':0.8,
-                    'opacity'   : 0.3,
-                    'strokeStyle': "gradient:#DDD",
-            } );
-
-            gviz.add_material( 'node', '.form:selected', {
-                    'shape': 'square',
-                    'scale':1,
-                    'strokeStyle': "gradient:#1D1D1D",
-                    'fontScale'  :  0.4,
-            } );
-
-            gviz.add_material( 'node', '.target', {
-                    'shape': 'triangle',
-                    'scale':4,
-                    'strokeStyle': "gradient:#FFF",
-                    'fontScale'  :  0.1,
-                    //'textPaddingY'  : 14,
-                    'textPaddingX'  : -2,
-            } );
-            gviz.add_material( 'node', '.target:intersected', {
-                    'strokeStyle': "gradient:#AAA",
-            } );
-
             /* Events */
             
             // intersect events
@@ -760,14 +830,18 @@ define([
             }
 
             // reset clustering
-            app.models.clustering.reset(response.results.clusters);
+            app.models.clustering.reset(response.results.clusters,
+                {
+                   members : { vs : { source: app.models.graph.vs, id_field: 'vids' } }
+                }
+            );
 
             // set cluster colors on vertices
-            _.map(app.models.graph.vs.select({}), function(model, i, list ){
-                model.set('default_color', model.get('color'))
-                var cid = app.models.clustering.membership[model.id]
-                model.set('cl_color', app.models.clustering.cluster(cid[0]).color, {silent:true});
-            });
+            //_.map(app.models.graph.vs.select({}), function(model, i, list ){
+                //model.set('default_color', model.get('color'))
+                //var cid = app.models.clustering.membership[model.id]
+                //model.set('cl_color', app.models.clustering.cluster(cid[0]).color, {silent:true});
+            //});
             
 
             // FIXME :

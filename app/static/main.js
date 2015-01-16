@@ -18,6 +18,8 @@ require.config({
 
     tween: 'lib/Tween',
 
+    text: 'lib/text',
+
     autocomplete: 'lib/backbone.autocomplete',
 
     moment:  'lib/moment.min',

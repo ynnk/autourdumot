@@ -20,15 +20,15 @@ logger = get_basic_logger(logging.DEBUG)
 
 
 # remote api
-tmuseApi = RemoteApi("http://carton.kodexlab.com/tmuse_alpha/tmuse_v1")
+#tmuseApi = RemoteApi("http://carton.kodexlab.com/tmuse_alpha/tmuse_v1")
 #tmuseApi = RemoteApi("http://localhost:5123/tmuse_v1", url_prefix="")
 
 # locale api
-#ES_HOST = os.environ.get('ES_HOST', "localhost:9200")
-#ES_INDEX = os.environ.get('ES_INDEX', "tmuse")
-#ES_DOC_TYPE = os.environ.get('ES_DOC_TYPE', "graph")
+ES_HOST = os.environ.get('ES_HOST', "localhost:9200")
+ES_INDEX = os.environ.get('ES_INDEX', "tmuse")
+ES_DOC_TYPE = os.environ.get('ES_DOC_TYPE', "graph")
 
-#tmuseApi = TmuseApi("tmuse_v1", ES_HOST, ES_INDEX, ES_DOC_TYPE)
+tmuseApi = TmuseApi("tmuse_v1", ES_HOST, ES_INDEX, ES_DOC_TYPE)
 
 # Configure the app
 app.register_blueprint(tmuseApi)
