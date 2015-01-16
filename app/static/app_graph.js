@@ -563,7 +563,7 @@ define([
                     'fontFillStyle'  : '#333',  //#366633',           
                     'fontStrokeStyle'  : '#333',
                     'textPaddingY'  : -1,
-                    'textPaddingX'  : 8
+                    'textPaddingX'  : 0
             } );
             gviz.add_material( 'node', '.form:intersected', {
                     'scale':2,

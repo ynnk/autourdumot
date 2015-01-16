@@ -23,8 +23,9 @@ def _pyquery_opener(url):
 def get_wk_definition(domain, query):
     
     useless = ('#contentSub', '#siteSub' ,'#jump-to-nav', '#toc', '#catlinks', '.printfooter', '.visualClear', '.editsection')
+    base_url = "http://%s.wiktionary.org" % domain
     
-    url = "http://%s.wiktionary.org/wiki/%s" % (domain, quote(query))
+    url = "%s/wiki/%s" % (base_url, quote(query))
     p = pq(url=url, opener=_pyquery_opener) # using special opener to trick user agent
     definition = p('#bodyContent')
     
@@ -34,10 +35,11 @@ def get_wk_definition(domain, query):
     
     # change links to open in new window
     for link in definition.find('a'):
-        pq(link).attr('target' , '_blank')
         href = pq(link).attr('href')
+        #print href
         if href[0] != "#" and href[0:4] != "http" : # not an anchor or external link
-            pq(link).attr('href', domain + href)
+            pq(link).attr('target' , '_blank')
+            pq(link).attr('href', base_url + href)
     
     # fix img src url
     for img in definition.find('img'):
