@@ -4,7 +4,7 @@
 from flask import request, jsonify
 
 from reliure.types import GenericType, Text, Numeric
-from reliure.utils.web import ReliureBlue, EngineView, RemoteApi
+from reliure.web import ReliureAPI, EngineView, RemoteApi
 from reliure.pipeline import Optionable, Composable
 
 from cello.graphs import export_graph, IN, OUT, ALL
@@ -37,24 +37,25 @@ def Query( **kwargs):
     default['graph'] = 'jdm.%s.flat' % default['pos']
     return default
 
-def TmuseApi( name, host='localhost:9200', index_name='tmuse', doc_type='graph'):
-        """ Api over tmuse es
+
+def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph'):
+        """ API over tmuse elastic search
         """
         esindex = EsIndex(index_name, doc_type=doc_type , host=host)
         assert esindex._es.ping(), "impossible to reach ES server"
 
         # build the API from this engine
         print "api name", name
-        api = ReliureBlue(name, expose_route=True, url_prefix="/%s" % name)
-        
+        api = ReliureAPI(name)
+
         view = EngineView(engine(esindex))
         view.set_input_type(ComplexQuery())
         view.add_output("query", ComplexQuery.serialize)
         view.add_output("graph", export_graph)
         view.add_output("layout", export_layout)
         view.add_output("clusters", export_clustering)
-            
-        api.add_engine(view, path="subgraph")
+
+        api.register_view(view, url_prefix="subgraph")
         
         @api.route("/ajax_complete")
         def ajax_complete():
@@ -100,17 +101,16 @@ def engine(index):
     # setup
     from reliure.engine import Engine
 
-    engine = Engine()
-    engine.requires("graph", "clustering", "labelling", "layout")
+    engine = Engine("graph", "clustering", "labelling", "layout")
     engine.graph.setup(in_name="query", out_name="graph")
     engine.clustering.setup(in_name="graph", out_name="clusters")
     engine.labelling.setup(in_name="clusters", out_name="clusters", hidden=True)
     engine.layout.setup(in_name="graph", out_name="layout")
 
     ## Search
-    def tmuse_subgraph( query, length=50):        
+    def tmuse_subgraph(query, length=50):
         return tmuse.subgraph(index, query, length=length)
-        
+
     from cello.graphs.transform import VtxAttr
 
     graph_search = Optionable("GraphSearch")
@@ -131,10 +131,9 @@ def engine(index):
     engine.clustering.set(infomap, walktrap)
 
     ## Labelling
-    
     from cello.clustering.labelling.model import Label
     from cello.clustering.labelling.basic import VertexAsLabel, TypeFalseLabel, normalize_score_max
-        
+
     def _labelling(graph, cluster, vtx):
         score = TypeFalseLabel.scoring_prop_ofclust(graph, cluster, vtx)
         return  Label(vtx["form"], score=score, role="default")
@@ -149,10 +148,10 @@ def engine(index):
     from cello.layout.transform import Shaker
     
     engine.layout.set(
-        ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(), 
-        ProxLayoutPCA(dim=2, name="ProxPca2d") | Shaker(), 
+        ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(),
+        ProxLayoutPCA(dim=2, name="ProxPca2d") | Shaker(),
         KamadaKawaiLayout(dim=3, name="KamadaKawai3D"),
         KamadaKawaiLayout(dim=2, name="KamadaKawai2D")
     )
     return engine
-        
+
