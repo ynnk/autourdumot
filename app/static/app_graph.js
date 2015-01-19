@@ -19,77 +19,17 @@ define([
     // materials
     //'materials',
     // cello
-    'cello_core',
     'cello_ui',  
     'cello_gviz',
+    // models
+    'models',
+    'materials',
     // jquery plugins
     'bootstrap_tagsinput'
     
-], function($, _, Backbone, AutoComplete, bootstrap, Mousetrap, Cello){
+], function($, _, Backbone, AutoComplete, bootstrap, Mousetrap, Cello, cgviz, Models, Materials){
 // Above we have passed in jQuery, Underscore and Backbone
 // They will not be accessible in the global scope
-
-    //$.fn.carousel.defaults = {
-        //interval: false
-      //, pause: 'hover'
-      //}
-
-    
-var Materials = {
-      'edge' : [
-                {  ':faded': {  
-                    'lineWidth'  : 1,
-                    'opacity'    : 0.3,
-                    'color'      : function(edge){return Cello.gviz.hexcolor(edge.source.get('color'))}
-                    }
-                }
-                ],
-        
-      'node': [{ '.form': {
-                        'shape': 'circle',
-                        'scale':1,
-                        'strokeStyle': "gradient:#CCC",
-                        //'shape': 'triangle',
-                        'lineWidth' : 0.1,
-                        'fontScale'  :  0.2,
-                        'fontFillStyle'  : '#333',  //#366633',           
-                        'fontStrokeStyle'  : '#333',
-                        'textPaddingY'  : -1,
-                        'textPaddingX'  : 0
-                } },
-
-                { '.form:intersected':  {
-                        'scale':2,
-                        'strokeStyle': "gradient:#DDD",
-                } },
-
-                {'.form:faded': {
-                        'scale':0.8,
-                        'opacity'   : 0.3,
-                        'strokeStyle': "gradient:#DDD",
-                } },
-
-                { '.form:selected': {
-                        'shape': 'square',
-                        'scale':1,
-                        'strokeStyle': "gradient:#1D1D1D",
-                        'fontScale'  :  0.4,
-                } },
-
-                { '.target': {
-                        'shape': 'triangle',
-                        'scale':4,
-                        'strokeStyle': "gradient:#FFF",
-                        'fontScale'  :  0.1,
-                        //'textPaddingY'  : 14,
-                        'textPaddingX'  : -2,
-                } },
-
-                { '.target:intersected': {
-                        'strokeStyle': "gradient:#AAA",
-                } }
-            ]
-    };
 
     // indicate if the app is in debug mode or not
     var DEBUG = true;
@@ -114,119 +54,6 @@ var Materials = {
         "E" : 'Adv.',
     };
 
-
-    var TmuseQueryUnit = Backbone.Model.extend({
-        defaults: {
-            graph: null,    // name of the graph
-            lang: null,
-            pos: null,
-            form: null,
-            boost: 1,
-            // surface attr
-            valid: false,
-        },
-
-        initialize: function(){
-            // validate on each change
-            this.on("change:graph change:lang change:pos change:form", this.validate);
-        },
-
-        /* Set the Query unit from a raw string, 
-         * ex 
-         *  * "DS_V.fr.V.manger"
-         *  * "fr.V.manger"
-         *  * "V.jouer"
-         *  * "rire"
-        */
-        //TODO: add boost parsing ("fr.V.manger:50")
-        set_from_str: function(query_str){
-            var qsplit = query_str.trim().split(".");
-            data = {}
-            data.form = qsplit[qsplit.length-1];
-            if(qsplit.length >= 2){
-                data.pos = qsplit[qsplit.length-2];
-            }
-            if(qsplit.length >= 3){
-                data.lang = qsplit[qsplit.length-3];
-            }
-            if(qsplit.length >= 4){
-                data.graph = qsplit[qsplit.length-4];
-            }
-            console.log(data)
-            this.set(data);
-        },
-
-        to_string: function(){
-            var str = [];
-            //TODO: Cello.get !
-            //TODO loop on graph, lang, pos
-            if(!_.isNull(this.get("graph"))){
-                str.push(this.get("graph"));
-            }
-            if(!_.isNull(this.get("lang"))){
-                str.push(this.get("lang"));
-            }
-            if(!_.isNull(this.get("pos"))){
-                str.push(this.get("pos"));
-            }
-            str.push(this.get("form"));
-            str = str.join(".")
-            if(this.get("boost") != 1.){
-                str = str + ":" + this.get("boost");
-            }
-            return str;
-        },
-
-        /* Ajax call to check if this query unit exist (and so is valid)
-        */
-        validate: function() {
-            //TODO
-        },
-    })
-
-    var TmuseQueryUnits = Backbone.Collection.extend({
-        model: TmuseQueryUnit,
-
-        /* Reset the QueryUnit collection from a raw string, ex "fr.V.manger;fr.V.boufer"
-        */
-        reset_from_models: function(models){
-            if ( _.isArray(models) === false  ){
-                models = [models]
-            }
-            
-            var data = [];
-            _.each(models, function(model){
-                attrs = model.pick('graph', 'lang', 'pos', 'form')
-                var query_elem = new TmuseQueryUnit(attrs);
-                data.push(query_elem);
-            });
-            this.reset(data);
-            
-        },
-    
-        reset_from_str: function(query_str){
-            var data = [];
-            var qsplit = query_str.split(",");
-            _.each(qsplit, function(qstr){
-                var query_elem = new TmuseQueryUnit();
-                query_elem.set_from_str(qstr);
-                data.push(query_elem);
-            });
-            this.reset(data);
-        },
-
-        to_string: function(){
-            return this.models.map(function(qunit){ return qunit.to_string() }).join("; ");
-        },
-
-        validate: function(){
-            return this.length > 0
-        },
-
-        export_for_engine: function(){
-            return this.toJSON();
-        },
-    });
 
     /** Query input & completion **/
     var QueryView = Backbone.View.extend({
@@ -343,7 +170,6 @@ var Materials = {
             if (this.model.validate())
                 app.models.cellist.play();
 
-
             return false;
         },
     });
@@ -369,131 +195,44 @@ var Materials = {
 
             // create the engine
             app.models.cellist = new Cello.Engine({url: app.engine_url});
-            //NOTE: the url is from root, issue comming if "api" entry point is not at root
 
             // query specific tmuse (ici c'est une collection)
             // note: "query" should have an export_for_engine mth
-            app.models.query = new TmuseQueryUnits();
-            //app.models.query.reset_from_str("fr.V.manger");
+            app.models.query = new Models.TmuseQueryUnits();
+            
+            // register the query model on the engine input "query"
+            app.models.cellist.register_input("query", app.models.query);
 
-
-            /* completion  */
-            // Completion collection & models 
-            var CompleteCollection = Backbone.Collection.extend({
-                url : app.complete_url,
-                model : Backbone.Model.extend({
-                    defaults : {
-                        graph: "",
-                        lang: "",
-                        pos: "",
-                        form: ""
-                    },
-                }),
-                
-                parse: function(data){
-                    return data.complete;
-                },
-
+            //  completion
+            CompleteCollection = Models.CompleteCollection.extend({
+                url:app.complete_url,
                 update_data: function(data){
-                    var units = app.models.query.models;
+                    var units = app.models.query;
                     // prevents fetching completion with a different pos or lang
                     // if any item in query
                     if (units.length){
                         data.lang = units[0].get('lang')
                         data.pos = units[0].get('pos')
                     }
-                    
                     return data;
                 },
-
-                fetch: function(options) {                    
-                    options || (options = {});
-                    var data = (options.data || {});
-                    options.data = this.update_data(data);
-                    return Backbone.Collection.prototype.fetch.call(this, options);
-                  }, 
             });
-
             app.models.completion = new CompleteCollection();
-            
-            
-            // register the query model on the engine input "query"
-            app.models.cellist.register_input("query", app.models.query);
 
             // --- Graph model ---
-            var Vertex = Cello.Vertex.extend({
-                 _format_label : function(){
-                    return [ {form : this.get('form'), css : ".normal-font"} ];
-                },
-                active_flags : ['intersected', 'faded', 'selected']
-            });
-            
-            app.models.graph = new Cello.Graph({vertex_model: Vertex}) //warn: it is updated when result comes
+            app.models.graph = new Cello.Graph({vertex_model: Models.Vertex}) //warn: it is updated when result comes
 
-            // --- Clustering model ---
-            // Clustering model and view
+            // clustering
+            app.models.clustering = new Cello.Clustering({ClusterModel: Models.Cluster, color_saturation:50});
 
-            var Cluster = Cello.Cluster.extend({
-                initialize : function(attrs, options){
-                    Cluster.__super__.initialize.apply(this, arguments);
-                    _this = this;
-                    
-                    this.on("change:color", function(){
-                        this.members.vs.each( function(vertex){
-                            vertex.set('cl_color',_this.color);
-                        });
-                    });
-                    
-                    
-                    //add faded flag to the vs of the clusters not selected and remove faded flag to them if useful
-                    this.listenTo(this, "addflag:selected", function(){ 
-                        var other_clusters = this.collection.without(this);
-                        
-                        //if there is other selected clusters remove faded flag to its vertices
-                        if(this.collection.selected.length > 1 ){
-                            this.members.vs.each( function(vertex){
-                                  vertex.remove_flag('faded');
-                            });
-                        }
-                        
-                        _(other_clusters).each(function(cluster){
-                            if (!cluster.selected) {
-                                cluster.members.vs.each( function(vertex){
-                                  vertex.add_flag('faded');
-                                });
-                            }
-                        });
-                    });
-                    //add faded flag to the vs of the clusters not selected
-                    this.listenTo(this, "rmflag:selected", function(){
-                        //if other clusters are still selected, just remove flag faded on the vertices of the current cluster
-                        if( this.collection.some_selected() ){
-                            this.members.vs.each( function(vertex){
-                                vertex.add_flag('faded');
-                            });
-                        }
-                        // else remove faded flag on the vertices of all other clusters
-                        else { 
-                            var other_clusters = this.collection.without(this);
-                            _(other_clusters).each(function(cluster){
-                                cluster.members.vs.each( function(vertex){
-                                    vertex.remove_flag('faded');
-                                });
-                            });
-                        }
-                    });
-                }
-            });
-            
-            app.models.clustering = new Cello.Clustering({ClusterModel: Cluster, color_saturation:50});
-            
+            // prox list 
             app.models.vertices = new Cello.DocList([], {sort_key:'label'});
        },
 
         /** Create views for query and engine
          *
          * home: if true the app is setted with search input in middle of the page
-         */
+         */ 
         create_query_engine_views: function(){
             var app = this;
             var searchdiv = '#query_form';
@@ -503,25 +242,6 @@ var Materials = {
                 el: $(searchdiv),
             }).render();
             $(searchdiv).show();
-
-            
-            // Configuration view for Cello engine
-            /*
-            app.views.keb = new Cello.ui.engine.Keb({
-                model:app.models.cellist,
-                el:"#engine"
-            }).render();
-            $("#engine").hide(); // hided by default
-            
-            // toggle for  #engine view
-            $(searchdiv).find("form")
-                .append("<a href='#' class='engine_on_off glyphicon glyphicon-cog'></a>")
-            // add vue to toggle
-            $("a.engine_on_off", searchdiv).click(function(event){
-                event.preventDefault();
-                $("#engine").toggle();
-            });
-            */
         },
 
 
@@ -531,13 +251,6 @@ var Materials = {
         create_results_views: function(){
 
             var app = this;
-
-            /** Create views for clustering */
-
-            // label view
-            // Note: the inheritage is not absolutely needed here, except for label overriding.
-            // however if one want to add clustom events on each label it should
-            // do that, so as documentation/exemple it is usefull the 'extend'.
 
             var ClusterVtx = Cello.ui.clustering.ClusterMemberView.extend({
                 //template: _.template($('#ClusterLabel').html().trim()),
@@ -568,7 +281,7 @@ var Materials = {
                     return data
                 },
             });
-            
+
             // vertices list
             var ClusterVerticesView = Cello.ui.list.CollectionView.extend({
                 className: "vs_list",
@@ -580,22 +293,17 @@ var Materials = {
                 MembersViews: {'vs' : ClusterVerticesView }
             });
 
-            // Cluster (label lists) view
-            // Note: the list of cluster is just a classical ListView
+            /** Create views for clustering */
             app.views.clustering = new Cello.ui.list.CollectionView({
                 collection: app.models.clustering.clusters,
                 ChildView: ClusterView,
                 el: $("#clustering_items ul"),
             }).render();
 
-            // when #clustering_items is "show" change graph colors
-            $('#clustering_items').on('show.bs.collapse', function () {
-                app.models.graph.vs.copy_attr('cl_color', 'color',{silent:true});
-                //app.views.gviz.update();
-            });
 
-    
+            
             // vertex sorted by proxemy
+            
             var ItemView = Cello.ui.doclist.DocItemView.extend({
                 template: _.template($("#ListLabel").html()),
                 events:{
@@ -639,6 +347,9 @@ var Materials = {
                 },
 
             });
+
+
+
 
             /** Create view for liste */
             app.views.proxemy = new Cello.ui.list.CollectionView({
@@ -715,9 +426,7 @@ var Materials = {
                 gviz.request_animation();
             });
             
-            /* Rendering */
-            
-            // gviz rendering loop
+            /* Rendering looop */            
             gviz.enable().animate();
 
             app.views.gviz = gviz;
@@ -836,15 +545,6 @@ var Materials = {
                 }
             );
 
-            // set cluster colors on vertices
-            //_.map(app.models.graph.vs.select({}), function(model, i, list ){
-                //model.set('default_color', model.get('color'))
-                //var cid = app.models.clustering.membership[model.id]
-                //model.set('cl_color', app.models.clustering.cluster(cid[0]).color, {silent:true});
-            //});
-            
-
-            // FIXME :
             // default color does not depend on visible panel
             app.models.graph.vs.copy_attr('cl_color', 'color',{silent:true});
 
@@ -875,11 +575,11 @@ var Materials = {
             
             // materials & images
             app.models.graph.vs.each(function(vtx){
-                    if(vtx.get('pzero'))
-                        vtx.add_flag('target');
-                    else
-                        vtx.add_flag("form");
-                    vtx.label = function(){ return this.get('form') };
+                if(vtx.get('pzero'))
+                    vtx.add_flag('target');
+                else
+                    vtx.add_flag("form");
+                vtx.label = function(){ return this.get('form') };
             });
             
             /*  definition */
@@ -895,8 +595,7 @@ var Materials = {
                 $.ajax( app.def_url + unit.lang+"/" + unit.form, {
                         success : function(data){
                             $('#wkdef .nav').append(li(unit))
-                            $('#wkdef .tab-content').append("<div class='tab-pane "+ unit.active +"' id='"+unit.id+"'>" + data.content + "</div>")
-                            
+                            $('#wkdef .tab-content').append("<div class='tab-pane "+ unit.active +"' id='"+unit.id+"'>" + data.content + "</div>")                            
                         }
                     });
             });
