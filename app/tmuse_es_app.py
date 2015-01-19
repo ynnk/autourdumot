@@ -8,7 +8,7 @@ from flask import request, render_template, url_for, abort, jsonify
 
 from reliure.utils.log import get_basic_logger
 
-from reliure.utils.web import RemoteApi, app_routes
+from reliure.web import RemoteApi, app_routes
 from tmuseapi import TmuseApi
 import wiktionary
 
@@ -43,11 +43,11 @@ def index(query=None):
     return render_template(
          "index_nav.html",
          root_url=url_for("index"),
-         complete_url= url_for("%s.ajax_complete" % tmuseApi.name),
-         engine_url= url_for("%s.subgraph" % tmuseApi.name),
-         def_url= url_for("wkdef", domain="", query="")[:-1] # rm trailing /
+         complete_url=url_for("%s.ajax_complete" % tmuseApi.name),
+         engine_url=url_for("%s.subgraph" % tmuseApi.name),
+         def_url=url_for("wkdef", domain="", query="")[:-1] # rm trailing /
     )
- 
+
 @app.route("/def/<string:domain>/<string:query>")
 def wkdef(domain, query):
     """ get and parse definition from wiktionary
