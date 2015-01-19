@@ -138,7 +138,6 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
             return data.complete;
         },
 
-
         fetch: function(options) {                    
             options || (options = {});
             var data = (options.data || {});
