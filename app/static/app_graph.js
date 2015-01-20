@@ -16,6 +16,7 @@ define([
     'autocomplete',
     'bootstrap',
     'mousetrap',
+    'bootbox',
     // materials
     //'materials',
     // cello
@@ -26,7 +27,7 @@ define([
     'materials',
     // jquery plugins
     'bootstrap_tagsinput'
-], function($, _, Backbone, AutoComplete, bootstrap, Mousetrap, Cello, cgviz, Models, Materials){
+], function($, _, Backbone, AutoComplete, bootstrap, Mousetrap, bootbox, Cello, cgviz, Models, Materials){
 // Above we have passed in jQuery, Underscore and Backbone
 // They will not be accessible in the global scope
 
@@ -637,6 +638,21 @@ define([
                 app.models.query.reset_from_models(model) ;
         },
 
+        showAbout: function(){
+            var msg = _.template($("#about_tmpl").text());
+            bootbox.dialog({
+              title: "A propos de TMuse",
+              message: msg,
+              onEscape: function() {},
+              buttons: {
+                main: {
+                  label: "OK",
+                  className: "btn-primary",
+                  callback: function() {}
+                }
+              }
+            });
+        },
 
         // main function
         start: function(){
@@ -729,7 +745,10 @@ define([
                 _window_resized();
             });
 
-
+            // about menu
+            $("a.about").on('click', function(){
+                app.showAbout();
+            })
 
             // Router
             var AppRouter = Backbone.Router.extend({

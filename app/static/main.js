@@ -13,6 +13,8 @@ require.config({
     bootstrap: 'lib/bootstrap/js/bootstrap.min',
     bootstrap_tagsinput: 'lib/bootstrap-tagsinput.min',
 
+    bootbox: 'lib/bootbox.min',
+
     threejs: 'lib/three.min',
     threejs_trackball: 'lib/three-TrackballControls',
 
