@@ -195,6 +195,11 @@ define([
             //  completion
             CompleteCollection = AutoComplete.Collection.extend({
                 url:app.complete_url,
+                model: Backbone.Model.extend({
+                        defaults : {
+                            graph: "", lang: "", pos: "", form: ""
+                        },
+                    }),
                 update_data: function(data){
                     var units = app.models.query.models;
                     // prevents fetching completion with a different pos or lang
@@ -206,7 +211,8 @@ define([
                     return data;
                 },
             });
-            app.models.completion = new CompleteCollection();
+
+            app.models.completion = new CompleteCollection({});
 
             // --- Graph model ---
             app.models.graph = new Cello.Graph({vertex_model: Models.Vertex}) //warn: it is updated when result comes
