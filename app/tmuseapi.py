@@ -4,7 +4,7 @@
 from flask import request, jsonify
 
 from reliure.types import GenericType, Text, Numeric
-from reliure.web import ReliureAPI, EngineView, RemoteApi
+from reliure.web import ReliureAPI, EngineView, ComponentView, RemoteApi
 from reliure.pipeline import Optionable, Composable
 
 from cello.graphs import export_graph, IN, OUT, ALL
@@ -13,30 +13,8 @@ from cello.clustering import export_clustering
 from cello.providers.es import EsIndex
 
 import tmuse
-
-
-class ComplexQuery(GenericType):
-    def parse(self, value):
-        q = [ Query(**{ k:v for k,v in val.iteritems() if v is not None}) for val in value ]
-        return q
-        
-    @staticmethod
-    def serialize(complexquery):
-        uri = ",".join([  '.'.join( ( q['lang'], q['pos'], q['form'] ) ) for q in complexquery ])
-        return {'units': complexquery,
-                'uri'  : uri  
-               }
-
-def Query( **kwargs):
-    default = {
-        'lang'  : 'fr',
-        'pos'   : 'V',
-        'form'  : None
-    }
-    default.update(kwargs)
-    default['graph'] = 'jdm.%s.flat' % default['pos']
-    return default
-
+from tmuse import ComplexQuery
+from tmuse import QueryUnit as Query
 
 def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph'):
         """ API over tmuse elastic search
@@ -48,50 +26,44 @@ def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph'):
         print "api name", name
         api = ReliureAPI(name)
 
+        # Main api entry point: tmuse engine (subgraph)
         view = EngineView(engine(esindex))
         view.set_input_type(ComplexQuery())
-        view.add_output("query", ComplexQuery.serialize)
+        view.add_output("query", ComplexQuery())
         view.add_output("graph", export_graph)
         view.add_output("layout", export_layout)
         view.add_output("clusters", export_clustering)
-
+        # add a simple play route
+        view.play_route("<query>")
         api.register_view(view, url_prefix="subgraph")
-        
-        @api.route("/ajax_complete")
-        def ajax_complete():
-            print request.args
-            terms = [ request.args.get(e,"") for e in ('lang', 'pos', 'form') ]
-            term = ".".join( t for t in terms if t != "" )
-            return complete( term )
-            
-        @api.route("/complete/<string:text>" )
-        def complete( text ):
-            response = { 'length':0 }
-            text = text or ""
-            while len(text) and response['length'] == 0 :
-                response = tmuse.complete(esindex, text)
-                text = text[:-1]
-            return jsonify( response )
 
+        # Add auto completion View
+        completion = tmuse.TmuseEsComplete(index=esindex)
+        completion_view = ComponentView(completion)
+        completion_view.add_input("lang", Text(default=u"*"))
+        completion_view.add_input("pos", Text(default=u"*"))
+        completion_view.add_input("form")
+        completion_view.add_output("response")
+        completion_view.play_route("<lang>.<pos>.<form>")
+        api.register_view(completion_view, url_prefix="complete")
+
+        # Debug views
         @api.route("/_extract/<string:graph>/<string:text>")
         def _extract(graph, text):
-
-            query = Query(graph=graph, form=text)     
+            query = Query(graph=graph, form=text)
             es_res = tmuse.extract(esindex, query)
             return jsonify({ 'res': es_res})
             
         @api.route("/_prox/<string:graph>/<string:text>" )
         def _prox(graph, text):
-            
-            query = Query(graph=graph, form=text)     
-
+            query = Query(graph=graph, form=text)
             pz, proxs = tmuse.extract(esindex, query, 10)
             proxs = dict(proxs)
             ids = proxs.keys()
             # request es with ids
             es_res = tmuse.search_docs(esindex, graph, ids)
             return jsonify({ 'ids': ids, 'res': es_res})
-            
+
         return api
 
 

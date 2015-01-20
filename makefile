@@ -23,3 +23,6 @@ python_dep:
 get_glaff:
 	wget http://redac.univ-tlse2.fr/lexiques/glaff/GLAFF-1.2.1.tar.bz2  
 	tar -xjf GLAFF-1.2.1.tar.bz2
+
+test:
+	py.test -v ./*.py --doctest-module

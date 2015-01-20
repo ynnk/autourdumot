@@ -16,16 +16,16 @@ define([
     'autocomplete',
     'bootstrap',
     'mousetrap',
-        // cello
-    'cello_ui',  
+    'bootbox',
+    // cello
+    'cello_ui',
     'cello_gviz',
-    // models
+    // tmuse 'lib' (models, materials)
     'models',
     'materials',
     // jquery plugins
     'bootstrap_tagsinput'
-    
-], function($, _, Backbone, AutoComplete, bootstrap, Mousetrap, Cello, cgviz, Models, Materials){
+], function($, _, Backbone, AutoComplete, bootstrap, Mousetrap, bootbox, Cello, cgviz, Models, Materials){
 // Above we have passed in jQuery, Underscore and Backbone
 // They will not be accessible in the global scope
 
@@ -44,14 +44,12 @@ define([
     /** The app itself
      * defines models, views, and actions binding all that !
     */
-    
     var POS_MAPPING = {
         "A" : 'Adj.',
         "V" : 'V.',
         "N" : 'N.',
         "E" : 'Adv.',
     };
-
 
     /** Query input & completion **/
     var QueryView = Backbone.View.extend({
@@ -67,25 +65,23 @@ define([
             _.bindAll(this, "render")
 
             /* model events */
-
             this.listenTo(this.model, 'add remove change reset', function(e){
                 console.log("QueryView", e)
                 _this.render();
                 _this.submit();
             });
-            
-            /* form template */
 
+            /** Create the basic DOM elements **/
+            /* form template */
             var data = {
                 "label": "search :",
                 "placeholder": "Enter a search ...",
                 "submit": "search !",
             }
             this.$el.html(this.template(data));
-            
-            /* tagsinput */
 
-            var $input = $('#searchQueryInput');
+            /* tagsinput */
+            var $input = $('#searchQueryInput', this.$el);
             $input.tagsinput({
               itemValue: function(model){return model},
               //itemText: function(model){return [model.get('lang'), model.get('pos'), model.get('form')].join(' ')},
@@ -93,15 +89,14 @@ define([
               tagClass: 'label label-primary'
             });
 
-            $input.on('itemRemoved',function(event){
+            $input.on('itemRemoved', function(event){
                 var item = event.item;
                 console.log("itemRemoved", item)
-                app.models.query.remove(item);
+                _this.model.remove(item);
             });
             this.$input = $input;
-            
+
             /* completion */
-            
             var CompletionItem = AutoComplete.ItemView.extend({
                 // item completion view 
                 template: _.template(""+
@@ -110,7 +105,7 @@ define([
                          "<span class='label label-default'><%= pos %></span> " +
                          "<span class=''><%= form %></span>"
                      ),
-                    
+
                 render: function () {
                     var data = this.model.toJSON();
                     data.pos = POS_MAPPING[data.pos];
@@ -120,14 +115,14 @@ define([
 
                 select: function () {
                     console.log("completion select ", this.model.attributes)
-                    app.models.query.add(new Models.TmuseQueryUnit(this.model.attributes) );
+                    _this.model.add(new Models.TmuseQueryUnit(this.model.attributes));
                     this.parent.hide();
                     return this;
                 }
             });
             
             // completion view 
-            app.views.querycomplete = new AutoComplete.View({
+            _this.querycomplete = new AutoComplete.View({
                model : app.models.completion,          // CompleteCollection
                input : this.$input.tagsinput('input'), // meta input created by tagsinput
                itemView: CompletionItem,               // item view
@@ -135,8 +130,7 @@ define([
             });
 
             // append completion to the view
-            $("#query_complete", this.$el).append(app.views.querycomplete.render().$el);
-           
+            $("#query_complete", this.$el).append(_this.querycomplete.render().$el);
             return this.render();
         },
 
@@ -151,7 +145,6 @@ define([
             
             view.$input.tagsinput('input').val("");
             view.$input.tagsinput('input').focus();
-            
             return this;
         },
         
@@ -165,9 +158,7 @@ define([
                 event.preventDefault(); // this will stop the event from further propagation and the submission will not be executed
             }
             // note: this is not necessary for Chrome, but needed for FF
-            if (this.model.validate())
-                app.models.cellist.play();
-
+            this.trigger("submited")
             return false;
         },
     });
@@ -223,11 +214,12 @@ define([
             // clustering
             app.models.clustering = new Cello.Clustering({ClusterModel: Models.Cluster, color_saturation:50});
 
-            // prox list 
+            // prox list (proxy to app.models.graph.vs)
             app.models.vertices = new Cello.DocList([], {sort_key:'label'});
        },
 
-        /** Create views for query and engine
+
+        /** Create views for query (and engine)
          *
          * home: if true the app is setted with search input in middle of the page
          */ 
@@ -240,11 +232,11 @@ define([
                 el: $(searchdiv),
             }).render();
             $(searchdiv).show();
+            //Note this view submited event is binded in the start
         },
 
 
-        /**
-         *   Create documents list views
+        /** Create documents list views
          */
         create_results_views: function(){
 
@@ -298,8 +290,6 @@ define([
                 el: $("#clustering_items ul"),
             }).render();
 
-
-            
             // vertex sorted by proxemy
             
             var ItemView = Cello.ui.doclist.DocItemView.extend({
@@ -347,8 +337,6 @@ define([
             });
 
 
-
-
             /** Create view for liste */
             app.views.proxemy = new Cello.ui.list.CollectionView({
                 collection : app.models.vertices,
@@ -357,9 +345,7 @@ define([
             }).render();
 
 
-
             /** Create view for graph */
-
             var gviz = new Cello.gviz.ThreeViz({
                 el: "#vz_threejs_main",
                 model: app.models.graph,
@@ -379,7 +365,7 @@ define([
             
             // intersect events
             gviz.on( 'intersect:node', function(vertex, mouse){
-                    gviz.model.vs.set_intersected(vertex);
+                gviz.model.vs.set_intersected(vertex);
             });
             
             gviz.on( 'intersect:edge', function(edge, mouse){
@@ -500,7 +486,6 @@ define([
             // placeholder
             app.views.query.$input.tagsinput('input').attr('placeholder', "          ... Loading ...");
             
-            
             // force piwik (if any) to track the new 'page'
             //Cello.utils.piwikTrackCurrentUrl();
         },
@@ -526,9 +511,9 @@ define([
             app.router.navigate(response.results.query.uri);
         },
 
+        /* callback when new data arrived */
         update_models: function(response){
-
-            // parse graph
+            // parse and reset graph
             app.models.graph.reset(response.results.graph);
 
             // apply layout
@@ -537,10 +522,19 @@ define([
                 app.models.graph.vs.get(i).set("coords", coords[i], {silent:true});
             }
 
+            // reset vertices collection
+            app.models.vertices.reset(app.models.graph.vs.models);
+
             // reset clustering
-            app.models.clustering.reset(response.results.clusters,
+            app.models.clustering.reset(
+                response.results.clusters,
                 {
-                   members : { vs : { source: app.models.graph.vs, id_field: 'vids' } }
+                    members: {
+                        vs:{
+                            source: app.models.graph.vs,
+                            id_field: 'vids' 
+                        }
+                    }
                 }
             );
 
@@ -550,9 +544,6 @@ define([
             // reset graph visualization
             app.views.gviz.reset();
 
-            // reset proxemy view
-            app.models.vertices.reset(app.models.graph.vs.models);
-            
             // edge color on node selection
             var graph = app.models.graph;
             graph.vs.each( function(node){
@@ -580,9 +571,9 @@ define([
                     vtx.add_flag("form");
                 vtx.label = function(){ return this.get('form') };
             });
-            
-            /*  definition */
 
+            /*  definition */
+            // TODO: create a proper view/model if this become bigger...
             // clear nav & .def
             $('#wkdef .nav').html("");
             $('#wkdef .tab-content').html("");
@@ -591,17 +582,18 @@ define([
             
             _.each(response.results.query.units, function(e,i){
                 var unit = _.extend({ active: i == 0 ? 'active' : "", id : 'tabpane'+i }, e );
-                $.ajax( app.def_url + unit.lang+"/" + unit.form, {
+                $.ajax(
+                    app.def_url + unit.lang+"/" + unit.form,
+                    {
                         success : function(data){
-                            $('#wkdef .nav').append(li(unit))
-                            $('#wkdef .tab-content').append("<div class='tab-pane "+ unit.active +"' id='"+unit.id+"'>" + data.content + "</div>")                            
+                            $('#wkdef .nav').append(li(unit));
+                            $('#wkdef .tab-content').append("<div class='tab-pane "+ unit.active +"' id='"+unit.id+"'>" + data.content + "</div>");
                         }
-                    });
+                    }
+                );
             });
             $('#tabs').tab();
-            
         },
-
 
         /** when the search failed
          */
@@ -645,6 +637,22 @@ define([
                 app.models.query.reset_from_models(model) ;
         },
 
+        showAbout: function(){
+            var msg = _.template($("#about_tmpl").text());
+            bootbox.dialog({
+              title: "A propos de TMuse",
+              message: msg,
+              onEscape: function() {},
+              buttons: {
+                main: {
+                  label: "OK",
+                  className: "btn-primary",
+                  callback: function() {}
+                }
+              }
+            });
+        },
+
         // main function
         start: function(){
             var app = this;
@@ -658,7 +666,9 @@ define([
             app.create_models();
 
             ///// DEBUG: this add the app to global (guardian_app)
-            app._add_to_global();
+            if(app.DEBUG){
+                app._add_to_global();
+            }
 
             // create views
             app.create_query_engine_views();
@@ -666,6 +676,12 @@ define([
 
             // --- Binding the app ---
             _.bindAll(this, "engine_play_completed", "cluster_selected", "search_loading");
+            this.listenTo(app.views.query, "submited", function(){
+                if(app.models.query.validate()){
+                    app.models.cellist.play();     //note: the cellist know query model
+                }
+            })
+            
             // bind clusters
             this.listenTo(app.models.clustering, 'change:selected', app.cluster_selected);
 
@@ -712,11 +728,11 @@ define([
             var min_height = 250;
             
             var _window_resized = function(){
-                  var win = $(this); //this = window
-                  size =  $(window).height()-122;
-                  size = size < min_height ? min_height : size;
-                  $("#myCarousel .item").height(size);
-                  app.views.gviz.resize_rendering()
+                var win = $(this); //this = window
+                size =  $(window).height()-72;
+                size = size < min_height ? min_height : size;
+                $("#myCarousel .item").height(size);
+                app.views.gviz.resize_rendering()
             }
 
             // bug refresh graph viz
@@ -728,7 +744,10 @@ define([
                 _window_resized();
             });
 
-
+            // about menu
+            $("a.about").on('click', function(){
+                app.showAbout();
+            })
 
             // Router
             var AppRouter = Backbone.Router.extend({

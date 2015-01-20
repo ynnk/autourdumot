@@ -119,9 +119,6 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
     });
 
 
-
-
-
     // --- Clustering model ---
     // Clustering model and view
 
@@ -181,9 +178,10 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
     // --- Graph model ---
     Models.Vertex = Cello.Vertex.extend({
          _format_label : function(){
+             // css should be in materials
             return [ {form : this.get('form'), css : ".normal-font"} ];
         }
-    },{
+    },{ // !! static not in the same brackets !!
         active_flags : ['intersected', 'faded', 'selected']
     });
 
