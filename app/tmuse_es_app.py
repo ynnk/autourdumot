@@ -43,7 +43,7 @@ def index(query=None):
     return render_template(
          "index_nav.html",
          root_url=url_for("index"),
-         complete_url=url_for("%s.ajax_complete" % tmuseApi.name),
+         complete_url=url_for("%s.complete" % tmuseApi.name),
          engine_url=url_for("%s.subgraph" % tmuseApi.name),
          def_url=url_for("wkdef", domain="", query="")[:-1] # rm trailing /
     )

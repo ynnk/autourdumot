@@ -3,13 +3,67 @@
 
 import igraph 
 
+from reliure import Optionable
+from reliure.types import GenericType
 from reliure.types import Text, Numeric, Boolean
+
 from cello.schema import Doc, Schema
 from cello.graphs.builder import OptionableGraphBuilder
 
+def QueryUnit(**kwargs):
+    default = {
+        'lang'  : 'fr',
+        'pos'   : 'V',
+        'form'  : None
+    }
+    default.update(kwargs)
+    default['graph'] = 'jdm.%s.flat' % default['pos']
+    return default
+
+
+class ComplexQuery(GenericType):
+    """ Tmuse query type, basicly a list of :class:`QueryUnit`
+    
+    >>> qtype = ComplexQuery()
+    >>> qtype.parse("fr.V.manger")
+    [{'lang': 'fr', 'form': 'manger', 'graph': 'jdm.V.flat', 'pos': 'V'}]
+    >>> qtype.parse("fr.A.rouge fr.A.bleu")
+    [{'lang': 'fr', 'form': 'rouge', 'graph': 'jdm.A.flat', 'pos': 'A'}, {'lang': 'fr', 'form': 'bleu', 'graph': 'jdm.A.flat', 'pos': 'A'}]
+    >>> qtype.parse([{'lang': 'fr', 'form': 'manger', 'pos': 'V'}])
+    [{'lang': 'fr', 'form': 'manger', 'graph': 'jdm.V.flat', 'pos': 'V'}]
+    >>> qtype.parse([{'form': 'manger'}])
+    [{'lang': 'fr', 'graph': 'jdm.V.flat', 'pos': 'V', 'form': 'manger'}]
+    """
+    def parse(self, value):
+        query = []
+        if isinstance(value, basestring):
+            for ele in value.split():
+                ele = ele.strip().split(".")
+                qunit = {}
+                qunit["form"] = ele[-1]
+                if len(ele) >= 2:
+                    qunit["pos"] = ele[-2]
+                    if len(ele) >= 3:
+                        qunit["lang"] = ele[-3]
+                query.append(QueryUnit(**qunit))
+        else:
+            query = [
+                QueryUnit(**{k:v for k,v in val.iteritems() if v is not None})
+                for val in value
+            ]
+        return query
+
+    @staticmethod
+    def serialize(complexquery):
+        uri = ",".join([  '.'.join( ( q['lang'], q['pos'], q['form'] ) ) for q in complexquery ])
+        return {
+            'units': complexquery,
+            'uri': uri
+       }
+
 
 class TmuseEsGraphBuilder(OptionableGraphBuilder):
-    """ Unipartite link graph """
+    """ Build a graph from a tmuse Unipartite link graph """
     def __init__(self, directed=False, reflexive=True, label_attr='form', vtx_attr='docnum', links_attr="out_links"):
         # Optionable init 
         OptionableGraphBuilder.__init__(self, "GraphBuilder", directed=False)
@@ -27,9 +81,9 @@ class TmuseEsGraphBuilder(OptionableGraphBuilder):
 
         eattrs = ("weight",)
         map( self.declare_eattr, eattrs )
-    
+
     @OptionableGraphBuilder.check
-    def __call__(self, docs,  vtx_attr='form', links_attr='out_links', label_attr='form'):
+    def __call__(self, docs, vtx_attr='form', links_attr='out_links', label_attr='form'):
 
         encode = lambda x: x.encode('utf8') if  type(x) == unicode else str(x)
         kdocs = list(docs)
@@ -111,8 +165,8 @@ def subgraph(index, query, length=50):
     print 'g', graph.summary()
     
     return graph
-    
-        
+
+
 def extract(index, q,  length=50):
     body = {
             "_source": ['graph', 'form','gid', 'prox', 'neighbors'],
@@ -140,6 +194,7 @@ def extract(index, q,  length=50):
 
     return []
 
+
 def to_graph(docs, pzeros=[]):
     
     build_graph = TmuseEsGraphBuilder()
@@ -147,10 +202,8 @@ def to_graph(docs, pzeros=[]):
         
     return graph
 
-    
 
 def search_docs(index, graph, ids):
-    
     docs = []
     q = { 
         "_source":['graph', 'lang', 'pos', 'form', 'gid','neighbors', 'neighborhood'],
@@ -177,6 +230,7 @@ def search_docs(index, graph, ids):
     res = index.search(body=q, size=len(ids))
     return res
 
+
 TmuseDocSchema = Schema(
     docnum=Numeric(),
     # stored fields
@@ -190,7 +244,7 @@ TmuseDocSchema = Schema(
     # computed fields
     rank=Numeric(),
     score=Numeric(vtype=float, default=0.)
-)    
+)
 
 def to_docs(es_res, pzeros):
     _pzeros = set(pzeros) or set([]) 
@@ -215,56 +269,83 @@ def to_docs(es_res, pzeros):
     return docs
 
 
-
-    
-
-def complete(index, text, field='form_suggest', size=100):
+class TmuseEsComplete(Optionable):
     """ auto complete helper to find matching candidates 
-    :param index: <EsIndex> to search candidates
-     
+    
+    Usage exemple:
+    >>> from cello.providers import es
+    >>> index = es.EsIndex("docs", host="localhost:9200")
+    >>> completion = TmuseEsComplete(index)
+    
+    Options:
+    >>> completion.print_options()
+    size (Numeric, default=20): Max number of propositions
     """
-    prefix = ["*"]
+    def __init__(self, index, field='form_suggest'):
+        """
 
-    splitted = text.split(".")
-    if len(splitted) > 1 :
-        text = splitted[-1]
-        prefix = splitted[:-1]
-        if len(prefix) > 1 :
-            prefix = ".".join(prefix) 
-    
-    response = { 'prefix': prefix, 'text':text, 'length': 0, 'complete': [] }
-    
-    key = "word_completion"
-    body = {
-        key: {
-            "text": text,
-            "completion": {
-                "field": field,
-                "size": size,
-                "context": {
-                    "prefix": prefix
+        :param index: <EsIndex> to search candidates
+        :param field: the field to use for autocompletion
+        """
+        super(TmuseEsComplete, self).__init__()
+        self.es_idx = index
+        self.field = field
+        self.add_option("size", Numeric(
+            vtype=int, min=0, max=300, default=20,
+            help="Max number of propositions"
+        ))
+
+    @Optionable.check
+    def __call__(self, lang, pos, form, size=None):
+        text = form
+        prefix = []
+        if lang != u"*":
+            prefix.append(lang)
+        if pos != u"*":
+            prefix.append(pos)
+        if len(prefix):
+            prefix = ".".join(prefix)
+        else:
+            prefix = "*"
+
+        self._logger.debug("Ask completion, prefix=%s text=%s" % (prefix, text))
+        # preparing response data
+        response = {
+            'prefix': prefix,
+            'text': text,
+            'length': 0,
+            'complete': []
+        }
+
+        key = "word_completion"
+        body = {
+            key: {
+                "text": text,
+                "completion": {
+                    "field": self.field,
+                    "size": size,
+                    "context": {
+                        "prefix": prefix
+                    }
                 }
             }
         }
-    }
-    res = index.suggest(body=body)
-    #return res
-    if key in res and res[key][0].get('length', 0) :
-        complete = []
-        
-        options = res[key][0]['options']
-        for opt in options:
-            complete.append( {
-                "graph": opt['payload']['graph'],
-                "lang": opt['payload']['lang'],
-                "pos": opt['payload']['pos'],
-                "form": opt['payload']['form'],
-                "score": opt['score'],
-                "output": opt['text']
-            })
-            
-        response['length'] = len(complete)
-        response['complete'] = complete
-        response['size'] = size
-    
-    return response
+        res = self.es_idx.suggest(body=body)
+        # process results (if any)
+        if key in res and res[key][0].get('length', 0):
+            complete = []
+            options = res[key][0]['options']
+            for opt in options:
+                complete.append({
+                    "graph": opt['payload']['graph'],
+                    "lang": opt['payload']['lang'],
+                    "pos": opt['payload']['pos'],
+                    "form": opt['payload']['form'],
+                    "score": opt['score'],
+                    "output": opt['text']
+                })
+            response['length'] = len(complete)
+            response['complete'] = complete
+            response['size'] = size
+        return response
+

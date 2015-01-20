@@ -135,13 +135,15 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
         update_data: function(data){return data},
         
         parse: function(data){
-            return data.complete;
+            console.log(data)
+            return data.results.response ? data.results.response.complete : [];
         },
 
-        fetch: function(options) {                    
+        fetch: function(options) {
             options || (options = {});
             var data = (options.data || {});
             options.data = this.update_data(data);
+            options.type = "POST";  // force POST to be compatible with reliure API
             return Backbone.Collection.prototype.fetch.call(this, options);
           }, 
     });
