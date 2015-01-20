@@ -16,9 +16,7 @@ define([
     'autocomplete',
     'bootstrap',
     'mousetrap',
-    // materials
-    //'materials',
-    // cello
+        // cello
     'cello_ui',  
     'cello_gviz',
     // models
@@ -122,7 +120,7 @@ define([
 
                 select: function () {
                     console.log("completion select ", this.model.attributes)
-                    app.models.query.add(new TmuseQueryUnit(this.model.attributes) );
+                    app.models.query.add(new Models.TmuseQueryUnit(this.model.attributes) );
                     this.parent.hide();
                     return this;
                 }
@@ -204,10 +202,10 @@ define([
             app.models.cellist.register_input("query", app.models.query);
 
             //  completion
-            CompleteCollection = Models.CompleteCollection.extend({
+            CompleteCollection = AutoComplete.Collection.extend({
                 url:app.complete_url,
                 update_data: function(data){
-                    var units = app.models.query;
+                    var units = app.models.query.models;
                     // prevents fetching completion with a different pos or lang
                     // if any item in query
                     if (units.length){
@@ -369,10 +367,11 @@ define([
                 wnode_scale: function(vtx){
                     return 8 + vtx.get("neighbors") / 8.;
                 },
-                force_position_no_delay: false
+                force_position_no_delay: false,
+                materials: Materials
+                
             });
             //var materials = JSON.parse(Materials);
-            var materials = Materials;
             
             var graph = app.models.graph;
             

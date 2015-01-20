@@ -120,32 +120,6 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
 
 
 
-    /* completion  */
-    // Completion collection & models 
-    Models.CompleteCollection = Backbone.Collection.extend({
-        model : Backbone.Model.extend({
-            defaults : {
-                graph: "",
-                lang: "",
-                pos: "",
-                form: ""
-            },
-        }),
-        
-        update_data: function(data){return data},
-        
-        parse: function(data){
-            return data.complete;
-        },
-
-        fetch: function(options) {                    
-            options || (options = {});
-            var data = (options.data || {});
-            options.data = this.update_data(data);
-            return Backbone.Collection.prototype.fetch.call(this, options);
-          }, 
-    });
-
 
 
     // --- Clustering model ---
@@ -208,7 +182,8 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
     Models.Vertex = Cello.Vertex.extend({
          _format_label : function(){
             return [ {form : this.get('form'), css : ".normal-font"} ];
-        },
+        }
+    },{
         active_flags : ['intersected', 'faded', 'selected']
     });
 
