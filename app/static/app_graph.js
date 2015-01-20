@@ -729,11 +729,11 @@ define([
             var min_height = 250;
             
             var _window_resized = function(){
-                  var win = $(this); //this = window
-                  size =  $(window).height()-122;
-                  size = size < min_height ? min_height : size;
-                  $("#myCarousel .item").height(size);
-                  app.views.gviz.resize_rendering()
+                var win = $(this); //this = window
+                size =  $(window).height()-72;
+                size = size < min_height ? min_height : size;
+                $("#myCarousel .item").height(size);
+                app.views.gviz.resize_rendering()
             }
 
             // bug refresh graph viz
