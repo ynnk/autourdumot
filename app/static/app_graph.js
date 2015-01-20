@@ -735,7 +735,7 @@ define([
             
             var _window_resized = function(){
                 var win = $(this); //this = window
-                size =  $(window).height()-72;
+                size =  $(window).height()-88;
                 size = size < min_height ? min_height : size;
                 $("#myCarousel .item").height(size);
                 app.views.gviz.resize_rendering()

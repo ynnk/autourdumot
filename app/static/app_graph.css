@@ -25,10 +25,10 @@ html, body{
 }
 
 .footer {
-    color: #1F1D1D;
+    color: #DFDFDF;
     padding-bottom: 0px;
     position: relative;
-    margin-top: -24px;
+    margin-top: 1px;
 }
 
 h1 {
