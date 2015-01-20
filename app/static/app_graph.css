@@ -94,6 +94,7 @@ ul.autocomplete li.active{
     margin-left: 3px;
     margin-top: 7px;
     margin-bottom: 0px;
+    max-width: 790px;
 }
 .search.nav form div.form-group{
     margin: 0px;
