@@ -298,7 +298,7 @@ define([
 
             // vertex sorted by proxemy
             
-            var ItemView = Cello.ui.doclist.DocItemView.extend({
+            var ItemView = Cello.ui.doclist.DocView.extend({
                 template: _.template($("#ListLabel").html()),
                 events:{
                     "click": "clicked",
