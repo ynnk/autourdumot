@@ -215,7 +215,10 @@ define([
             app.models.completion = new CompleteCollection({});
 
             // --- Graph model ---
-            app.models.graph = new Cello.Graph({vertex_model: Models.Vertex}) //warn: it is updated when result comes
+            app.models.graph = new Cello.Graph({
+                            vertex_model: Models.Vertex,
+                            edge_model: Models.Edge,
+                }) //warn: it is updated when result comes
 
             // clustering
             app.models.clustering = new Cello.Clustering({ClusterModel: Models.Cluster, color_saturation:50});
@@ -370,18 +373,16 @@ define([
             /* Events */
             
             // intersect events
-            gviz.on( 'intersect:node', function(vertex, mouse){
+            gviz.on( 'intersectOn:node', function(vertex, mouse){
                 gviz.model.vs.set_intersected(vertex);
             });
             
-            gviz.on( 'intersect:edge', function(edge, mouse){
-                gviz.model.es.set_intersected(edge);
-            });
-            gviz.on( 'intersect', function(obj, mouse){
-                if ( obj === null ){
-                    gviz.model.es.set_intersected(null);
-                    gviz.model.vs.set_intersected(null);
-                }
+            //gviz.on( 'intersectOn:edge', function(edge, mouse){
+                //gviz.model.es.set_intersected(edge);
+            //});
+            gviz.on( 'intersectOff', function(obj, mouse){
+                gviz.model.es.set_intersected(null);
+                gviz.model.vs.set_intersected(null);
                 console.log("intersect",obj)
                 gviz.request_animation();
             } );

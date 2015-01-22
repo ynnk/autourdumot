@@ -1,4 +1,5 @@
-import urllib2
+import re
+import requests
 from pyquery import PyQuery as pq
 from  urllib import quote
     
@@ -6,30 +7,39 @@ from  urllib import quote
 def get_arg(path):
     args = [ i for i in path.split('/') if not i == ""]
     return args[-1]
-
-def _pyquery_opener(url):
-    """ set special user agent to trick wiktionary and prevent 403"""
-    #see http://www.diveintopython.org/http_web_services/user_agent.html
-    request = urllib2.Request(url) 
-    request.add_header('User-Agent', 'OpenAnything/1.0') 
-    opener = urllib2.build_opener()
-
-    xml = opener.open(request).read()
+    
+def _pyquery_requests_opener(url):
+    # TODO : set headers to trick user agent
+    xml = requests.get(url).content
     xml = xml.replace(' xmlns=', ' ns=') # hack  namespace lxml bug
-
     return xml.decode('utf8')
 
 
+
 def get_wk_definition(domain, query):
-    
-    useless = ('#contentSub', '#siteSub' ,'#jump-to-nav', '#toc', '#catlinks', '.printfooter', '.visualClear', '.editsection')
+        
     base_url = "http://%s.wiktionary.org" % domain
-    
     url = "%s/wiki/%s" % (base_url, quote(query))
-    p = pq(url=url, opener=_pyquery_opener) # using special opener to trick user agent
-    definition = p('#bodyContent')
     
+    p = pq(url=url, opener=_pyquery_requests_opener)
+    content = p('#bodyContent').html()
+
+    # clean ids
+    ids_to_replace = {
+        ".C3.A9" : "e"
+    }
+
+    for k,v in ids_to_replace.iteritems():
+        content = content.replace(k,v)
+
     # removes useless data
+    useless = ('#contentSub', '#siteSub' ,'#jump-to-nav', '#toc', '#catlinks', '.printfooter', '.visualClear', '.editsection',# section edit
+    'h1', 'h2', #'h3', # titles
+    '.flextable', # table singulier / pluriel
+    #'#References'
+    ) 
+
+    definition = pq(content)
     for i, e in enumerate(useless):
         definition.remove(e) 
     
@@ -46,6 +56,8 @@ def get_wk_definition(domain, query):
         src = pq(img).attr('src')
         if src[0] == "/" and not src[1] == "/": 
             pq(img).attr('src', domain + src)
+
+    # 
     
     # add title and infos
     #definition.prepend("<h1>%s</h1>"%(query) )

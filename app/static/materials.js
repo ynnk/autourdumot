@@ -7,7 +7,7 @@ define(['cello_gviz'], function(Cello) {
 
         return {
           'edge' : [
-                    {  ':faded': {  
+                    {  '.faded': {  
                         'lineWidth'  : 1,
                         'opacity'    : 0.3,
                         'color'      : function(edge){return Cello.gviz.hexcolor(edge.source.get('color'))}
@@ -16,19 +16,19 @@ define(['cello_gviz'], function(Cello) {
                     ],
             
           'node': [{ '.form': {
-                            'shape': 'circle',
-                            'scale':1,
-                            'strokeStyle': "gradient:#CCC",
-                            //'shape': 'triangle',
-                            'lineWidth' : 0.1,
-                            'fontScale'  :  0.2,
-                            'fontFillStyle'  : '#333',  //#366633',           
-                            'fontStrokeStyle'  : '#333',
-                            'textPaddingY'  : -1,
-                            'textPaddingX'  : 0
+                        'shape': 'circle',
+                        'scale':1,
+                        'strokeStyle': "gradient:#CCC",
+                        //'shape': 'triangle',
+                        'lineWidth' : 0.1,
+                        'fontScale'  :  0.2,
+                        'fontFillStyle'  : '#333',  //#366633',           
+                        'fontStrokeStyle'  : '#333',
+                        'textPaddingY'  : -1,
+                        'textPaddingX'  : 0
                     } },
 
-                    { '.form:intersected':  {
+                    { '.form .intersected':  {
                             'scale':2,
                             'strokeStyle': "gradient:#DDD",
                     } },

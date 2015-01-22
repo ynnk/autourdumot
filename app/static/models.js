@@ -185,5 +185,11 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
         active_flags : ['intersected', 'faded', 'selected']
     });
 
+    // --- Graph model ---
+    Models.Edge = Cello.Edge.extend({
+    },{ // !! static not in the same brackets !!
+        active_flags : ['intersected', 'faded', 'selected']
+    });
+
     return Models;
 });
