@@ -4,5 +4,5 @@ flask-runner
 pyyaml
 elasticsearch
 requests
-git+ssh://192.168.122.99/var-hdd/git/reliure/@engineapi
-git+ssh://192.168.122.99/var-hdd/git/cello/@with_reliure
+git+ssh://192.168.122.99/var-hdd/git/reliure/@master
+git+ssh://192.168.122.99/var-hdd/git/cello/@master
