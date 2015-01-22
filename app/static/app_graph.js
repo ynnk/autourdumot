@@ -382,7 +382,7 @@ define([
                     gviz.model.es.set_intersected(null);
                     gviz.model.vs.set_intersected(null);
                 }
-                //console.log("intersect",obj)
+                console.log("intersect",obj)
                 gviz.request_animation();
             } );
 
@@ -399,12 +399,13 @@ define([
 
                 var edges = graph.incident(node);
                 graph.es.add_flag('faded', _.difference(graph.es.models, edges));
+                console.log( 'click:node' , event);
                 
             });
 
             gviz.on( 'click:edge', function(obj, event){
                 //alert(JSON.stringify( event));
-                console.log( event);
+                console.log( 'click:edge' , event);
             });
             
             gviz.on( 'click', function(obj, event){
@@ -413,7 +414,7 @@ define([
                     graph.vs.remove_flag('faded');
                     graph.es.remove_flag('faded');
                 }
-                console.log( obj, event);
+                console.log("click", obj, event);
                 gviz.request_animation();
             });
             
