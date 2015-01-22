@@ -7,10 +7,9 @@ from flask import Flask
 from flask import request, render_template, url_for, abort, jsonify
 
 from reliure.utils.log import get_basic_logger
+from reliure.web import RemoteApi, app_routes
 
-from reliure.utils.web import RemoteApi, app_routes
 from tmuseapi import TmuseApi
-import wiktionary
 
 
 # Build the app & 
