@@ -1,5 +1,8 @@
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
 import re
 import requests
+import lxml
 from pyquery import PyQuery as pq
 from  urllib import quote
     
@@ -16,24 +19,30 @@ def _pyquery_requests_opener(url):
 
 
 
-def get_wk_definition(domain, query):
+def get_wk_definition(domain, query, allowed=None):
+    """
+    :param allowed: return all headlines if 
+    """
         
     base_url = "http://%s.wiktionary.org" % domain
     url = "%s/wiki/%s" % (base_url, quote(query))
-    
+
+    print url , allowed
     p = pq(url=url, opener=_pyquery_requests_opener)
     content = p('#bodyContent').html()
 
     # clean ids
     ids_to_replace = {
-        ".C3.A9" : "e"
+        ".C3.A9" : u"e",
+        ".C3.89" : u"E",
+        ".C3.A0" : u"à"
     }
 
     for k,v in ids_to_replace.iteritems():
         content = content.replace(k,v)
 
     # removes useless data
-    useless = ('#contentSub', '#siteSub' ,'#jump-to-nav', '#toc', '#catlinks', '.printfooter', '.visualClear', '.editsection',# section edit
+    useless = ('#contentSub', '#siteSub' ,'#jump-to-nav', '#toc', '#catlinks', '.printfooter', '.visualClear', '.mw-editsection', '.editsection',# section edit
     'h1', 'h2', #'h3', # titles
     '.flextable', # table singulier / pluriel
     #'#References'
@@ -57,12 +66,35 @@ def get_wk_definition(domain, query):
         if src[0] == "/" and not src[1] == "/": 
             pq(img).attr('src', domain + src)
 
-    # 
+    # sections cachees class: wk-hiddable
+    # sub def sections
+    cachable = ( "#mw-content-text ol li ul", )
+    for i, e in enumerate(cachable):
+        pq(e,definition).addClass("wk-hiddable")
+
+    # headlines ".mw-headline"
+    tag = lambda x : str(x.tag()) if callable(x.tag) else x.tag 
+
+    headlines = map(lambda e :  pq(e).attr('id'), pq(".mw-headline", definition) )
     
-    # add title and infos
-    #definition.prepend("<h1>%s</h1>"%(query) )
-    #definition.prepend("Definition taken from %s.wiktionary.org : <a href='%s' target='_blank'>%s</a> "%(domain, url, query) )
-    
+    # add  wk-headline class to headlines and all following tag until next <Hx> 
+    for i, e in enumerate(headlines):
+        if allowed is not None or len(allowed):
+            if any( key == e[:len(key)] for key in allowed  ):
+                continue
+
+        el = pq("#%s" % e, definition).parent()
+        el.addClass('wk-hiddable')
+        while True:
+            el = el.next()
+            # stop
+            if not len(el): break
+            if tag(el[0]).lower().startswith('h'): break
+            # skip comments
+            if type(el[0]) == lxml.html.HtmlComment : continue
+            
+            el.addClass('wk-hiddable')
+    # data    
     return  { 'domain': domain,
               'url' : url,
               'query' : query,

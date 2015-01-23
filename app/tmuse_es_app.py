@@ -10,7 +10,7 @@ from reliure.utils.log import get_basic_logger
 
 from reliure.web import RemoteApi, app_routes
 from tmuseapi import TmuseApi
-import wiktionary
+import wiktionary as wk
 
 
 # Build the app & 
@@ -55,20 +55,25 @@ def wkdef(domain, query):
     """ get and parse definition from wiktionary
         @returns html code of the definition
     """
+    pos_headers = { 'A':'Adjectif', 'N':'Nom_commun', 'V':'Verbe', 'E':'Adverbe'}
+
     data = {}
-    try : 
-        data = wiktionary.get_wk_definition(domain, query.encode('utf8'))
+    try :
+        pos = request.args.get('pos', None)
+        allowed = pos_headers.get(pos, None)
+        data = wk.get_wk_definition(domain, query.encode('utf8'), allowed=allowed)
     except :
+        raise
         resp = "<table><tr><td><img src='../static/images/warning.png'/></td><td>" + \
-        "can't get definition from <a href='"+url+"' target='_blank'>"+url+"</a>" + \
+        "can't get definition from <a href='"+query+"' target='_blank'>"+query+"</a>" + \
         "</td></tr></table>"
 
         data = { 
             'content' : resp,
             'error' : error.message
         }
-    finally :
-        return jsonify(data)
+
+    return jsonify(data)
 
 
 def main():

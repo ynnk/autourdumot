@@ -380,6 +380,7 @@ define([
             //gviz.on( 'intersectOn:edge', function(edge, mouse){
                 //gviz.model.es.set_intersected(edge);
             //});
+            
             gviz.on( 'intersectOff', function(obj, mouse){
                 gviz.model.es.set_intersected(null);
                 gviz.model.vs.set_intersected(null);
@@ -591,7 +592,7 @@ define([
             _.each(response.results.query.units, function(e,i){
                 var unit = _.extend({ active: i == 0 ? 'active' : "", id : 'tabpane'+i }, e );
                 $.ajax(
-                    app.def_url + unit.lang+"/" + unit.form,
+                    app.def_url + unit.lang+"/" + unit.form + "?pos=" + unit.pos,
                     {
                         success : function(data){
                             $('#wkdef .nav').append(li(unit));
