@@ -45,6 +45,19 @@ h1 {
     line-height: 28px;
 }
 
+.label.pos-A {
+    background-color:rgb(133, 204, 102);
+}
+.label.pos-E {
+    background-color:rgb(102, 162, 204);
+}
+.label.pos-N {
+    background-color:rgb(204, 189, 102);
+}
+.label.pos-V {
+    background-color:rgb(204, 102, 102);
+}
+
 ul.autocomplete {
     display:none;
     position:absolute;

@@ -59,18 +59,18 @@ def wkdef(domain, query):
 
     data = {}
     try :
-        pos = request.args.get('pos', None)
-        allowed = pos_headers.get(pos, None)
+        pos = [ request.args.get('pos', None) ]
+        allowed = [ pos_headers.get(p, None) for p in pos ]
+        allowed = tuple( x for x in allowed if x is not None )
         data = wk.get_wk_definition(domain, query.encode('utf8'), allowed=allowed)
-    except :
-        raise
+    except:
         resp = "<table><tr><td><img src='../static/images/warning.png'/></td><td>" + \
         "can't get definition from <a href='"+query+"' target='_blank'>"+query+"</a>" + \
         "</td></tr></table>"
 
         data = { 
             'content' : resp,
-            'error' : error.message
+            #'error' : error.message
         }
 
     return jsonify(data)

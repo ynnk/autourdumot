@@ -44,13 +44,14 @@ define([
     /** The app itself
      * defines models, views, and actions binding all that !
     */
+
     var POS_MAPPING = {
         "A" : 'Adj.',
         "V" : 'V.',
         "N" : 'N.',
         "E" : 'Adv.',
     };
-
+    
     /** Query input & completion **/
     var QueryView = Backbone.View.extend({
         //note: the template should have an input with class 'query_input'
@@ -86,7 +87,7 @@ define([
               itemValue: function(model){return model},
               //itemText: function(model){return [model.get('lang'), model.get('pos'), model.get('form')].join(' ')},
               itemText: function(model){return [POS_MAPPING[model.get('pos')], model.get('form')].join(' ')},
-              tagClass: 'label label-primary'
+              tagClass: function(model){ return 'label label-primary pos-' + model.get('pos'); }
             });
 
             $input.on('itemRemoved', function(event){
@@ -102,13 +103,13 @@ define([
                 template: _.template(""+
                          //"<span class='label label-primary'><%= graph %></span> " +
                          //"<span class='label label-primary'><%= lang %></span> " +
-                         "<span class='label label-default'><%= pos %></span> " +
+                         "<span class='label label-default pos-<%=pos%>'><%= text %></span> " +
                          "<span class=''><%= form %></span>"
                      ),
 
                 render: function () {
                     var data = this.model.toJSON();
-                    data.pos = POS_MAPPING[data.pos];
+                    data.text = POS_MAPPING[data.pos];
                     this.$el.html( this.template(data) );
                     return this;
                 },
@@ -371,37 +372,32 @@ define([
             var graph = app.models.graph;
             
             /* Events */
-            
-            // intersect events
-            gviz.on( 'intersectOn:node', function(vertex, mouse){
-                gviz.model.vs.set_intersected(vertex);
-            });
-            
-            //gviz.on( 'intersectOn:edge', function(edge, mouse){
-                //gviz.model.es.set_intersected(edge);
-            //});
-            
+                        
             gviz.on( 'intersectOff', function(obj, mouse){
+                console.log("intersect",obj)
                 gviz.model.es.set_intersected(null);
                 gviz.model.vs.set_intersected(null);
-                console.log("intersect",obj)
+                gviz.model.vs.set_selected(null);
+                graph.vs.remove_flag('faded');
+                graph.es.remove_flag('faded');
+                graph.es.remove_flag('bolder');
                 gviz.request_animation();
             } );
 
             // click eventshttp://www.youtube.com/watch?v=tw1lEOUWmN8
-            gviz.on( 'click:node', function(node, event){
+            gviz.on( 'intersectOn:node', function(node, event){
                 // multiple selection
                 //if ( event.ctrlKey )
                     //gviz.model.vs.add_selected(obj !== null ? obj : []);
                 //else // single
-                gviz.model.vs.set_selected(node !== null ? node : []);
+                gviz.model.vs.set_intersected(node !== null ? node : []);
 
                 var nodes = node.neighbors();
                 graph.vs.add_flag('faded', _.difference(graph.vs.models, nodes));
 
                 var edges = graph.incident(node);
+                graph.es.add_flag('bolder', edges);
                 graph.es.add_flag('faded', _.difference(graph.es.models, edges));
-                console.log( 'click:node' , event);
                 
             });
 
@@ -410,12 +406,7 @@ define([
                 console.log( 'click:edge' , event);
             });
             
-            gviz.on( 'click', function(obj, event){
-                if( obj === null ){
-                    gviz.model.vs.set_selected(null);
-                    graph.vs.remove_flag('faded');
-                    graph.es.remove_flag('faded');
-                }
+            gviz.on( 'click:node', function(obj, event){
                 console.log("click", obj, event);
                 gviz.request_animation();
             });

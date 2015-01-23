@@ -21,13 +21,14 @@ def _pyquery_requests_opener(url):
 
 def get_wk_definition(domain, query, allowed=None):
     """
-    :param allowed: return all headlines if 
-    """
-        
+    :param allowed: None or [] returns all headlines
+        compare keys on the same length
+        ex: allowed=("boo",) would allow headlines "boo", "boolean"
+    """        
+    assert allowed is None or type(allowed) in (list, tuple, set), "Wrong type for 'allowed"
     base_url = "http://%s.wiktionary.org" % domain
     url = "%s/wiki/%s" % (base_url, quote(query))
-
-    print url , allowed
+    
     p = pq(url=url, opener=_pyquery_requests_opener)
     content = p('#bodyContent').html()
 
@@ -55,7 +56,6 @@ def get_wk_definition(domain, query, allowed=None):
     # change links to open in new window
     for link in definition.find('a'):
         href = pq(link).attr('href')
-        #print href
         if href[0] != "#" and href[0:4] != "http" : # not an anchor or external link
             pq(link).attr('target' , '_blank')
             pq(link).attr('href', base_url + href)
@@ -78,21 +78,21 @@ def get_wk_definition(domain, query, allowed=None):
     headlines = map(lambda e :  pq(e).attr('id'), pq(".mw-headline", definition) )
     
     # add  wk-headline class to headlines and all following tag until next <Hx> 
-    for i, e in enumerate(headlines):
-        if allowed is not None or len(allowed):
+    if allowed is not None and len(allowed):
+        for i, e in enumerate(headlines):
             if any( key == e[:len(key)] for key in allowed  ):
                 continue
 
-        el = pq("#%s" % e, definition).parent()
-        el.addClass('wk-hiddable')
-        while True:
-            el = el.next()
-            # stop
-            if not len(el): break
-            if tag(el[0]).lower().startswith('h'): break
-            # skip comments
-            if type(el[0]) == lxml.html.HtmlComment : continue
-            
+            el = pq("#%s" % e, definition).parent()
+            el.addClass('wk-hiddable')
+            while True:
+                el = el.next()
+                # stop if not next or tag is title 'h1..'
+                if not len(el): break
+                if tag(el[0]).lower().startswith('h'): break
+                # skip comments
+                if type(el[0]) == lxml.html.HtmlComment : continue
+                
             el.addClass('wk-hiddable')
     # data    
     return  { 'domain': domain,

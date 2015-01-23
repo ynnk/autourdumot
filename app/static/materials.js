@@ -12,6 +12,11 @@ define(['cello_gviz'], function(Cello) {
                         'opacity'    : 0.3,
                         'color'      : function(edge){return Cello.gviz.hexcolor(edge.source.get('color'))}
                         }
+                    },
+                    {  '.bolder': {  
+                        'lineWidth'  : 3,
+                        'opacity'    : 1,
+                        }
                     }
                     ],
             
@@ -57,6 +62,10 @@ define(['cello_gviz'], function(Cello) {
 
                     { '.target:intersected': {
                             'strokeStyle': "gradient:#AAA",
+                    } },
+
+                    { ':intersected': {
+                            'scale':3,
                     } }
                 ]
         }
