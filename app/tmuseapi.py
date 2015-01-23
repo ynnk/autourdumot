@@ -17,54 +17,54 @@ from tmuse import ComplexQuery
 from tmuse import QueryUnit as Query
 
 def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph'):
-        """ API over tmuse elastic search
-        """
-        esindex = EsIndex(index_name, doc_type=doc_type , host=host)
-        assert esindex._es.ping(), "impossible to reach ES server"
+    """ API over tmuse elastic search
+    """
+    esindex = EsIndex(index_name, doc_type=doc_type , host=host)
+    assert esindex._es.ping(), "impossible to reach ES server"
 
-        # build the API from this engine
-        print "api name", name
-        api = ReliureAPI(name)
+    # build the API from this engine
+    print "api name", name
+    api = ReliureAPI(name)
 
-        # Main api entry point: tmuse engine (subgraph)
-        view = EngineView(engine(esindex))
-        view.set_input_type(ComplexQuery())
-        view.add_output("query", ComplexQuery())
-        view.add_output("graph", export_graph)
-        view.add_output("layout", export_layout)
-        view.add_output("clusters", export_clustering)
-        # add a simple play route
-        view.play_route("<query>")
-        api.register_view(view, url_prefix="subgraph")
+    # Main api entry point: tmuse engine (subgraph)
+    view = EngineView(engine(esindex))
+    view.set_input_type(ComplexQuery())
+    view.add_output("query", ComplexQuery())
+    view.add_output("graph", export_graph)
+    view.add_output("layout", export_layout)
+    view.add_output("clusters", export_clustering)
+    # add a simple play route
+    view.play_route("<query>")
+    api.register_view(view, url_prefix="subgraph")
 
-        # Add auto completion View
-        completion = tmuse.TmuseEsComplete(index=esindex)
-        completion_view = ComponentView(completion)
-        completion_view.add_input("lang", Text(default=u"*"))
-        completion_view.add_input("pos", Text(default=u"*"))
-        completion_view.add_input("form")
-        completion_view.add_output("response")
-        completion_view.play_route("<lang>.<pos>.<form>")
-        api.register_view(completion_view, url_prefix="complete")
+    # Add auto completion View
+    completion = tmuse.TmuseEsComplete(index=esindex)
+    completion_view = ComponentView(completion)
+    completion_view.add_input("lang", Text(default=u"*"))
+    completion_view.add_input("pos", Text(default=u"*"))
+    completion_view.add_input("form")
+    completion_view.add_output("response")
+    completion_view.play_route("<lang>.<pos>.<form>")
+    api.register_view(completion_view, url_prefix="complete")
 
-        # Debug views
-        @api.route("/_extract/<string:graph>/<string:text>")
-        def _extract(graph, text):
-            query = Query(graph=graph, form=text)
-            es_res = tmuse.extract(esindex, query)
-            return jsonify({ 'res': es_res})
-            
-        @api.route("/_prox/<string:graph>/<string:text>" )
-        def _prox(graph, text):
-            query = Query(graph=graph, form=text)
-            pz, proxs = tmuse.extract(esindex, query, 10)
-            proxs = dict(proxs)
-            ids = proxs.keys()
-            # request es with ids
-            es_res = tmuse.search_docs(esindex, graph, ids)
-            return jsonify({ 'ids': ids, 'res': es_res})
+    # Debug views
+    @api.route("/_extract/<string:graph>/<string:text>")
+    def _extract(graph, text):
+        query = Query(graph=graph, form=text)
+        es_res = tmuse.extract(esindex, query)
+        return jsonify({ 'res': es_res})
+        
+    @api.route("/_prox/<string:graph>/<string:text>" )
+    def _prox(graph, text):
+        query = Query(graph=graph, form=text)
+        pz, proxs = tmuse.extract(esindex, query, 10)
+        proxs = dict(proxs)
+        ids = proxs.keys()
+        # request es with ids
+        es_res = tmuse.search_docs(esindex, graph, ids)
+        return jsonify({ 'ids': ids, 'res': es_res})
 
-        return api
+    return api
 
 
 def engine(index):
