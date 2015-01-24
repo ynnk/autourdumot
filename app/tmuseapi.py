@@ -38,7 +38,9 @@ def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph'):
     api.register_view(view, url_prefix="subgraph")
 
     # Add auto completion View
-    completion = TmuseEsComplete(index=esindex)
+    completion = TmuseEsComplete(index=esindex, size=20)
+    # TODO suggestion rerank
+    # completion |= rerank
     completion_view = ComponentView(completion)
     completion_view.add_input("lang", Text(default=u"*"))
     completion_view.add_input("pos", Text(default=u"*"))
@@ -139,11 +141,12 @@ class TmuseEsComplete(Optionable):
     >>> completion.print_options()
     size (Numeric, default=20): Max number of propositions
     """
-    def __init__(self, index, field='form_suggest', size=20):
+    def __init__(self, index, field='form_suggest', size=10):
         """
 
         :param index: <EsIndex> to search candidates
         :param field: the field to use for autocompletion
+        :param size: default value for options 'size'
         """
         super(TmuseEsComplete, self).__init__()
         self.es_idx = index
@@ -155,6 +158,10 @@ class TmuseEsComplete(Optionable):
 
     @Optionable.check
     def __call__(self, lang, pos, form, size=None):
+        """
+        recursive call to tmuse.complete until text match suggestion
+        removing last character during each call
+        """
         response = {}
         params = dict(field=self.field, size=size)
         
