@@ -139,7 +139,7 @@ class TmuseEsComplete(Optionable):
     >>> completion.print_options()
     size (Numeric, default=20): Max number of propositions
     """
-    def __init__(self, index, field='form_suggest'):
+    def __init__(self, index, field='form_suggest', size=20):
         """
 
         :param index: <EsIndex> to search candidates
@@ -149,13 +149,16 @@ class TmuseEsComplete(Optionable):
         self.es_idx = index
         self.field = field
         self.add_option("size", Numeric(
-            vtype=int, min=0, max=300, default=20,
+            vtype=int, min=0, max=300, default=size,
             help="Max number of propositions"
         ))
 
     @Optionable.check
     def __call__(self, lang, pos, form, size=None):
-        text = form
+        response = {}
+        params = dict(field=self.field, size=size)
+        
+        text = form or ""
         prefix = []
         if lang != u"*":
             prefix.append(lang)
@@ -165,9 +168,10 @@ class TmuseEsComplete(Optionable):
             prefix = ".".join(prefix)
         else:
             prefix = "*"
-
-        self._logger.debug("Ask completion, prefix=%s text=%s" % (prefix, text))
-
-        response = tmuse.complete(self.es_idx, prefix, form, field=self.field, size=size)
+        
+        while len(text) and response.get('length',0) == 0 :
+            self._logger.debug("Ask completion, prefix=%s text=%s" % (prefix, text))
+            response = tmuse.complete(self.es_idx, prefix, text, **params )
+            text = text[:-1]
 
         return response
