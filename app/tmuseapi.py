@@ -38,7 +38,7 @@ def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph'):
     api.register_view(view, url_prefix="subgraph")
 
     # Add auto completion View
-    completion = tmuse.TmuseEsComplete(index=esindex)
+    completion = TmuseEsComplete(index=esindex)
     completion_view = ComponentView(completion)
     completion_view.add_input("lang", Text(default=u"*"))
     completion_view.add_input("pos", Text(default=u"*"))
@@ -127,3 +127,47 @@ def engine(index):
     )
     return engine
 
+class TmuseEsComplete(Optionable):
+    """ auto complete helper to find matching candidates 
+    
+    Usage exemple:
+    >>> from cello.providers import es
+    >>> index = es.EsIndex("docs", host="localhost:9200")
+    >>> completion = TmuseEsComplete(index)
+    
+    Options:
+    >>> completion.print_options()
+    size (Numeric, default=20): Max number of propositions
+    """
+    def __init__(self, index, field='form_suggest'):
+        """
+
+        :param index: <EsIndex> to search candidates
+        :param field: the field to use for autocompletion
+        """
+        super(TmuseEsComplete, self).__init__()
+        self.es_idx = index
+        self.field = field
+        self.add_option("size", Numeric(
+            vtype=int, min=0, max=300, default=20,
+            help="Max number of propositions"
+        ))
+
+    @Optionable.check
+    def __call__(self, lang, pos, form, size=None):
+        text = form
+        prefix = []
+        if lang != u"*":
+            prefix.append(lang)
+        if pos != u"*":
+            prefix.append(pos)
+        if len(prefix):
+            prefix = ".".join(prefix)
+        else:
+            prefix = "*"
+
+        self._logger.debug("Ask completion, prefix=%s text=%s" % (prefix, text))
+
+        response = tmuse.complete(self.es_idx, prefix, form, field=self.field, size=size)
+
+        return response

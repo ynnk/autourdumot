@@ -269,83 +269,46 @@ def to_docs(es_res, pzeros):
     return docs
 
 
-class TmuseEsComplete(Optionable):
+def complete(index, prefix, text, field='form_suggest', size=100):
     """ auto complete helper to find matching candidates 
-    
-    Usage exemple:
-    >>> from cello.providers import es
-    >>> index = es.EsIndex("docs", host="localhost:9200")
-    >>> completion = TmuseEsComplete(index)
-    
-    Options:
-    >>> completion.print_options()
-    size (Numeric, default=20): Max number of propositions
+    :param index: <EsIndex> to search candidates
+     
     """
-    def __init__(self, index, field='form_suggest'):
-        """
-
-        :param index: <EsIndex> to search candidates
-        :param field: the field to use for autocompletion
-        """
-        super(TmuseEsComplete, self).__init__()
-        self.es_idx = index
-        self.field = field
-        self.add_option("size", Numeric(
-            vtype=int, min=0, max=300, default=20,
-            help="Max number of propositions"
-        ))
-
-    @Optionable.check
-    def __call__(self, lang, pos, form, size=None):
-        text = form
-        prefix = []
-        if lang != u"*":
-            prefix.append(lang)
-        if pos != u"*":
-            prefix.append(pos)
-        if len(prefix):
-            prefix = ".".join(prefix)
-        else:
-            prefix = "*"
-
-        self._logger.debug("Ask completion, prefix=%s text=%s" % (prefix, text))
-        # preparing response data
-        response = {
-            'prefix': prefix,
-            'text': text,
-            'length': 0,
-            'complete': []
-        }
-
-        key = "word_completion"
-        body = {
-            key: {
-                "text": text,
-                "completion": {
-                    "field": self.field,
-                    "size": size,
-                    "context": {
-                        "prefix": prefix
-                    }
+    response = { 'prefix': prefix, 'text':text, 'length': 0, 'complete': [] }
+    
+    key = "word_completion"
+    body = {
+        key: {
+            "text": text,
+            "completion": {
+                "field": field,
+                "size": size,
+                "context": {
+                    "prefix": prefix
                 }
             }
         }
-        res = self.es_idx.suggest(body=body)
-        # process results (if any)
-        if key in res and res[key][0].get('length', 0):
-            complete = []
-            options = res[key][0]['options']
-            for opt in options:
-                complete.append({
-                    "graph": opt['payload']['graph'],
-                    "lang": opt['payload']['lang'],
-                    "pos": opt['payload']['pos'],
-                    "form": opt['payload']['form'],
-                    "score": opt['score'],
-                    "output": opt['text']
-                })
-            response['length'] = len(complete)
-            response['complete'] = complete
-            response['size'] = size
-        return response
+    }
+    res = index.suggest(body=body)
+    #return res
+    if key in res and res[key][0].get('length', 0) :
+        complete = []
+        
+        options = res[key][0]['options']
+        for opt in options:
+            complete.append( {
+                "graph": opt['payload']['graph'],
+                "lang": opt['payload']['lang'],
+                "pos": opt['payload']['pos'],
+                "form": opt['payload']['form'],
+                "score": opt['score'],
+                "output": opt['text']
+            })
+            
+        response['length'] = len(complete)
+        response['complete'] = complete
+        response['size'] = size
+    
+    return response
+
 
