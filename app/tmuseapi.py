@@ -20,6 +20,7 @@ def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph'):
     """ API over tmuse elastic search
     """
     esindex = EsIndex(index_name, doc_type=doc_type , host=host)
+    print "# TmuseApi", host, doc_type, index_name 
     assert esindex._es.ping(), "impossible to reach ES server"
 
     # build the API from this engine
@@ -100,8 +101,8 @@ def engine(index):
     from cello.graphs.transform import EdgeAttr
     from cello.clustering.common import Infomap, Walktrap
     #RMQ infomap veux un pds, donc on en ajoute un bidon
-    walktrap = EdgeAttr(weight=1.) |Walktrap()
-    infomap = EdgeAttr(weight=1.) | Infomap()
+    walktrap = EdgeAttr(weight=1.) |Walktrap() 
+    infomap = EdgeAttr(weight=1.) | Infomap() 
     engine.clustering.set(infomap, walktrap)
 
     ## Labelling
@@ -122,7 +123,7 @@ def engine(index):
     from cello.layout.transform import Shaker
     
     engine.layout.set(
-        ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(),
+        ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(kelastic=.3),
         ProxLayoutPCA(dim=2, name="ProxPca2d") | Shaker(),
         KamadaKawaiLayout(dim=3, name="KamadaKawai3D"),
         KamadaKawaiLayout(dim=2, name="KamadaKawai2D")

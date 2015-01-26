@@ -124,12 +124,19 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
 
     Models.Cluster = Cello.Cluster.extend({
         initialize : function(attrs, options){
+            var _this = this;
             Models.Cluster.__super__.initialize.apply(this, arguments);
-            _this = this;
+            
+             this.on('add remove reset', function(){
+                 this.each(function(model){
+                     model._compute_membership();
+                     model._compute_colors();
+                 })
+             });
             
             this.on("change:color", function(){
-                this.members.vs.each( function(vertex){
-                    vertex.set('cl_color',_this.color);
+                _this.members.vs.each( function(vertex){
+                    vertex.set('color',_this.color);
                 });
             });
             
@@ -139,16 +146,17 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
                 var other_clusters = this.collection.without(this);
                 
                 //if there is other selected clusters remove faded flag to its vertices
-                if(this.collection.selected.length > 1 ){
-                    this.members.vs.each( function(vertex){
-                          vertex.remove_flag('faded');
-                    });
-                }
+                _this.members.vs.each( function(vertex){
+                      vertex.add_flag('cluster');
+                });
                 
                 _(other_clusters).each(function(cluster){
                     if (!cluster.selected) {
                         cluster.members.vs.each( function(vertex){
-                          vertex.add_flag('faded');
+                            vertex.add_flag('cluster-faded');
+                            _.each(vertex.incident(), function(edge){
+                                    edge.add_flag('cluster-faded');
+                            });
                         });
                     }
                 });
@@ -158,7 +166,7 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
                 //if other clusters are still selected, just remove flag faded on the vertices of the current cluster
                 if( this.collection.some_selected() ){
                     this.members.vs.each( function(vertex){
-                        vertex.add_flag('faded');
+                        //vertex.remove_flag('cluster');
                     });
                 }
                 // else remove faded flag on the vertices of all other clusters
@@ -166,7 +174,10 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
                     var other_clusters = this.collection.without(this);
                     _(other_clusters).each(function(cluster){
                         cluster.members.vs.each( function(vertex){
-                            vertex.remove_flag('faded');
+                            vertex.remove_flag('cluster-faded');
+                        _.each(vertex.incident(), function(edge){
+                                edge.remove_flag('cluster-faded');
+                        });
                         });
                     });
                 }

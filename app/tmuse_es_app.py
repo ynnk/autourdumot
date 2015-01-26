@@ -64,6 +64,7 @@ def wkdef(domain, query):
         allowed = tuple( x for x in allowed if x is not None )
         data = wk.get_wk_definition(domain, query.encode('utf8'), allowed=allowed)
     except:
+        raise
         resp = "<table><tr><td><img src='../static/images/warning.png'/></td><td>" + \
         "can't get definition from <a href='"+query+"' target='_blank'>"+query+"</a>" + \
         "</td></tr></table>"

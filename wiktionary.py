@@ -28,7 +28,7 @@ def get_wk_definition(domain, query, allowed=None):
     assert allowed is None or type(allowed) in (list, tuple, set), "Wrong type for 'allowed"
     base_url = "http://%s.wiktionary.org" % domain
     url = "%s/wiki/%s" % (base_url, quote(query))
-    
+    print "Wiktionary", url
     p = pq(url=url, opener=_pyquery_requests_opener)
     content = p('#bodyContent').html()
 
@@ -36,7 +36,8 @@ def get_wk_definition(domain, query, allowed=None):
     ids_to_replace = {
         ".C3.A9" : u"e",
         ".C3.89" : u"E",
-        ".C3.A0" : u"à"
+        ".C3.A0" : u"à",
+        ".E2.80.99" : "_"
     }
 
     for k,v in ids_to_replace.iteritems():
@@ -82,7 +83,7 @@ def get_wk_definition(domain, query, allowed=None):
         for i, e in enumerate(headlines):
             if any( key == e[:len(key)] for key in allowed  ):
                 continue
-
+    
             el = pq("#%s" % e, definition).parent()
             el.addClass('wk-hiddable')
             while True:
@@ -93,7 +94,7 @@ def get_wk_definition(domain, query, allowed=None):
                 # skip comments
                 if type(el[0]) == lxml.html.HtmlComment : continue
                 
-            el.addClass('wk-hiddable')
+                el.addClass('wk-hiddable')
     # data    
     return  { 'domain': domain,
               'url' : url,

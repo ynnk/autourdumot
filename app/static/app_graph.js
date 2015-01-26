@@ -522,9 +522,6 @@ define([
                 app.models.graph.vs.get(i).set("coords", coords[i], {silent:true});
             }
 
-            // reset vertices collection
-            app.models.vertices.reset(app.models.graph.vs.models);
-
             // reset clustering
             app.models.clustering.reset(
                 response.results.clusters,
@@ -532,14 +529,14 @@ define([
                     members: {
                         vs:{
                             source: app.models.graph.vs,
-                            id_field: 'vids' 
+                            id_field: 'vids'
                         }
                     }
                 }
             );
 
-            // default color does not depend on visible panel
-            app.models.graph.vs.copy_attr('cl_color', 'color',{silent:true});
+            // reset vertices collection !!! should be done after clustering reset 
+            app.models.vertices.reset(app.models.graph.vs.models);
 
             // reset graph visualization
             app.views.gviz.reset();
@@ -683,7 +680,7 @@ define([
             })
             
             // bind clusters
-            this.listenTo(app.models.clustering, 'change:selected', app.cluster_selected);
+            //this.listenTo(app.models.clustering, 'change:selected', app.cluster_selected);
 
             // bind the engine
             // app events
