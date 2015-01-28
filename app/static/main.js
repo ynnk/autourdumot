@@ -10,6 +10,8 @@ require.config({
     backbone: 'lib/backbone-min',
     backbone_forms: 'lib/backbone-forms.min',
 
+    semantic:  'lib/ Semantic-UI-master/dist/semantic.min',
+    
     bootstrap: 'lib/bootstrap/js/bootstrap.min',
     bootstrap_tagsinput: 'lib/bootstrap-tagsinput.min',
 

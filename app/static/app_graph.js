@@ -14,7 +14,6 @@ define([
     'underscore',
     'backbone',
     'autocomplete',
-    'bootstrap',
     'mousetrap',
     'bootbox',
     // cello
@@ -25,7 +24,7 @@ define([
     'materials',
     // jquery plugins
     'bootstrap_tagsinput'
-], function($, _, Backbone, AutoComplete, bootstrap, Mousetrap, bootbox, Cello, cgviz, Models, Materials){
+], function($, _, Backbone, AutoComplete,  Mousetrap, bootbox, Cello, cgviz, Models, Materials){
 // Above we have passed in jQuery, Underscore and Backbone
 // They will not be accessible in the global scope
 
@@ -634,23 +633,7 @@ define([
                 app.models.query.reset_from_models(model) ;
         },
 
-        showAbout: function(){
-            var msg = _.template($("#about_tmpl").text());
-            bootbox.dialog({
-              title: "A propos de TMuse",
-              message: msg,
-              onEscape: function() {},
-              buttons: {
-                main: {
-                  label: "OK",
-                  className: "btn-primary",
-                  callback: function() {}
-                }
-              }
-            });
-        },
-
-        // main function
+            // main function
         start: function(){
             var app = this;
             app.DEBUG = DEBUG;
@@ -695,14 +678,10 @@ define([
             /* keyboard shortcuts */
 
             Mousetrap.bind(['?', ','], function(){
-                $("#query_form div.bootstrap-tagsinput input").focus().select();
+                $("#query_form input").focus().select();
                 return false;
             });
 
-            // engine
-            Mousetrap.bind('p,P'.split(','), function(){
-                $("a.engine_on_off").click();
-            });
             
             // arrows
             Mousetrap.bind('right', function(){
@@ -721,30 +700,6 @@ define([
                 });
             });
 
-            /* resize window event */
-            var min_height = 250;
-            
-            var _window_resized = function(){
-                var win = $(this); //this = window
-                size =  $(window).height()-88;
-                size = size < min_height ? min_height : size;
-                $("#myCarousel .item").height(size);
-                app.views.gviz.resize_rendering()
-            }
-
-            // bug refresh graph viz
-            $('#myCarousel').on('slid.bs.carousel',function(){
-                setTimeout(150,_window_resized);
-                console.log('carousel resize')
-            });
-            $(window).on('resize', function(){
-                _window_resized();
-            });
-
-            // about menu
-            $("a.about").on('click', function(){
-                app.showAbout();
-            })
 
             // Router
             var AppRouter = Backbone.Router.extend({
@@ -777,8 +732,6 @@ define([
                 // start history
                 Backbone.history.start({pushState: true, root: app.root_url});
             }});
-
-            _window_resized();
 
         },
     });

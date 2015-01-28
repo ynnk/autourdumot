@@ -43,7 +43,7 @@ define(['cello_gviz'], function(Cello) {
                     { '.form.intersected':  {
                             'strokeStyle': "gradient:#DDD",
                             'fontScale'  :  0.5,
-                            'scale':3,
+                            'scale':2,
                     } },
 
                     {'.form.faded': {
@@ -62,11 +62,12 @@ define(['cello_gviz'], function(Cello) {
 
                     { '.form.cluster': {
                             //'shape': 'square',
-                            'scale':1,
-                            'fontScale'  :  0.3,
+                            'scale':0.3,
+                            'fontScale'  :  0.4,
                     } },
 
                     { '.form.cluster-faded': {
+                            'fontScale'  :  0.2,
                             'scale':0.8,
                             'opacity'   : 0.3,
                             'strokeStyle': "gradient:#DDD",

@@ -10,9 +10,8 @@
     <!--  require JS    -->
     <script data-main="{{url_for('static', filename='main')}}" src="{{url_for('static', filename='lib/require.js')}}"></script>
 
-    <!--  Bootstrap CSS    -->
-    <link rel="stylesheet" href="{{url_for('static', filename='lib/bootstrap/css/bootstrap.min.css')}}" type="text/css" />
-    <link rel="stylesheet" href="{{url_for('static', filename='lib/bootstrap-tagsinput.css')}}" type="text/css" />
+    <!--  SemUI CSS    -->
+    <link rel="stylesheet" href="{{url_for('static', filename='lib/Semantic-UI-master/dist/semantic.min.css')}}" type="text/css" />
 
     <!--  our CSS    -->
     <link rel="stylesheet" href="{{url_for('static', filename='app_graph.css')}}" type="text/css" />
@@ -29,19 +28,6 @@
         </span>
     </script>
 
-
-    <script id="query_form_tmpl" type="text/template">
-        <form class="form-inline" role="form">
-            <div class="form-group">
-              <label class="sr-only" for="searchQueryInput"><%= label %></label>
-              <input type='text' id="searchQueryInput" class="form-control query_input" placeholder="<%= placeholder %>" required="" />
-<!--
-            <button class="btn btn-primary query_send" type="submit" ><%= submit %></button>
--->
-            </div>
-        </form>
-    </script>
-
     <script id="about_tmpl" type="text/template">
         <p>
             Données synonymiques <a href='http://jeuxdemots.org'>Jeux de mots</a> <br />
@@ -53,118 +39,90 @@
         </p>
     </script>
 
+      <script id="query_form_tmpl" type="text/template">
+              <input type='text' id="searchQueryInput" class="prompt" placeholder="<%= placeholder %>" required="" />
+              <i class="search icon"></i>
+    </script>
+
 </head>
-
 <body>
-<div class='page' >
-
-
     
-<div class="container">
 
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <a class="navbar-brand  hidden-sm  hidden-xs" href="#">Dictionnaires et synonymes</a>
-
-      <div id="query_home_contener" class="search nav navbar-nav">
-        <div id="query_form"></div>
-        <div id="query_complete"></div>
-      </div>
-
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-
+  <div class="ui segment pusher">
+    <div class="ui main menu">
+            <div class="container" >
+                <div class="title item hidden-xs">Dictionnaires et synonymes</div>
+                <div class="item" href="#" >
+                    <div id="query_home_contener" class="ui icon input inverted" >
+                        <div id="query_form" class="ui icon input"></div>
+                        <div id="query_complete"></div>
+                    </div>
+                </div>
+            <div class="right menu" >
+                <a href="#" class="item about">About <span class="sr-only">(current)</span></a>
+            </div>
+        </div>
     </div>
-    
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-
-      <ul class="nav navbar-nav navbar-right">
-        <li class="active"><a href="#" class="about">About <span class="sr-only">(current)</span></a></li>
-      </ul>
-      
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
-
-    
+  </div> <!-- segment -->
+  
     <div id="loading-indicator" style="display:none;" >
         <div class="container"><img src="{{url_for('static', filename='loading.gif')}}" /></div>
     </div>
-        <div id="myCarousel" class="carousel slide" data-ride="carousel" style="" data-interval="false" >
-            <!-- Carousel indicators -->
-            <div class="container text-center" >
-                <div class="carousel-indicators btn-group text-center" role="group" >
-                      <button data-target="#myCarousel" data-slide-to="0" type="button" class="btn btn-default active">
-                          <span class="glyphicon glyphicon-facetime-video"></span>
-                          <span class='hidden-xs'>Graph</span>
-                      </button>
-                      <button data-target="#myCarousel" data-slide-to="1" type="button" class="btn btn-default">
-                          <span class="glyphicon glyphicon-th-large"></span>
-                          <span class='hidden-xs'>Clustering</span>
-                      </button>
-                      <button data-target="#myCarousel" data-slide-to="2" type="button" class="btn btn-default">
-                          <span class="glyphicon glyphicon-th-list"></span>
-                          <span class='hidden-xs'>Liste</span>
-                      </button>
-                      
-                      <button data-target="#myCarousel" data-slide-to="3" type="button" class="btn btn-default">
-                          <span class=" glyphicon glyphicon-book"></span>
-                          <span class='hidden-xs'>Définition</span>
-                      </button>
-                      
-                </div>
-            </div>
 
-            <!-- Carousel items -->
-            <div class="carousel-inner">
-
-                <div class="item active">
+    <div id="maintabs" class="ui tabular menu">
+        
+      <a class="ui basic button item active" data-tab='tab1'>
+          rgraph
 <!--
-                    <h1> <span class="glyphicon glyphicon-facetime-video"></span>&nbsp;</h1>
+          <i class="cube icon"></i>
+          <span class='hidden-xs'>Graph</span>
 -->
-                    <div id='vz_threejs_main' class=''></div>            
-                </div>
+      </a>
+      
+      <a class="ui basic button item" data-tab='tab2'>
+        clsuet
+<!--
+          <i class="block layout icon"></i>
+          <span class='hidden-xs'>Clustering</span>
+-->
+      </a>
+      
+      <a class="ui basic button item" data-tab='tab3'>
 
-                <div class="item">
-                    <h1> <span class="glyphicon glyphicon-th-large"></span>&nbsp;</h1>
-                    <div id='clustering_items' class='subitem' style=''><ul></ul></div>
-                </div>
+          skfj
+<!--
+          <i class="list layout icon"></i>
+          <span class='hidden-xs'>Liste</span>
+-->
+      </a>
+      
+      <a class="ui basic button item" data-tab='tab4'>
+          skf
+<!--
+          <i class="book icon"></i>
+          <span class='hidden-xs'>Définition</span>
+-->
+      </a>
+    </div>
 
-                <div class="item">
-                    <h1> <span class=" glyphicon glyphicon-th-list"></span>&nbsp;</h1>
-                    <div id='proxemy_items' class='subitem' style=''><ul></ul></div>
-                </div>
-                
-                <div class="item">
-                    <h1> <span class=" glyphicon glyphicon-book"></span>&nbsp;</h1>
-                    <div id='wkdef' class='subitem' style=''>
-                        <div class="panel panel-default">
-                          <div class="panel-body">
-                            <div class="navbar navbar-default">
-                              <div class="container-fluid">
-                                <ul class="nav navbar-nav" data-tabs="tabs"></ul>
-                              </div>
-                            </div>
-                            <div class="tab-content"></div>
-                          </div>
-                        </div>
-                    </div>
+    <div class="ui tab itemview active" data-tab="tab1">
+        <div id='vz_threejs_main' class=''></div>            
+    </div>
 
-                </div>
+    <div class="ui tab itemview " data-tab="tab2">
+        <h1> <i class="block layout icon"></i></h1>
+        <div id='clustering_items' class='subitem' style=''><ul></ul></div>
+    </div>
 
-            </div>
+    <div class="ui tab itemview " data-tab="tab3">
+        <h1><i class="list layout icon"></i>&nbsp;</h1>
+        <div id='proxemy_items' class='subitem' style=''><ul></ul></div>
+    </div>
 
-        </div> <!-- carousel -->
-    </div> <!-- container -->
-
-
+    <div class="ui tab itemview " data-tab="tab4">
+        <h1> <i class="book icon"></i>&nbsp;</h1>
+        <div id='wkdef' class='subitem' style=''></div>
+    </div>
 
     <div class='footer'>
         <div class="container text-center">
@@ -190,7 +148,6 @@
     </div>
     -->
 
-</div> <!-- /.page -->
 <script>
     require([
         "app_graph"
@@ -203,6 +160,50 @@
                        def_url:"{{ def_url }}", 
         });
         app.start();
+        
+        $('#maintabs .item').tab();
+
+    
+        // resize window event 
+        var min_height = 250;
+        
+        var _window_resized = function(){
+            var win = $(this); //this = window
+            size =  $(window).height()-88;
+            size = size < min_height ? min_height : size;
+            $("#maintabs .itemview").height(size);
+            app.views.gviz.resize_rendering()
+        }
+
+        _window_resized();
+
+        // bug refresh graph viz
+        $('#maintabs .button').on('click',function(){
+            setTimeout(150,_window_resized);
+            console.log('carousel resize')
+        });
+        
+        $(window).on('resize', function(){
+            _window_resized();
+        });
+
+        // about menu
+        $("a.about").on('click', function(){
+            var msg = _.template($("#about_tmpl").text());
+            bootbox.dialog({
+              title: "A propos de TMuse",
+              message: msg,
+              onEscape: function() {},
+              buttons: {
+                main: {
+                  label: "OK",
+                  className: "btn-primary",
+                  callback: function() {}
+                }
+              }
+            });
+        });
+
     })();
 </script>
 
