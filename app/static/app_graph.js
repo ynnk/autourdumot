@@ -16,6 +16,8 @@ define([
     'autocomplete',
     'mousetrap',
     'bootbox',
+    // semantic
+    'semantic',
     // cello
     'cello_ui',
     'cello_gviz',
@@ -24,7 +26,7 @@ define([
     'materials',
     // jquery plugins
     'bootstrap_tagsinput'
-], function($, _, Backbone, AutoComplete,  Mousetrap, bootbox, Cello, cgviz, Models, Materials){
+], function($, _, Backbone, AutoComplete,  Mousetrap, bootbox, SemUI,Cello, cgviz, Models, Materials){
 // Above we have passed in jQuery, Underscore and Backbone
 // They will not be accessible in the global scope
 
@@ -86,7 +88,7 @@ define([
               itemValue: function(model){return model},
               //itemText: function(model){return [model.get('lang'), model.get('pos'), model.get('form')].join(' ')},
               itemText: function(model){return [POS_MAPPING[model.get('pos')], model.get('form')].join(' ')},
-              tagClass: function(model){ return 'label label-primary pos-' + model.get('pos'); }
+              tagClass: function(model){ return 'ui label  pos-' + model.get('pos'); }
             });
 
             $input.on('itemRemoved', function(event){
@@ -351,6 +353,7 @@ define([
                 collection : app.models.vertices,
                 ChildView: ItemView,
                 el: $("#proxemy_items ul"),
+                className: "ui selection list"
             }).render();
 
 
@@ -478,13 +481,10 @@ define([
         search_loading: function(kwargs, state){
             var app = this;
 
-            //start waiting
-            $("#loading-indicator").show(0);
-            $("#engine").hide();
             
             // placeholder
-            app.views.query.$input.tagsinput('input').attr('placeholder', "          ... Loading ...");
-            
+            app.views.query.$input.attr('placeholder', "          ... Loading ...");
+            app.views.query.$el.addClass('loading');
             // force piwik (if any) to track the new 'page'
             //Cello.utils.piwikTrackCurrentUrl();
         },
@@ -498,8 +498,9 @@ define([
                 app.response = response;    // juste pour le debug
             }
             //stop waiting
+            app.views.query.$el.removeClass('loading');
             $("#loading-indicator").hide(0);
-            app.views.query.$input.tagsinput('input').attr('placeholder', "Search");
+            app.views.query.$input.attr('placeholder', "Search");
             
             // collapse current graph viz
             if ( app.views.gviz ) {
@@ -569,26 +570,31 @@ define([
             });
 
             /*  definition */
-            // TODO: create a proper view/model if this become bigger...
+            // TODO: create a proper view/model 
             // clear nav & .def
-            $('#wkdef .nav').html("");
-            $('#wkdef .tab-content').html("");
+            $('#wkdef nav>a.item').remove();
+            $('#wkdef .def-content').html("");
 
-            li = _.template("<li class='<%=active%>'><a href='#<%=id%>' data-toggle='tab'><%=lang%> <%=pos%> <%=form%></a></li>")
             
+            var li = _.template("<a class='item <%=active%>' data-tab='<%=id%>'><%=lang%> <%=pos%> <%=form%></a>")
+            var content = _.template("<div class='ui tab <%=active%>' data-tab='<%=id %>'><%=content %></div>");
+
             _.each(response.results.query.units, function(e,i){
-                var unit = _.extend({ active: i == 0 ? 'active' : "", id : 'tabpane'+i }, e );
+                var unit = _.extend({ active: i == 0 ? 'active' : "",
+                                      id : 'tabpane'+i,
+                                    } , e );
                 $.ajax(
                     app.def_url + unit.lang+"/" + unit.form + "?pos=" + unit.pos,
                     {
                         success : function(data){
-                            $('#wkdef .nav').append(li(unit));
-                            $('#wkdef .tab-content').append("<div class='tab-pane "+ unit.active +"' id='"+unit.id+"'>" + data.content + "</div>");
+                            unit.content = data.content;
+                            $('#wkdef nav').append(li(unit));
+                            $('#wkdef .def-content').append(content(unit));
+                            $('#wkdef .item').tab({ context: $('#wkdef .def-content'), debug: true});
                         }
                     }
                 );
             });
-            $('#tabs').tab();
         },
 
         /** when the search failed

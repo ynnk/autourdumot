@@ -10,10 +10,10 @@ require.config({
     backbone: 'lib/backbone-min',
     backbone_forms: 'lib/backbone-forms.min',
 
-    semantic:  'lib/ Semantic-UI-master/dist/semantic.min',
+    semantic:  'lib/Semantic-UI-master/dist/semantic.min',
     
-    bootstrap: 'lib/bootstrap/js/bootstrap.min',
-    bootstrap_tagsinput: 'lib/bootstrap-tagsinput.min',
+    //bootstrap: 'lib/bootstrap/js/bootstrap.min',
+    bootstrap_tagsinput: 'lib/semui-tagsinput',
 
     bootbox: 'lib/bootbox.min',
 
@@ -36,8 +36,8 @@ require.config({
   },
   shim: {
       // bootstrap need jquery
-      'bootstrap': {deps: ["jquery"]},
-      'bootstrap_tagsinput': {deps: ["bootstrap"]},
+      //'bootstrap': {deps: ["jquery"]},
+      //'bootstrap_tagsinput': {deps: ["bootstrap"]},
       // threejs not require compatible...
       'threejs_trackball': {
             exports: 'THREE',
