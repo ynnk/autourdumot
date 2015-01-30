@@ -39,6 +39,8 @@ require.config({
       //'bootstrap': {deps: ["jquery"]},
       //'bootstrap_tagsinput': {deps: ["bootstrap"]},
       // threejs not require compatible...
+      'semantic': {deps: ["jquery"]},
+      'bootstrap_tagsinput': {deps: ["jquery"]},
       'threejs_trackball': {
             exports: 'THREE',
             deps: ['threejs'],
