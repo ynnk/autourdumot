@@ -387,7 +387,7 @@ define([
             } );
 
             // click eventshttp://www.youtube.com/watch?v=tw1lEOUWmN8
-            gviz.on( 'intersectOn:node', function(node, event){
+            gviz.on( 'intersectOn:node', function(event, node){
                 // multiple selection
                 //if ( event.ctrlKey )
                     //gviz.model.vs.add_selected(obj !== null ? obj : []);
@@ -403,13 +403,13 @@ define([
                 
             });
 
-            gviz.on( 'click:edge', function(obj, event){
+            gviz.on( 'click:edge', function(event, edge){
                 //alert(JSON.stringify( event));
                 console.log( 'click:edge' , event);
             });
             
-            gviz.on( 'click:node', function(obj, event){
-                console.log("click", obj, event);
+            gviz.on( 'click:node', function(event, node){
+                console.log("click", node, event);
                 gviz.request_animation();
             });
             
@@ -480,8 +480,6 @@ define([
          */
         search_loading: function(kwargs, state){
             var app = this;
-
-            
             // placeholder
             app.views.query.$input.attr('placeholder', "          ... Loading ...");
             app.views.query.$el.addClass('loading');

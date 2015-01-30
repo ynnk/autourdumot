@@ -186,25 +186,30 @@
         
         var _window_resized = function(){
             var win = $(this); //this = window
-            size =  $(window).height()-$("nav").height() - $(".footer").height() - 115;
+            size =  $(window).height()-$("nav").height() - $(".footer").height() - 107;
             size = size < min_height ? min_height : size;
             $(".itemview").height(size);
             app.views.gviz.resize_rendering();
             $("#wkdef .def-content").height(size - $("#wkdef nav").height() -30);
         }
-        app.listenTo(app.models.cellist, 'play:complete', _window_resized );
-
-        $(window).on('resize', function(){
+        
+        app.listenTo(app.models.cellist, 'play:complete', function() {
+            console.log("complete", "resize");
             _window_resized();
-        });
+
+            } );
+
+        $('#maintabs .item').click(_window_resized);
+
+        $(window).on('resize', _window_resized );
 
         _window_resized();
 
-        // bug refresh graph viz
-        $('#maintabs .item').on('click',function(){
-            setTimeout(150,_window_resized);
-            console.log('carousel resize')
-        });
+        //// bug refresh graph viz
+        //$('#maintabs .item').on('click',function(){
+            //setTimeout(150,_window_resized);
+            //console.log('carousel resize')
+        //});
 
 
     })();
