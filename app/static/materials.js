@@ -30,15 +30,15 @@ define(['cello_gviz'], function(Cello) {
 
                     { '.form': {
                         'shape': 'circle',
-                        'scale':1.8,
-                        'strokeStyle': "gradient:#CCC",
+                        'scale':2.,
+                        'strokeStyle': "#EEEEEE",
                         'lineWidth' : .1,
-                        'fontScale'  :  0.15,
+                        'fontScale'  :  0.25,
 
                         'line_max_length': 12,
-                        'font' : "normal 9px sans",
+                        'font' : "normal 10px sans",
                         'fontFillStyle'  : '#333',  //#366633',           
-                        'fontStrokeStyle'  : '#333',
+                        'fontStrokeStyle'  : null,
                         'textPaddingY'  : -1,
                         'textPaddingX'  : 0
                     } },
@@ -77,12 +77,12 @@ define(['cello_gviz'], function(Cello) {
                     { '.target': {
                             'shape': 'triangle',
                             'scale':3,
-                            'strokeStyle': "gradient:#FFF",
+                            'strokeStyle': "gradient:#EEEEEE",
                             'fontScale'  :  0.3,
                             //'textPaddingY'  : 14,
                             'textPaddingX'  : -2,
 
-                            'font' : "normal 9px sans",
+                            'font' : "normal 10px sans",
                             'fontFillStyle'  : '#111',  //#366633',           
                             'fontStrokeStyle'  : '#333',
                             'textPaddingY'  : -1,

@@ -349,7 +349,8 @@ define([
                 model: app.models.graph,
                 background_color: 0xEEEEEE,
                 wnode_scale: function(vtx){
-                    return 8 + vtx.get("neighbors") / 8.;
+                    return ((Math.log(vtx.get('neighbors'))+1)*3) | 10;
+                    //return 8 + Math.log(10*vtx.get("neighbors")) ; 
                 },
                 force_position_no_delay: false,
                 materials: Materials

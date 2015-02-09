@@ -49,7 +49,7 @@
                 <nav class="ui text inverted menu navbar ">
                     <a class="item "><i class="circular inverted teal large mail outline icon "></i>  </a>
                     <div class="item right">
-                      <div class="ui icon top left pointing dropdown " >
+                      <div class="ui icon top right pointing dropdown " >
                             <i class="circular inverted teal large cubes  icon"></i>
                             <div class="menu">
                                 <div class="item "><i class=" help teal icon "></i> Aide </div>
@@ -70,7 +70,7 @@
 
         
     <div class="ui page grid">
-        <div class="row">
+        <div class="row" style="padding-bottom:2px">
         <div class="column center aligned">
             
             <nav class="ui menu navbar ">
@@ -128,7 +128,7 @@
                                 <i class="book down icon"></i>
                                 <div class="menu">
                                     <a class="item  active" data-desc='short'><i class="caret right teal icon"></i> Description courte </a>
-                                    <a class="item " data-desc='long'><i class=" caret right teal icon "></i>  Description longue</a>
+                                    <a class="item " data-desc='long'><i class=" caret right teal icon "></i>  Description complète</a>
                                 </div>
                           </div>
                         </div>
@@ -138,7 +138,7 @@
             </div>
 
 
-            <div class="ui left aligned attached top segment footer">
+            <div id="footer" class="ui center aligned attached top segment">
                 Données synonymiques <a href='http://jeuxdemots.org' class="ui teal">Jeux de mots</a> - 
                 Définitions <a href='http://wiktionary.org'>Wiktionary.org</a> - 
                 Réalisation <a href="http://kodexlab.com">Kodex·Lab</a> 2014 
@@ -201,7 +201,7 @@
         
         var _window_resized = function(){
             var win = $(this); //this = window
-            size =  $(window).height()-$("nav").height() - $(".footer").height() - 107;
+            size =  $(window).height()-$("nav").height() - $(".footer").height() - 80;
             size = size < min_height ? min_height : size;
             $(".itemview").height(size);
             app.views.gviz.resize_rendering();
