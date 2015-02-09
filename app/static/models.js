@@ -194,6 +194,13 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
                 font = this.has_flag('form') ? '.form' : font 
                 font = this.has_flag('target') ? '.target' : font 
             return [ {form : this.get('form'), css : font} ];
+        },
+        to_str : function(){
+            var _this = this;
+            return  _(['lang', 'pos', 'form']).map( function(e){
+                                    return _this.get(e)
+                                   })
+                                .join('.');
         }
     },{ // !! static not in the same brackets !!
         active_flags : ['intersected', 'faded', 'selected']

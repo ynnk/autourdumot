@@ -60,6 +60,7 @@ define([
 
         events: {
             'submit': 'submit',
+            'drop input' : 'drop'
         },
 
         initialize: function(attr){
@@ -148,6 +149,19 @@ define([
             view.$input.tagsinput('input').val("");
             view.$input.tagsinput('input').focus();
             return this;
+        },
+
+        drop: function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+            var data = event.originalEvent.dataTransfer.getData("model");
+            var ctrlKey = event.originalEvent.dataTransfer.getData("ctrlKey") == "true";
+            
+            var unit = new Models.TmuseQueryUnit();
+            unit.set_from_str(data);
+            if ( ctrlKey ) this.model.add(unit);
+            else
+                this.model.reset_from_models([unit]);
         },
         
         // exec the search
@@ -257,6 +271,7 @@ define([
                 className : 'clabel',
                 events: {
                     "click": "clicked",
+                    "dragstart" : "drag",
                 },
 
                 clicked: function(event){
@@ -266,6 +281,10 @@ define([
                     app.navigate_to_label(this.model);
                 },
 
+                drag: function (event) {
+                    event.originalEvent.dataTransfer.setData('model', this.model.to_str());
+                    event.originalEvent.dataTransfer.setData('ctrlKey', event.ctrlKey);
+                },
                 //RMQ: this computation may also be done directly in the template
                 before_render: function(data){
                     data.size = Math.max(10,data.score * 26.);
@@ -299,6 +318,7 @@ define([
                     "click": "clicked",
                     "mouseover": "mouseover",
                     "mouseout": "mouseout",
+                    "dragstart" : "drag",
                     "addflag": "some_flags_changed",
                     "rmflag": "some_flags_changed",
                 },
@@ -319,6 +339,11 @@ define([
                     app.navigate_to_label(this.model);
                 },
 
+                drag: function (event) {
+                    event.originalEvent.dataTransfer.setData('model', this.model.to_str());
+                    event.originalEvent.dataTransfer.setData('ctrlKey', event.ctrlKey);
+                },                
+                
                 mouseover: function(){
                     app.models.graph.vs.set_intersected(this.model);
                 },

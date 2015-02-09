@@ -96,6 +96,9 @@ ul.autocomplete li.active{
 
 }
 
+#maintabs .item.active{
+    background: #EEE;
+}
 #maintabs div.button  {
     width:140px;
     height:35px;
