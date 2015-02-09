@@ -254,30 +254,20 @@ define([
             var app = this;
 
             var ClusterVtx = Cello.ui.clustering.ClusterMemberView.extend({
-                //template: _.template($('#ClusterLabel').html().trim()),
                 className : 'clabel',
                 events: {
                     "click": "clicked",
                 },
 
-                /* Click sur le label, */
                 clicked: function(event){
                     /* navigate */
                     event.preventDefault();
-                    event.stopPropagation();
-
-                    // 'this.model' is a label not a vertex !
-                    /* select vertex */
-                    var vertices = app.models.graph.select_vertices({label:this.model.label});
-                    var vertex = vertices[0];
-                    
-                    /* navigate */
-                    app.navigate_to_label(this.model.label);
+                    event.stopPropagation();                    
+                    app.navigate_to_label(this.model);
                 },
 
                 //RMQ: this computation may also be done directly in the template
                 before_render: function(data){
-                    //console.log(data.label, data.score)
                     data.size = Math.max(10,data.score * 26.);
                     return data
                 },
@@ -314,9 +304,7 @@ define([
                 },
 
                  initialize: function(options){
-                    // super call
                     ItemView.__super__.initialize.apply(this);
-                    // override
                     this.listenTo(this.model, "rmflag:selected", this.flags_changed);
                     this.listenTo(this.model, "addflag:selected", this.some_flags_changed);
                 },
@@ -327,9 +315,7 @@ define([
                     return this;
                 },
 
-                /* Click sur le label, */
                 clicked: function(event){
-                    console.log("item clicked", this.model)
                     app.navigate_to_label(this.model);
                 },
 
@@ -369,24 +355,23 @@ define([
                 materials: Materials
                 
             });
-            //var materials = JSON.parse(Materials);
             
+            
+            /* Events */                        
             var graph = app.models.graph;
-            
-            /* Events */
-                        
             gviz.on( 'intersectOff', function(obj, mouse){
-                console.log("intersect",obj)
-                gviz.model.es.set_intersected(null);
                 gviz.model.vs.set_intersected(null);
                 gviz.model.vs.set_selected(null);
                 graph.vs.remove_flag('faded');
+                
+                gviz.model.es.set_intersected(null);
                 graph.es.remove_flag('faded');
                 graph.es.remove_flag('bolder');
+
                 gviz.request_animation();
             } );
 
-            // click eventshttp://www.youtube.com/watch?v=tw1lEOUWmN8
+            // click events http://www.youtube.com/watch?v=tw1lEOUWmN8
             gviz.on( 'intersectOn:node', function(event, node){
                 // multiple selection
                 //if ( event.ctrlKey )
@@ -429,50 +414,6 @@ define([
 
         //### actions ###
 
-        /** When a cluster is selected
-         *
-         * if one (or more) cluster is selected:
-         *  * add a tag 'cluster_active' on all document of selected cluster
-         *  * add a tag 'cluster_hidden' on all other documents
-         *
-         * if no cluster are selected
-         *  * remove this two tags from documents
-         */
-        cluster_selected: function(){
-            var app = this;
-            // // get selected clusters
-            var selected = app.models.clustering.selected;
-
-            if(selected.length == 0){
-                // remove all flags
-                app.models.graph.vs.each( function(vertex){
-                    vertex.remove_flag('faded');
-                });
-            } else {
-                // fade/unfade vertices in clusters
-                var vids = {}
-                _.each(selected, function(cluster){
-                    _.each(cluster.vids, function(vid){
-                        vids[vid] = true;
-                    })
-                });
-                app.models.graph.vs.each( function(vertex){
-                    if (_.has(vids, vertex.id)){
-                        vertex.remove_flag('faded');
-                    }
-                    else {
-                        vertex.add_flag('faded');
-                    }
-                });
-                app.models.graph.es.each( function(edge){
-                    if (_.has(vids, edge.source.id) || _.has(vids, edge.target.id)){
-                        edge.remove_flag('faded');
-                    } else {
-                        edge.add_flag('faded');
-                    }
-                });
-            }
-        },
 
         /** when a query is loading
          *
@@ -506,6 +447,10 @@ define([
             }
 
             app.update_models(response);
+
+            // auto scroll on request 
+            $(window).scrollTop($(".two.column.row").parent().height());
+            
             app.router.navigate(response.results.query.uri);
         },
 
@@ -568,11 +513,11 @@ define([
             });
 
             /*  definition */
+            
             // TODO: create a proper view/model 
             // clear nav & .def
             $('#wkdef nav>a.item').remove();
             $('#wkdef .def-content').html("");
-
             
             var li = _.template("<a class='item <%=active%>' data-tab='<%=id%>'><%=lang%> <%=pos%> <%=form%></a>")
             var content = _.template("<div class='ui tab <%=active%>' data-tab='<%=id %>'><%=content %></div>");
@@ -588,7 +533,7 @@ define([
                             unit.content = data.content;
                             $('#wkdef nav').append(li(unit));
                             $('#wkdef .def-content').append(content(unit));
-                            $('#wkdef .item').tab({ context: $('#wkdef .def-content'), debug: true});
+                            $('#wkdef .item').tab({ context: $('#wkdef .def-content')});
                         }
                     }
                 );
@@ -642,14 +587,9 @@ define([
             var app = this;
             app.DEBUG = DEBUG;
 
-            // get the root url from the template
-            //// note: this is usefull to have the app instaled in unknow 'suburl'
-            //app.root_url = $("#page").attr("data-root-url");
-
             // initialise the app it self
             app.create_models();
 
-            ///// DEBUG: this add the app to global (guardian_app)
             if(app.DEBUG){
                 app._add_to_global();
             }
@@ -659,7 +599,7 @@ define([
             app.create_results_views();
 
             // --- Binding the app ---
-            _.bindAll(this, "engine_play_completed", "cluster_selected", "search_loading");
+            _.bindAll(this, "engine_play_completed", "search_loading");
             this.listenTo(app.views.query, "submited", function(){
                 if(app.models.query.validate()){
                     app.models.cellist.play();     //note: the cellist know query model

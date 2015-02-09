@@ -36,31 +36,46 @@
 </head>
 <body>
 
-    <div class="ui page grid">
+    <div class="ui page grid" style='background:#222'>
+        
+        <div class="two column row">
+            <div class="center  column">
+                    <h2 class="ui inverted header">Dictionnaire et synonymes
+                        <div class="sub header">Explorations dans le petit monde des mots.</div>
+                    </h2>
+            </div>
 
+            <div class="right aligned column">
+                <nav class="ui text inverted menu navbar ">
+                    <a class="item "><i class="circular inverted teal large mail outline icon "></i>  </a>
+                    <div class="item right">
+                      <div class="ui icon top left pointing dropdown " >
+                            <i class="circular inverted teal large cubes  icon"></i>
+                            <div class="menu">
+                                <div class="item "><i class=" help teal icon "></i> Aide </div>
+                                <div class="divider"></div>
+                                <div class="item "><i class=" bug teal icon "></i> Signaler un bug </div>
+                                <div class="item "><i class=" comments teal icon "></i> Votre avis nous intéresse </div>
+                                <div class="divider"></div>
+                                <div class="item about"><i class=" info teal icon "></i> A propos </div>
+                            </div>
+                      </div>
+                    </div>
+                    <a class="item "><i class="circular inverted teal large github icon "></i>  </a>
+                </nav>
+            </div>
+        </div> <!--row-->
+    </div> <!--grid-->
+
+
+        
+    <div class="ui page grid">
         <div class="row">
         <div class="column center aligned">
             
             <nav class="ui menu navbar ">
-    <!--
-                <div class="brand item hidden-xs">Dictionnaires et synonymes</div>
-    -->
-                <div class="item right">
-                  <div class="ui icon top right pointing dropdown ">
-                        <i class="big cubes icon"></i>
-                        <div class="menu">
-                            <a href="#" class="item "><i class=" help teal icon "></i> Aide </a>
-                            <div class="divider"></div>
-                            <a href="#" class="item "><i class=" bug teal icon "></i> Signaler un bug </a>
-                            <a href="#" class="item "><i class=" comments teal icon "></i> Votre avis nous intéresse </a>
-                            <div class="divider"></div>
-                            <a href="#" class="item about"><i class=" info teal icon "></i> A propos </a>
-                        </div>
-                  </div>
-                </div>
 
-
-                <div class="item right" style="margin-top:6px" >
+                <div class="item centered" style="margin-top:0px" >
                     <div id="query_form" class="ui input icon"></div>
                     <div id="query_complete"></div>
                 </div>
@@ -112,8 +127,8 @@
                           <div class="ui icon top right pointing dropdown ">
                                 <i class="book down icon"></i>
                                 <div class="menu">
-                                    <a href="#" class="item  active" data-desc='short'><i class="caret right teal icon"></i> Description courte </a>
-                                    <a href="#" class="item " data-desc='long'><i class=" caret right teal icon "></i>  Description longue</a>
+                                    <a class="item  active" data-desc='short'><i class="caret right teal icon"></i> Description courte </a>
+                                    <a class="item " data-desc='long'><i class=" caret right teal icon "></i>  Description longue</a>
                                 </div>
                           </div>
                         </div>
@@ -204,12 +219,6 @@
         $(window).on('resize', _window_resized );
 
         _window_resized();
-
-        //// bug refresh graph viz
-        //$('#maintabs .item').on('click',function(){
-            //setTimeout(150,_window_resized);
-            //console.log('carousel resize')
-        //});
 
 
     })();

@@ -12,6 +12,11 @@ html, body{
     margin-top:0px;
 }
 
+.two.column.row {
+    color: #373434;
+
+}
+
 .footer {
     color: #373434;
     padding-bottom: 0px;

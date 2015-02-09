@@ -190,7 +190,10 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
     Models.Vertex = Cello.Vertex.extend({
          _format_label : function(){
              // css should be in materials
-            return [ {form : this.get('form'), css : ".normal-font"} ];
+            var font = ".normal-font"
+                font = this.has_flag('form') ? '.form' : font 
+                font = this.has_flag('target') ? '.target' : font 
+            return [ {form : this.get('form'), css : font} ];
         }
     },{ // !! static not in the same brackets !!
         active_flags : ['intersected', 'faded', 'selected']
