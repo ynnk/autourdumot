@@ -243,6 +243,7 @@ def complete(index, prefix, text, field='form_suggest', size=100):
         complete = []
         
         options = res[key][0]['options']
+        max_score = 0
         for opt in options:
             complete.append( {
                 "graph": opt['payload']['graph'],
@@ -252,6 +253,15 @@ def complete(index, prefix, text, field='form_suggest', size=100):
                 "score": opt['score'],
                 "output": opt['text']
             })
+            max_score = max(max_score, opt['score'])
+
+        for v in complete:
+            score = v['score']/max_score
+            if text == v['form']:
+                score +=1
+            v['score'] = score
+
+        complete.sort(key=lambda x : x['score'], reverse=True)
             
         response['length'] = len(complete)
         response['complete'] = complete
