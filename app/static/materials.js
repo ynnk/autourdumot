@@ -33,26 +33,27 @@ define(['cello_gviz'], function(Cello) {
                         'scale':1.,
                         'strokeStyle': "#EEEEEE",
                         'lineWidth' : .1,
-
+                        
                         'fontScale'  :  0.2,
                         'line_max_length': 12,
                         'font' : "normal 8px sans",
                         'fontFillStyle'  : '#333',  //#366633',           
-                        'fontStrokeStyle'  : null,
+                        //'fontStrokeStyle'  : '#F06',
+                        //'fontStrokeWidth'  : .1,
                         'textPaddingY'  : 0,
                         'textPaddingX'  : 0,
                         'textAlign'     : 'left'
                     } },
 
                     { '.form.intersected':  {
-                            'fontScale'  :  0.3,
-                            'scale':1.2,
+                        'fontScale'  :  0.3,
+                        'scale':1.2,
                     } },
 
                     {'.form.faded': {
-                            //'scale':0.8,
-                            'opacity'   : 0.1,
-                            //'fontScale'  :  0.1,
+                        //'scale':0.8,
+                        //'fontScale'  :  0.1,
+                        'opacity'   : 0.1,
                     } },
 
                     { '.form.selected': {
@@ -85,7 +86,7 @@ define(['cello_gviz'], function(Cello) {
 
                             'font' : "normal 10px sans",
                             'fontFillStyle'  : '#111',  //#366633',      
-                            'fontStrokeStyle'  : null, // '#333',
+                            //'fontStrokeStyle'  : null, // '#333',
                             'textPaddingY'  : -1,
                             'textPaddingX'  : 0
                     } },
