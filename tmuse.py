@@ -10,58 +10,6 @@ from reliure.types import Text, Numeric, Boolean
 from cello.schema import Doc, Schema
 from cello.graphs.builder import OptionableGraphBuilder
 
-def QueryUnit(**kwargs):
-    default = {
-        'lang'  : 'fr',
-        'pos'   : 'V',
-        'form'  : None
-    }
-    default.update(kwargs)
-    default['graph'] = 'jdm.%s.flat' % default['pos']
-    return default
-
-
-class ComplexQuery(GenericType):
-    """ Tmuse query type, basicly a list of :class:`QueryUnit`
-    
-    >>> qtype = ComplexQuery()
-    >>> qtype.parse("fr.V.manger")
-    [{'lang': 'fr', 'form': 'manger', 'graph': 'jdm.V.flat', 'pos': 'V'}]
-    >>> qtype.parse("fr.A.rouge fr.A.bleu")
-    [{'lang': 'fr', 'form': 'rouge', 'graph': 'jdm.A.flat', 'pos': 'A'}, {'lang': 'fr', 'form': 'bleu', 'graph': 'jdm.A.flat', 'pos': 'A'}]
-    >>> qtype.parse([{'lang': 'fr', 'form': 'manger', 'pos': 'V'}])
-    [{'lang': 'fr', 'form': 'manger', 'graph': 'jdm.V.flat', 'pos': 'V'}]
-    >>> qtype.parse([{'form': 'manger'}])
-    [{'lang': 'fr', 'graph': 'jdm.V.flat', 'pos': 'V', 'form': 'manger'}]
-    """
-    def parse(self, value):
-        query = []
-        if isinstance(value, basestring):
-            for ele in value.split():
-                ele = ele.strip().split(".")
-                qunit = {}
-                qunit["form"] = ele[-1]
-                if len(ele) >= 2:
-                    qunit["pos"] = ele[-2]
-                    if len(ele) >= 3:
-                        qunit["lang"] = ele[-3]
-                query.append(QueryUnit(**qunit))
-        else:
-            query = [
-                QueryUnit(**{k:v for k,v in val.iteritems() if v is not None})
-                for val in value
-            ]
-        return query
-
-    @staticmethod
-    def serialize(complexquery):
-        uri = ",".join([  '.'.join( ( q['lang'], q['pos'], q['form'] ) ) for q in complexquery ])
-        return {
-            'units': complexquery,
-            'uri': uri
-       }
-
-
 class TmuseEsGraphBuilder(OptionableGraphBuilder):
     """ Build a graph from a tmuse Unipartite link graph """
     def __init__(self, directed=False, reflexive=True, label_attr='form', vtx_attr='docnum', links_attr="out_links"):

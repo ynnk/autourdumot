@@ -13,8 +13,59 @@ from cello.clustering import export_clustering
 from cello.providers.es import EsIndex
 
 import tmuse
-from tmuse import ComplexQuery
-from tmuse import QueryUnit as Query
+
+def QueryUnit(**kwargs):
+    default = {
+        'lang'  : 'fr',
+        'pos'   : 'V',
+        'form'  : None
+    }
+    default.update(kwargs)
+    default['graph'] = 'jdm.%s.flat' % default['pos']
+    return default
+
+
+class ComplexQuery(GenericType):
+    """ Tmuse query type, basicly a list of :class:`QueryUnit`
+    
+    >>> qtype = ComplexQuery()
+    >>> qtype.parse("fr.V.manger")
+    [{'lang': 'fr', 'form': 'manger', 'graph': 'jdm.V.flat', 'pos': 'V'}]
+    >>> qtype.parse("fr.A.rouge fr.A.bleu")
+    [{'lang': 'fr', 'form': 'rouge', 'graph': 'jdm.A.flat', 'pos': 'A'}, {'lang': 'fr', 'form': 'bleu', 'graph': 'jdm.A.flat', 'pos': 'A'}]
+    >>> qtype.parse([{'lang': 'fr', 'form': 'manger', 'pos': 'V'}])
+    [{'lang': 'fr', 'form': 'manger', 'graph': 'jdm.V.flat', 'pos': 'V'}]
+    >>> qtype.parse([{'form': 'manger'}])
+    [{'lang': 'fr', 'graph': 'jdm.V.flat', 'pos': 'V', 'form': 'manger'}]
+    """
+    def parse(self, value):
+        query = []
+        if isinstance(value, basestring):
+            for ele in value.split():
+                ele = ele.strip().split(".")
+                qunit = {}
+                qunit["form"] = ele[-1]
+                if len(ele) >= 2:
+                    qunit["pos"] = ele[-2]
+                    if len(ele) >= 3:
+                        qunit["lang"] = ele[-3]
+                query.append(QueryUnit(**qunit))
+        else:
+            query = [
+                QueryUnit(**{k:v for k,v in val.iteritems() if v is not None})
+                for val in value
+            ]
+        return query
+
+    @staticmethod
+    def serialize(complexquery):
+        uri = ",".join([  '.'.join( ( q['lang'], q['pos'], q['form'] ) ) for q in complexquery ])
+        return {
+            'units': complexquery,
+            'uri': uri
+       }
+
+
 
 def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph'):
     """ API over tmuse elastic search
@@ -53,13 +104,13 @@ def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph'):
     # Debug views
     @api.route("/_extract/<string:graph>/<string:text>")
     def _extract(graph, text):
-        query = Query(graph=graph, form=text)
+        query = QueryUnit(graph=graph, form=text)
         es_res = tmuse.extract(esindex, query)
         return jsonify({ 'res': es_res})
         
     @api.route("/_prox/<string:graph>/<string:text>" )
     def _prox(graph, text):
-        query = Query(graph=graph, form=text)
+        query = QueryUnit(graph=graph, form=text)
         pz, proxs = tmuse.extract(esindex, query, 10)
         proxs = dict(proxs)
         ids = proxs.keys()
@@ -86,12 +137,11 @@ def engine(index):
     def tmuse_subgraph(query, length=50):
         return tmuse.subgraph(index, query, length=length)
 
-    from cello.graphs.transform import VtxAttr
-
     graph_search = Optionable("GraphSearch")
     graph_search._func = Composable(tmuse_subgraph)
     graph_search.add_option("length", Numeric( vtype=int, default=50))
 
+    from cello.graphs.transform import VtxAttr
     graph_search |= VtxAttr(color=[(45, 200, 34), ])
     graph_search |= VtxAttr(type=1)
 
@@ -123,7 +173,7 @@ def engine(index):
     from cello.layout.transform import Shaker
     
     engine.layout.set(
-        ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(kelastic=.3),
+        ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(kelastic=3.9),
         ProxLayoutPCA(dim=2, name="ProxPca2d") | Shaker(kelastic=1.8),
         KamadaKawaiLayout(dim=3, name="KamadaKawai3D"),
         KamadaKawaiLayout(dim=2, name="KamadaKawai2D")

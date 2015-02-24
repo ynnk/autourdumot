@@ -52,10 +52,55 @@ define([
         "N" : 'N.',
         "E" : 'Adv.',
     };
-    
+
+    var WkView = Backbone.View.extend({
+        initialize: function(options){
+            this.def_url = options.def_url;
+            this.collection = new Backbone.Collection();
+            this.listenTo(this.collection, 'reset', this.render );
+
+            // wk dropdown
+            $('#wkdef .dropdown')
+              .dropdown({
+                onChange: function(value, text, $selectedItem) {
+                  shortdesc = $("#wkdef nav .menu a.item.active").data('desc') == "short";
+                  if (shortdesc)
+                    $("#wkdef .wk-hiddable").hide()
+                  else
+                    $("#wkdef .wk-hiddable").show()
+                }
+              })
+            ;
+        },
+        render: function(){
+            var _this = this;
+            $('#wkdef nav>a.item').remove();
+            $('#wkdef .def-content').html("");
+            
+            var li = _.template("<a class='item <%=active%>' data-tab='<%=id%>'><%=lang%> <%=pos%> <%=form%></a>")
+            var content = _.template("<div class='ui tab <%=active%>' data-tab='<%=id %>'><%=content %></div>");
+
+            this.collection.each( function(e,i){
+                var unit = _.extend({ active: i == 0 ? 'active' : "",
+                                      id : 'tabpane'+i,
+                                    } , e.attributes );
+                $.ajax(
+                    _this.def_url + unit.lang+"/" + unit.form + "?pos=" + unit.pos,
+                    {
+                        success : function(data){
+                            unit.content = data.content;
+                            $('#wkdef nav').append(li(unit));
+                            $('#wkdef .def-content').append(content(unit));
+                            $('#wkdef .item').tab({ context: $('#wkdef .def-content')});
+                        }
+                    }
+                );
+            });
+         },
+     });
     /** Query input & completion **/
     var QueryView = Backbone.View.extend({
-        //note: the template should have an input with class 'query_input'
+        //note: the template should have an input with class 'query_input'      
         template: _.template($('#query_form_tmpl').html() ),
 
         events: {
@@ -77,9 +122,9 @@ define([
             /** Create the basic DOM elements **/
             /* form template */
             var data = {
-                "label": "search :",
-                "placeholder": "Enter a search ...",
-                "submit": "search !",
+                "label": "",
+                "placeholder": "Votre recherche ...",
+                "submit": "rechercher !",
             }
             this.$el.html(this.template(data));
 
@@ -222,7 +267,8 @@ define([
                     // if any item in query
                     if (units.length){
                         data.lang = units[0].get('lang')
-                        data.pos = units[0].get('pos')
+                        data.pos = units[0].get('pos'),
+                        data.graph = "jdm.asso"
                     }
                     return data;
                 },
@@ -237,7 +283,11 @@ define([
                 }) //warn: it is updated when result comes
 
             // clustering
-            app.models.clustering = new Cello.Clustering({ClusterModel: Models.Cluster, color_saturation:50});
+            app.models.clustering = new Cello.Clustering({
+                            ClusterModel: Models.Cluster,
+                            color_saturation:71,
+                            color_value: 80,
+                        });
 
             // prox list (proxy to app.models.graph.vs)
             app.models.vertices = new Cello.DocList([], {sort_key:'label'});
@@ -308,6 +358,7 @@ define([
                 collection: app.models.clustering.clusters,
                 ChildView: ClusterView,
                 el: $("#clustering_items ul"),
+                
             }).render();
 
             // vertex sorted by proxemy
@@ -374,7 +425,8 @@ define([
                 model: app.models.graph,
                 background_color: 0xEEEEEE,
                 wnode_scale: function(vtx){
-                    return ((Math.log(vtx.get('neighbors'))+1)*3) | 10;
+                    return 12;  
+                    //return ((Math.log(vtx.get('neighbors'))+28)) | 10;
                     //return 8 + Math.log(10*vtx.get("neighbors")) ; 
                 },
                 force_position_no_delay: false,
@@ -382,7 +434,18 @@ define([
                 
             });
             
-            
+            gviz.on('reset', function(){
+
+                this.camera.position.x = 500;
+                this.camera.position.y = 500,
+                this.camera.position.z = 100;
+
+                tween = new TWEEN.Tween(this.camera.position)
+                    .to({x:0,y:0,z:2000}, 2000)
+                    .easing(TWEEN.Easing.Circular.In)
+                    .start();
+                this.camera.lookAt( new THREE.Vector3(0,0,0));
+            });
             /* Events */                        
             var graph = app.models.graph;
             gviz.on( 'intersectOff', function(obj, mouse){
@@ -423,11 +486,15 @@ define([
                 console.log("click", node, event);
                 gviz.request_animation();
             });
+
+            
             
             /* Rendering looop */            
             gviz.enable().animate();
 
             app.views.gviz = gviz;
+
+            app.views.wkdef = new WkView({def_url:app.def_url});
         },
 
         // helper: add app attributes to global scope
@@ -474,10 +541,13 @@ define([
 
             app.update_models(response);
 
+
             // auto scroll on request 
             $(window).scrollTop($(".two.column.row").parent().height());
             
             app.router.navigate(response.results.query.uri);
+            // linkify
+           
         },
 
         /* callback when new data arrived */
@@ -539,31 +609,7 @@ define([
             });
 
             /*  definition */
-            
-            // TODO: create a proper view/model 
-            // clear nav & .def
-            $('#wkdef nav>a.item').remove();
-            $('#wkdef .def-content').html("");
-            
-            var li = _.template("<a class='item <%=active%>' data-tab='<%=id%>'><%=lang%> <%=pos%> <%=form%></a>")
-            var content = _.template("<div class='ui tab <%=active%>' data-tab='<%=id %>'><%=content %></div>");
-
-            _.each(response.results.query.units, function(e,i){
-                var unit = _.extend({ active: i == 0 ? 'active' : "",
-                                      id : 'tabpane'+i,
-                                    } , e );
-                $.ajax(
-                    app.def_url + unit.lang+"/" + unit.form + "?pos=" + unit.pos,
-                    {
-                        success : function(data){
-                            unit.content = data.content;
-                            $('#wkdef nav').append(li(unit));
-                            $('#wkdef .def-content').append(content(unit));
-                            $('#wkdef .item').tab({ context: $('#wkdef .def-content')});
-                        }
-                    }
-                );
-            });
+            app.views.wkdef.collection.reset(response.results.query.units);
         },
 
         /** when the search failed
@@ -613,7 +659,7 @@ define([
             var app = this;
             app.DEBUG = DEBUG;
 
-            // initialise the app it self
+            // initialize the app it self
             app.create_models();
 
             if(app.DEBUG){

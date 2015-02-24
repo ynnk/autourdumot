@@ -10,7 +10,7 @@ define(['cello_gviz'], function(Cello) {
           'edge' : [
                     { '.faded': {  
                             'lineWidth'  : 1,
-                            'opacity'    : 0.2,
+                            'opacity'    : 0.05,
                             }
                     },
                     {  '.bolder': {  
@@ -30,27 +30,28 @@ define(['cello_gviz'], function(Cello) {
 
                     { '.form': {
                         'shape': 'circle',
-                        'scale':2.,
+                        'scale':1.,
                         'strokeStyle': "#EEEEEE",
                         'lineWidth' : .1,
-                        'fontScale'  :  0.25,
 
+                        'fontScale'  :  0.2,
                         'line_max_length': 12,
-                        'font' : "normal 10px sans",
+                        'font' : "normal 8px sans",
                         'fontFillStyle'  : '#333',  //#366633',           
                         'fontStrokeStyle'  : null,
-                        'textPaddingY'  : -1,
-                        'textPaddingX'  : 0
+                        'textPaddingY'  : 0,
+                        'textPaddingX'  : 0,
+                        'textAlign'     : 'left'
                     } },
 
                     { '.form.intersected':  {
                             'fontScale'  :  0.3,
-                            'scale':2,
+                            'scale':1.2,
                     } },
 
                     {'.form.faded': {
                             'scale':0.8,
-                            'opacity'   : 0.3,
+                            'opacity'   : 0.1,
                             'fontScale'  :  0.1,
                     } },
 
@@ -83,8 +84,8 @@ define(['cello_gviz'], function(Cello) {
                             'textPaddingX'  : -2,
 
                             'font' : "normal 10px sans",
-                            'fontFillStyle'  : '#111',  //#366633',           
-                            'fontStrokeStyle'  : '#333',
+                            'fontFillStyle'  : '#111',  //#366633',      
+                            'fontStrokeStyle'  : null, // '#333',
                             'textPaddingY'  : -1,
                             'textPaddingX'  : 0
                     } },

@@ -80,10 +80,15 @@ ul.autocomplete li.active{
     background-color:#373434
 }
 
+
 #maintabs {
     border-radius: 4px 4px 0px 0px;
     border-color: #e7e7e7;
     box-shadow: none;
+}
+
+#maintabs .item {
+line-height: 1.3em;
 }
 
 @media (max-width: 508px) {

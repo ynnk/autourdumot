@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <title> Dictionnaires et synonymes - tmuse - </title>
 
@@ -48,8 +48,7 @@
             <div class="right aligned column">
                 <nav class="ui text inverted menu navbar ">
                     <a class="item "><i class="circular inverted teal large mail outline icon "></i>  </a>
-                    <div class="item right">
-                      <div class="ui icon top right pointing dropdown " >
+                      <div id='cubes' class="ui item right icon top pointing dropdown " >
                             <i class="circular inverted teal large cubes  icon"></i>
                             <div class="menu">
                                 <div class="item "><i class=" help teal icon "></i> Aide </div>
@@ -59,7 +58,6 @@
                                 <div class="divider"></div>
                                 <div class="item about"><i class=" info teal icon "></i> A propos </div>
                             </div>
-                      </div>
                     </div>
                     <a class="item "><i class="circular inverted teal large github icon "></i>  </a>
                 </nav>
@@ -73,22 +71,21 @@
         <div class="row" style="padding-bottom:2px">
         <div class="column center aligned">
             
-            <nav class="ui menu navbar ">
+            <div id="query_form" class="ui item input icon"></div>
+            <div id="query_complete"></div>
 
-                <div class="item centered" style="margin-top:0px" >
-                    <div id="query_form" class="ui input icon"></div>
-                    <div id="query_complete"></div>
-                </div>
+            <nav class="ui menu ">
             </nav>
     
             <div id="maintabs" class="ui bottom attached  teal  menu">
                   <a class="ui item " data-tab='tab-graph'>
                       <i class="cube icon"></i>
-                      <span class='hidden-xs'>Graph</span>
+                      <span class='hidden-xs'>Graphe</span>
                   </a>
                   <a class="ui item" data-tab='tab-clust'>
                       <i class="block layout icon"></i>
                       <span class='hidden-xs'>Clustering</span>
+                      <!-- sous sens, agregats, regroupement, structure polysémique, champ semantique -->
                   </a>
                   
                   <a class="ui item" data-tab='tab-list'>
@@ -100,6 +97,22 @@
                       <i class="book icon"></i>
                       <span class='hidden-xs'>Définition</span>
                   </a>
+
+
+                  <div id="linkify" class="ui item right">
+                    <a class="circular icon" ><i class="linkify icon"></i></a>
+                    <div class="ui popup">
+                        <div class="ui header">Partager ce lien</div>
+                        <div class="">
+                            <input style="width:200px" value=""/>
+                            <p></p>
+                            <p>
+                            Coller ce lien dans un document<br/> ou une barre de navigation.
+                            </p>
+                        </div>
+                    </div>
+                  </div>
+
             </div>
 
 
@@ -128,7 +141,7 @@
                                 <i class="book down icon"></i>
                                 <div class="menu">
                                     <a class="item  active" data-desc='short'><i class="caret right teal icon"></i> Description courte </a>
-                                    <a class="item " data-desc='long'><i class=" caret right teal icon "></i>  Description complète</a>
+                                    <a class="item " data-desc='long'><i class=" caret right teal icon "></i>Description complète</a>
                                 </div>
                           </div>
                         </div>
@@ -166,24 +179,10 @@
         $('#maintabs .item').tab();
         
         // cubes dropdown 
-        $('.dropdown')
+        $('#cubes')
           .dropdown({
             // you can use any ui transition
             transition: 'drop'
-          })
-        ;
-
-        // wk dropdown
-        // TODO make a dedicated view for WK def  ?
-        $('#wkdef .dropdown')
-          .dropdown({
-            onChange: function(value, text, $selectedItem) {
-              shortdesc = $("#wkdef nav .menu a.item.active").data('desc') == "short";
-              if (shortdesc)
-                $("#wkdef .wk-hiddable").hide()
-              else
-                $("#wkdef .wk-hiddable").show()
-            }
           })
         ;
 
@@ -194,6 +193,19 @@
               .modal('show')
             ;
         });
+
+        $('#linkify .linkify').popup({
+            inline   : true,
+            hoverable: true,
+            position : 'bottom right',
+            popup: $("#maintabs .popup"),
+            //on    : 'click',
+            onShow : function(){ $("#linkify input").val(window.location.href).focus().select();},
+            delay: {
+              show: 100,
+              hide: 100
+            }
+          });
 
         
         // resize window event 
@@ -211,7 +223,6 @@
         app.listenTo(app.models.cellist, 'play:complete', function() {
             console.log("complete", "resize");
             _window_resized();
-
             } );
 
         $('#maintabs .item').click(_window_resized);
