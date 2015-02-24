@@ -50,9 +50,9 @@ define(['cello_gviz'], function(Cello) {
                     } },
 
                     {'.form.faded': {
-                            'scale':0.8,
+                            //'scale':0.8,
                             'opacity'   : 0.1,
-                            'fontScale'  :  0.1,
+                            //'fontScale'  :  0.1,
                     } },
 
                     { '.form.selected': {
@@ -69,10 +69,10 @@ define(['cello_gviz'], function(Cello) {
                     } },
 
                     { '.form.cluster-faded': {
-                            'fontScale'  :  0.2,
-                            'scale':0.8,
                             'opacity'   : 0.3,
-                            'strokeStyle': "gradient:#DDD",
+                            //'fontScale'  :  0.2,
+                            //'scale':0.8,
+                            //'strokeStyle': "gradient:#DDD",
                     } },
                     
                     { '.target': {

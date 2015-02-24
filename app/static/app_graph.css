@@ -21,8 +21,16 @@ html, body{
     margin: 0px;
     padding: 2px 0px 2px 0px;
     background: #333;
+}
+#footer .item{
+    padding-top:0px;
+    padding-bottom:1px;
     color: #AAA;
     border: none;
+}
+#footer .item.right {
+    padding-left:2px;
+    padding-right:2px;
 }
 
 h1 {

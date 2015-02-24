@@ -430,7 +430,10 @@ define([
                     //return 8 + Math.log(10*vtx.get("neighbors")) ; 
                 },
                 force_position_no_delay: false,
-                materials: Materials
+                materials: Materials,
+                node_material_transition_delay: 200,
+                edge_material_transition_delay: 200,
+
                 
             });
             
@@ -543,7 +546,7 @@ define([
 
 
             // auto scroll on request 
-            $(window).scrollTop($(".two.column.row").parent().height());
+            $(window).scrollTop($(".two.column.row").parent().height()+ 8);
             
             app.router.navigate(response.results.query.uri);
             // linkify
