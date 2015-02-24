@@ -173,7 +173,7 @@ def engine(index):
     from cello.layout.transform import Shaker
     
     engine.layout.set(
-        ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(kelastic=3.9),
+        ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(kelastic=0.9),
         ProxLayoutPCA(dim=2, name="ProxPca2d") | Shaker(kelastic=1.8),
         KamadaKawaiLayout(dim=3, name="KamadaKawai3D"),
         KamadaKawaiLayout(dim=2, name="KamadaKawai2D")
