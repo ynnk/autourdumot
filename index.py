@@ -13,7 +13,7 @@ import glaff
 
 
 
-def index(es_index, cut_local = 500, cut_global = -1, **kwargs):
+def index(es_index, cut_local = 500, cut_global = -1, start=0, offset=0,  **kwargs):
     """
     :param cut_global: <int> global vector cut -1 to keep all
     :param cut_local: <int> local vector cut -1 to keep all
@@ -40,7 +40,14 @@ def index(es_index, cut_local = 500, cut_global = -1, **kwargs):
         return cut
         
     def iter_vertices():
+        count = 0
         for i, k in enumerate(pg):
+            if i < start:
+                continue
+            if offset  and count >= offset:
+                break
+                
+            count +=1
             vtx = graph.vs[k]
             label = vtx['label']
             neighborhood = graph.neighborhood(vtx)
@@ -84,6 +91,8 @@ def main():
     parser.add_argument("-i", dest='index', action='store_true',default=False, help="index")
     parser.add_argument("--drop", dest='drop', action='store_true',default=False, help="drop index before indexing")
     parser.add_argument("-s", dest='suggest', action='store',nargs=2, help="suggest field text")
+    parser.add_argument("--start", dest='start', action='store', help="indexing start from", default=0)
+    parser.add_argument("--offset", dest='offset', action='store', help="offset", default=0)
     
     parser.add_argument("--noprompt", dest='noprompt', action='store_false',default=True, help="No user prompt ")
     
@@ -171,9 +180,17 @@ def main():
                     'pos' : 'E',
                     'lang': 'fr',
                     'completion' : glaff_completion
-                },
+                }
             ]
-    
+            
+    jdm_asso = [
+                {   'name': 'jdm.asso',
+                    'path':  "%s/jdm/fr.JDM-12312014-v1_666_777-e0-s_no.pickle" % dirpath,
+                    'pos' : 'A',
+                    'lang': 'fr',
+                    'completion' : glaff_completion
+                }]
+
     if args.index:
         schema = yaml.load(open(schema_path))
         es_index = EsIndex(args.name, host=args.host, doc_type='graph', schema=schema['mappings']['graph'])
@@ -183,11 +200,12 @@ def main():
         if not es_index.exists():
             es_index.create()
 
-        #graphs = dicosyn + jdm + jdm_flat
+        #graphs = dicosyn + jdm_flat
         graphs = jdm_flat
 
         for conf in graphs:
-            index(es_index, **conf) 
+            print "indexing %s " % conf['name']
+            index(es_index, start=int(args.start), offset=int(args.offset), **conf) 
     
 if __name__ == '__main__':
     sys.exit(main())
