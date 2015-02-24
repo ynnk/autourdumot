@@ -1,7 +1,7 @@
 #CELLO LibJS dep
 LIBJS_DIR=./app/cello_libjs
 LIBJS_ORIGIN=ssh://192.168.122.99/var-hdd/git/cello_libjs/
-LIBJS_VERSION=semui
+LIBJS_VERSION=master
 
 .PHONY: get_libjs link_libjs python_dep
 
