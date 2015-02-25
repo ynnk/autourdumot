@@ -8,15 +8,34 @@ html, body{
 */
 }
 
+
+@media (max-width: 508px) {
+    .hidden-xs {
+        display:none!important;
+    }
+    #maintabs div.button {
+        width:60px;
+    }
+
+}
+
 .ui.grid {
     margin-top:0px;
 }
-
-.two.column.row {
+.row {
+    padding-bottom:0px!important;
+}
+.page .row.entete {
     color: #373434;
-
+    padding-top:6px;
 }
 
+#query_form {
+    padding-top:2px;
+}
+#query_form input {
+    margin-top:4px
+}
 #query_form i.random:hover{
     color:#00b5ad;
 }
@@ -87,17 +106,6 @@ ul.autocomplete li.active{
 #maintabs .item {
 line-height: 1.3em;
 }
-
-@media (max-width: 508px) {
-    .hidden-xs {
-        display:none
-    }
-    #maintabs div.button {
-        width:60px;
-    }
-
-}
-
 #maintabs .item.active{
     background: #EEE;
 }
@@ -190,8 +198,10 @@ line-height: 1.3em;
 /*    position: absolute;*/
 /*    top: 0;*/
 /*    left: 0;*/
+/*
     position: relative;
     top: -40px;
+*/
     margin: 0;
     padding: 0;
 }

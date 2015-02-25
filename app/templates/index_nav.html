@@ -39,8 +39,8 @@
 </head>
 <body>
 
+<!--
     <div class="ui page grid" style='background:#222'>
-        
         <div class="two column row">
             <div class="center  column">
                     <h2 class="ui inverted header">Dictionnaire et synonymes
@@ -48,10 +48,10 @@
                     </h2>
             </div>
 
+
             <div class="right aligned column">
                 <nav class="ui text inverted menu navbar ">
                     <a class="item "><i class="circular inverted teal large mail outline icon "></i>  </a>
-<!--
                       <div id='cubes' class="ui item right icon top pointing dropdown " >
                             <i class="circular inverted teal large cubes  icon"></i>
                             <div class="menu">
@@ -63,29 +63,37 @@
                                 <div class="item about"><i class=" info teal icon "></i> A propos </div>
                             </div>
                     </div>
--->
                     <a class="item "><i class="circular inverted teal large github icon "></i>  </a>
                 </nav>
             </div>
-        </div> <!--row-->
+        </div> <!-- row - ->
+-->
     </div> <!--grid-->
-
 
         
     <div class="ui page grid">
-        <div class="row" style="padding-bottom:2px">
-        <div class="column center aligned">
-            
-            <div id="query_form" class=""></div>
-<!--
-            <div class="ui item  icon">
-                </div>
--->
-            <div id="query_complete"></div>
+        <div class="row entete">
+            <div class="five wide column">
+                    <h2 class="ui inverted header">Dictionnaire et synonymes
+                        <div class="sub header">Explorations dans le petit monde des mots.</div>
+                    </h2>
+            </div>
 
-            <nav class="ui menu ">
-            </nav>
-    
+
+            <div class="right aligned eleven wide column">
+                
+                <div id="query_form" class=""></div>
+    <!--
+                <div class="ui item  icon">
+                    </div>
+    -->
+                <div id="query_complete"></div>
+
+            </div>
+        </div>
+
+        <div class="row">
+        <div class="column center aligned">
             <div id="maintabs" class="ui bottom attached  teal  menu">
                   <a class="ui item active" data-tab='tab-graph'>
                       <i class="cube icon"></i>
@@ -128,12 +136,14 @@
 
             <div class="ui tab itemview active" data-tab="tab-graph">
 
+<!--
                 <div id="search_in_graph" class="ui right labeled left icon input">
                   <input placeholder="?" type="text" class="transition hidden">
                   <div class="ui tag label">
                     <i class="search icon"></i>
                   </div>
                 </div>
+-->
                     
                 <div id='vz_threejs_main' class=''></div>
             </div>
@@ -164,21 +174,32 @@
                     <div class="def-content"></div>
                 </div>
             </div>
+        </div>
+        </div>
 
-
-            <div id="footer" class="ui center aligned  menu">
-                    <div class='item'>
-                    Données synonymiques <a target='_blank' href='http://jeuxdemots.org' class="ui teal">Jeux de mots</a> - 
+        <div id="footer" class="row" style="padding-bottom:2px">
+            <div class="thirteen wide column center aligned">        
+                <div class='item hidden-xs'>
+                    Synonymes <a target='_blank' href='http://jeuxdemots.org' class="ui teal">Jeux de mots</a> - 
                     Définitions <a target='_blank' href='http://wiktionary.org' class="ui teal">Wiktionary.org</a> - 
-                    Réalisation <a target='_blank' href="http://kodexlab.com" class="ui teal">Kodex·Lab</a> 2014
-                    </div>
-                    <a class="item right"><i class=" help teal icon " title="Aide"></i></a>
-                    <a class="item right"><i class=" bug teal icon " title="Signaler un bug"></i></a>
-                    <a class="item right"><i class=" comments teal icon" title="Votre avis nous intéresse"></i></a>
+                    Réalisation <a target='_blank' href="http://kodexlab.com" class="ui teal">Kodex·Lab</a>
+                     - 
+                    <a href='http://autourdumot.fr' class="ui teal">autour<span style='color:#AAA'>du</span>mot.fr</a>
+                     - 2014
                 </div>
+            </div>
+            
+            <div class="three wide column right aligned">
+                <div class='item right'>
+                    <a class=""><i class=" help teal icon " title="Aide"></i></a>
+                    <a class=""><i class=" bug teal icon " title="Signaler un bug"></i></a>
+                    <a class=""><i class=" comments teal icon" title="Votre avis nous intéresse"></i></a>
+                </div>
+            </div>
+            
             
         </div>
-        </div>
+    
     </div>
 
 <script>
@@ -260,7 +281,11 @@
         
         var _window_resized = function(){
             var win = $(this); //this = window
-            size =  $(window).height()-$("nav").height() - $(".footer").height() - 80;
+            size =  $(window).height()
+                    -$(".page .row.entete").height()
+                    - $("#maintabs").height()
+                    - $(".footer").height()
+                    - 45;
             size = size < min_height ? min_height : size;
             $(".itemview").height(size);
             app.views.gviz.resize_rendering();
