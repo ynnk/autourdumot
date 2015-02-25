@@ -47,6 +47,7 @@ def index(query=None):
          root_url=url_for("index"),
          complete_url=url_for("%s.complete" % tmuseApi.name),
          engine_url=url_for("%s.subgraph" % tmuseApi.name),
+         random_url=url_for("%s.random_node" % tmuseApi.name),
          def_url=url_for("wkdef", domain="", query="")[:-1] # rm trailing /
     )
 

@@ -77,6 +77,10 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
     Models.TmuseQueryUnits = Backbone.Collection.extend({
         model: Models.TmuseQueryUnit,
 
+        initialize: function(models, options){
+            this.random_url = options.random_url;
+        },
+
         /* Reset the QueryUnit collection from a raw string, ex "fr.V.manger;fr.V.boufer"
         */
         reset_from_models: function(models){
@@ -103,6 +107,21 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
                 data.push(query_elem);
             });
             this.reset(data);
+        },
+
+        reset_random: function(){
+        /* reset collection with a random node
+         * */
+            var _this = this;
+            $.ajax(
+                    this.random_url,
+                    {
+                        success : function(data){
+                            var unit = new Models.TmuseQueryUnit(data.doc);
+                            _this.reset_from_models([unit]);
+                        }
+                    }
+                );
         },
 
         to_string: function(){

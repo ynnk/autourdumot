@@ -105,11 +105,13 @@ define([
 
         events: {
             'submit': 'submit',
-            'drop input' : 'drop'
+            'drop input' : 'drop',
+            'click i.random' : 'random'
         },
 
-        initialize: function(attr){
+        initialize: function(attrs){
             var _this = this;
+            
             _.bindAll(this, "render")
 
             /* model events */
@@ -179,6 +181,11 @@ define([
 
             // append completion to the view
             $("#query_complete", this.$el).append(_this.querycomplete.render().$el);
+
+
+            // random
+            $("a", this.$el).click()
+
             return this.render();
         },
 
@@ -194,6 +201,10 @@ define([
             view.$input.tagsinput('input').val("");
             view.$input.tagsinput('input').focus();
             return this;
+        },
+
+        random: function (event) {
+            this.model.reset_random();
         },
 
         drop: function (event) {
@@ -235,6 +246,7 @@ define([
         initialize: function(options){
             this.root_url = options.root_url || "/";
             this.engine_url = options.engine_url;
+            this.random_url = options.random_url;
             this.complete_url = options.complete_url;
             this.def_url = options.def_url;
         },
@@ -248,7 +260,7 @@ define([
 
             // query specific tmuse (ici c'est une collection)
             // note: "query" should have an export_for_engine mth
-            app.models.query = new Models.TmuseQueryUnits();
+            app.models.query = new Models.TmuseQueryUnits([], {random_url:app.random_url});
             
             // register the query model on the engine input "query"
             app.models.cellist.register_input("query", app.models.query);

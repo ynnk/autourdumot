@@ -10,7 +10,7 @@ define(['cello_gviz'], function(Cello) {
           'edge' : [
                     { '.faded': {  
                             'lineWidth'  : 1,
-                            'opacity'    : 0.05,
+                            'opacity'    : 0.2,
                             }
                     },
                     {  '.bolder': {  
@@ -53,7 +53,7 @@ define(['cello_gviz'], function(Cello) {
                     {'.form.faded': {
                         //'scale':0.8,
                         //'fontScale'  :  0.1,
-                        'opacity'   : 0.1,
+                        'opacity'   : 0.2,
                     } },
 
                     { '.form.selected': {

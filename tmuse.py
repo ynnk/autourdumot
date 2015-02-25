@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-
+import random
 import igraph 
 
 from reliure import Optionable
@@ -70,6 +70,40 @@ class TmuseEsGraphBuilder(OptionableGraphBuilder):
             
         return graph
 
+
+def random_node(index, graph):
+    body = {
+              "_source": ["prox", "neighborhood"],
+              "query": {
+                "function_score": {
+                  "filter": {
+                    "term": { "graph": "jdm.V.flat" }
+                  },
+                  "functions": [
+                    {
+                      "random_score": {}
+                    }
+                  ],
+                  "score_mode": "sum"
+                }
+              }
+            }
+
+    print body
+    docs = []
+    res = index.search(body=body, size=1)
+    if 'hits' in res and 'hits' in res['hits']:
+        hits = res['hits']['hits']
+        candidates = [ i for i,_ in hits[0]['_source']['prox'][:50]]
+        candidates = hits[0]['_source']['neighborhood']
+        ids  = [  i for i in candidates ]
+        vid = random.sample(ids,1)
+        docs = [ d['_source'] for d in search_docs(index, graph, vid)['hits']['hits'] ]
+        print graph, ids, len(candidates), vid, len(docs)
+
+    return docs
+    
+    
 
 def subgraph(index, query, length=50):
     """

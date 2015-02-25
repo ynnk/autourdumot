@@ -17,21 +17,10 @@ html, body{
 
 }
 
-#footer {
-    margin: 0px;
-    padding: 2px 0px 2px 0px;
-    background: #333;
+#query_form i.random:hover{
+    color:#00b5ad;
 }
-#footer .item{
-    padding-top:0px;
-    padding-bottom:1px;
-    color: #AAA;
-    border: none;
-}
-#footer .item.right {
-    padding-left:2px;
-    padding-right:2px;
-}
+
 
 h1 {
     color:#333;
@@ -201,6 +190,8 @@ line-height: 1.3em;
 /*    position: absolute;*/
 /*    top: 0;*/
 /*    left: 0;*/
+    position: relative;
+    top: -40px;
     margin: 0;
     padding: 0;
 }
@@ -339,3 +330,43 @@ line-height: 1.3em;
     border-radius: 15px;
 }
 
+#search_in_graph {
+    position: relative;
+    float: right;
+    top: calc(100% - 50px );
+    left: -10px;
+    z-index: 12;
+    padding: 0px;
+}
+#search_in_graph input {
+    width: 200px;
+    
+    padding-left:8px!important;
+    padding-right:8px!important;
+}
+#search_in_graph .tag.label{
+    padding-right:12px;
+    height: 38px;
+}
+#search_in_graph .tag.label .icon{
+/*
+    margin:0px
+*/
+}
+
+
+#footer {
+    margin: 0px;
+    padding: 2px 0px 2px 0px;
+    background: #333;
+}
+#footer .item{
+    padding-top:0px;
+    padding-bottom:1px;
+    color: #AAA;
+    border: none;
+}
+#footer .item.right {
+    padding-left:2px;
+    padding-right:2px;
+}

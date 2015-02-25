@@ -14,6 +14,8 @@ from cello.providers.es import EsIndex
 
 import tmuse
 
+ALL_POS = ('A', 'V', 'N', 'E')
+
 def QueryUnit(**kwargs):
     default = {
         'lang'  : 'fr',
@@ -101,6 +103,18 @@ def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph'):
     completion_view.play_route("<lang>.<pos>.<form>")
     api.register_view(completion_view, url_prefix="complete")
 
+    import random
+
+    @api.route("/random")
+    @api.route("/random/<string:pos>")
+    def random_node(pos=None):
+        if pos not in ALL_POS :
+            pos = random.sample(ALL_POS, 1)[0]
+            
+        graph = "jdm.%s.flat" % pos
+        doc = tmuse.random_node(esindex, graph)[0]
+        return jsonify({ 'pos':pos, 'doc': doc})
+    
     # Debug views
     @api.route("/_extract/<string:graph>/<string:text>")
     def _extract(graph, text):
@@ -173,7 +187,7 @@ def engine(index):
     from cello.layout.transform import Shaker
     
     engine.layout.set(
-        ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(kelastic=0.9),
+        ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(kelastic=.9),
         ProxLayoutPCA(dim=2, name="ProxPca2d") | Shaker(kelastic=1.8),
         KamadaKawaiLayout(dim=3, name="KamadaKawai3D"),
         KamadaKawaiLayout(dim=2, name="KamadaKawai2D")

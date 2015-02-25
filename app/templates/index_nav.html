@@ -29,8 +29,11 @@
 
     
     <script id="query_form_tmpl" type="text/template">
+            <div class="ui item input icon">
               <input type='text' id="searchQueryInput" class="prompt " placeholder="<%= placeholder %>" required="" />
-              <i class="search icon"></i>
+              <i class="random icon" title="recherche aléatoire"></i>
+            </div>
+              
     </script>
 
 </head>
@@ -73,7 +76,11 @@
         <div class="row" style="padding-bottom:2px">
         <div class="column center aligned">
             
-            <div id="query_form" class="ui item input icon"></div>
+            <div id="query_form" class=""></div>
+<!--
+            <div class="ui item  icon">
+                </div>
+-->
             <div id="query_complete"></div>
 
             <nav class="ui menu ">
@@ -103,13 +110,13 @@
 
                   <div id="linkify" class="ui item right">
                     <a class="circular icon" ><i class="linkify icon"></i></a>
-                    <div class="ui popup">
+                    <div class="ui popup" data-variation='large'>
                         <div class="ui header">Partager ce lien</div>
                         <div class="">
                             <input style="width:200px" value=""/>
                             <p></p>
                             <p>
-                            Coller ce lien dans un document<br/> ou une barre de navigation.
+                            Copier le lien avec Ctrl C <br>Coller ce lien dans un document ou une barre de navigation.
                             </p>
                         </div>
                     </div>
@@ -120,7 +127,15 @@
 
 
             <div class="ui tab itemview active" data-tab="tab-graph">
-                <div id='vz_threejs_main' class=''></div>            
+
+                <div id="search_in_graph" class="ui right labeled left icon input">
+                  <input placeholder="?" type="text" class="transition hidden">
+                  <div class="ui tag label">
+                    <i class="search icon"></i>
+                  </div>
+                </div>
+                    
+                <div id='vz_threejs_main' class=''></div>
             </div>
 
             <div class="ui tab itemview" data-tab="tab-clust">
@@ -134,8 +149,6 @@
             </div>
 
             <div class="ui tab  itemview " data-tab="tab-def">
-
-                
                 <div id='wkdef' class='ui left aligned segment subitem' style=''>
                     <nav  class="ui menu navbar ">
                        <div class="item right">
@@ -153,7 +166,7 @@
             </div>
 
 
-                <div id="footer" class="ui center aligned  menu">
+            <div id="footer" class="ui center aligned  menu">
                     <div class='item'>
                     Données synonymiques <a target='_blank' href='http://jeuxdemots.org' class="ui teal">Jeux de mots</a> - 
                     Définitions <a target='_blank' href='http://wiktionary.org' class="ui teal">Wiktionary.org</a> - 
@@ -165,9 +178,8 @@
                 </div>
             
         </div>
-            
         </div>
-        </div>
+    </div>
 
 <script>
     require([
@@ -177,6 +189,7 @@
         app = new App( {
                        root_url:"{{ root_url }}",
                        engine_url:"{{ engine_url }}", 
+                       random_url:"{{ random_url }}", 
                        complete_url:"{{ complete_url }}", 
                        def_url:"{{ def_url }}", 
         });
@@ -201,6 +214,11 @@
             ;
         });
 
+        $('#query_form i.random').popup({
+            inline   : true,
+            variation: 'inverted large',
+            position : 'right center',
+        });
         $('#footer .item i').popup({
             inline   : true,
             variation: 'large',
@@ -211,6 +229,7 @@
             inline   : true,
             hoverable: true,
             position : 'bottom right',
+            variation: 'huge',
             popup: $("#maintabs .popup"),
             //on    : 'click',
             onShow : function(){ $("#linkify input").val(window.location.href).focus().select();},
@@ -220,7 +239,22 @@
             }
           });
 
+        // search in graph
         
+        var slide = function(){
+                $('#search_in_graph input')
+                  .transition({
+                        animation:'slide left',
+                        onShow: function(){
+                            $('#search_in_graph input').focus();
+                        },
+                    })                 
+                ;
+            };
+        $('#search_in_graph .icon').click(slide);
+        
+
+
         // resize window event 
         var min_height = 250;
         
