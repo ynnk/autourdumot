@@ -65,7 +65,7 @@ define(['cello_gviz'], function(Cello) {
 
                     { '.form.cluster': {
                             //'shape': 'square',
-                            'scale':0.3,
+                            'scale':1,
                             'fontScale'  :  0.4,
                     } },
 

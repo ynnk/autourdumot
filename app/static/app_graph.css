@@ -9,11 +9,11 @@ html, body{
 }
 
 
-@media (max-width: 508px) {
+@media (max-width: 500px) {
     .hidden-xs {
         display:none!important;
     }
-    #maintabs div.button {
+    #maintabs a.item {
         width:60px;
     }
 
@@ -79,6 +79,13 @@ ul.autocomplete {
     box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
     background-color:#FFF;
 }
+
+ul.autocomplete li .label {
+padding: 3px;
+padding-left: 5px;
+border-radius: 4px;
+}
+
 ul.autocomplete li{
     min-width: 200px;
     list-style-type:none;
@@ -96,13 +103,16 @@ ul.autocomplete li.active{
     background-color:#373434
 }
 
-
 #maintabs {
     border-radius: 4px 4px 0px 0px;
     border-color: #e7e7e7;
     box-shadow: none;
 }
-
+#maintabs h3 {
+    margin: 0px;
+    padding-bottom: 0px;
+    font-size: 1rem;
+}
 #maintabs .item {
 line-height: 1.3em;
 }
@@ -127,9 +137,9 @@ line-height: 1.3em;
 .itemview .segment {
     background: #EEE;
     margin: 0;
+    padding-top: 0px;
     border:none;
     box-shadow:none;
-    
 }
 
 .itemview h1 {
@@ -306,6 +316,11 @@ line-height: 1.3em;
     padding-left: 5px;
 }
 
+
+#proxemy_items ul li.target a {
+    text-decoration: underline;
+    font-weight: bold;
+}
 #proxemy_items.subitem a {
     color: #666;
 }

@@ -452,14 +452,20 @@ define([
             gviz.on('reset', function(){
 
                 this.camera.position.x = 500;
-                this.camera.position.y = 500,
-                this.camera.position.z = 100;
+                this.camera.position.y = 600,
+                this.camera.position.z = 600;
 
-                tween = new TWEEN.Tween(this.camera.position)
-                    .to({x:0,y:0,z:2000}, 2000)
-                    .easing(TWEEN.Easing.Circular.In)
-                    .start();
                 this.camera.lookAt( new THREE.Vector3(0,0,0));
+                tween = new TWEEN.Tween(this.camera.position)
+                    .to({x:0,y:0,z:1500}, 1000)
+                    .easing(TWEEN.Easing.Linear.None)
+                    .onComplete(function(){
+                            //gviz.camera.lookAt( new THREE.Vector3(0,0,0));
+                            //gviz.request_animation(200)
+    
+                        })
+                    .start();
+                    
             });
             /* Events */                        
             var graph = app.models.graph;
@@ -555,10 +561,6 @@ define([
             }
 
             app.update_models(response);
-
-
-            // auto scroll on request 
-            $(window).scrollTop($(".two.column.row").parent().height()+ 8);
             
             app.router.navigate(response.results.query.uri);
             // linkify
@@ -569,6 +571,7 @@ define([
         update_models: function(response){
             // parse and reset graph
             app.models.graph.reset(response.results.graph);
+            
 
             // apply layout
             var coords = response.results.layout.coords;
@@ -625,6 +628,7 @@ define([
 
             /*  definition */
             app.views.wkdef.collection.reset(response.results.query.units);
+
         },
 
         /** when the search failed

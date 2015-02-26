@@ -99,7 +99,7 @@ def random_node(index, graph):
         ids  = [  i for i in candidates ]
         vid = random.sample(ids,1)
         docs = [ d['_source'] for d in search_docs(index, graph, vid)['hits']['hits'] ]
-        print graph, ids, len(candidates), vid, len(docs)
+        #print graph, ids, len(candidates), vid, len(docs)
 
     return docs
     
@@ -139,12 +139,12 @@ def subgraph(index, query, length=50):
     # build graph from docs
     graph = to_graph(docs)
 
-    print 'graphname', query[0]['graph']
-    print 'pzeros', [ q['form'] for q in query ]
-    print 'ids', ids
-    print 'pzeros', pzeros
-    print 'docs', len(docs)
-    print 'g', graph.summary()
+    #print 'graphname', query[0]['graph']
+    #print 'pzeros', [ q['form'] for q in query ]
+    #print 'ids', ids
+    #print 'pzeros', pzeros
+    #print 'docs', len(docs)
+    #print 'g', graph.summary()
     
     return graph
 
