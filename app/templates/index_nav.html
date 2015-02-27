@@ -25,17 +25,13 @@
     <script id="ListLabel" type="text/template">
             <div class='puce' style='background-color:rgb(<%=color%>);'></div>
             <a draggable="true"  class='draggable' href="#" title='Voir dans le graphe'><%=rank %>. <%=form %></a>
-<!--
-            <a class="ui tiny teal button" title='Voir dans le graphe'><i class="square cube icon "></i></a>
--->
-            <a class="ui tiny button" title="Explorer ce mot"><i class="square share icon "></i></a>
+<a class="ui tiny button" title="Explorer ce mot"><i class="square share icon "></i></a>
             
     </script>
 
     <script id="cluster_item" type="text/template">
         <a href='#' class='' style='font-size:<%= size %>px' title='Voir dans le graphe'><% _.each(formatted_label, function(token){
-        %><span class='<%= token.css.substring(1) %>'><%= token.form %></span><% });%>
-        </a>
+        %><span class='<%= token.css.substring(1) %>'><%= token.form %></span><%});%></a>
         <a class="ui tiny  button" title="Explorer ce mot"><i class="square share icon "></i></a>
     </script>
 
@@ -108,22 +104,22 @@
         <div class="row">
         <div class="column center aligned">
             <div id="maintabs" class="ui bottom attached  teal  menu">
-                  <a class="ui item active tab-graph" data-tab='tab-graph'>
+                  <a class="ui item active tab-graph" data-tab='graph'>
                       <i class="cube icon"></i>
                       <span class='hidden-xs'>Graphe</span>
                   </a>
-                  <a class="ui item" data-tab='tab-clust'>
+                  <a class="ui item" data-tab='clust'>
                       <i class="block layout icon"></i>
                       <span class='hidden-xs'>Regroupement</span>
                       <!-- sous sens, agregats, regroupement, structure polysémique, champ semantique -->
                   </a>
                   
-                  <a class="ui item" data-tab='tab-list'>
+                  <a class="ui item" data-tab='list'>
                       <i class="list layout icon"></i>
                       <span class='hidden-xs'>Liste</span>
                   </a>
                   
-                  <a class="ui item" data-tab='tab-def'>
+                  <a class="ui item" data-tab='def'>
                       <i class="book icon"></i>
                       <span class='hidden-xs'>Définition</span>
                   </a>
@@ -154,7 +150,7 @@
                     <h1></h1>
             </div>
             
-            <div class="ui tab itemview active" data-tab="tab-graph">
+            <div class="ui tab itemview active" data-tab="graph">
 
 <!--
                 <div id="search_in_graph" class="ui right labeled left icon input">
@@ -168,17 +164,17 @@
                 <div id='vz_threejs_main' class=''></div>
             </div>
 
-            <div class="ui tab itemview" data-tab="tab-clust">
+            <div class="ui tab itemview" data-tab="clust">
                 <h1> <i class="block layout icon"></i></h1>
                 <div id='clustering_items' class='subitem' style=''><ul></ul></div>
             </div>
 
-            <div class="ui tab itemview " data-tab="tab-list">
+            <div class="ui tab itemview " data-tab="list">
                 <h1><i class="list layout icon"></i>&nbsp;</h1>
                 <div id='proxemy_items' class='ui left aligned segment subitem' style=''><ul></ul></div>
             </div>
 
-            <div class="ui tab  itemview " data-tab="tab-def">
+            <div class="ui tab  itemview " data-tab="def">
                 <div id='wkdef' class='ui left aligned segment subitem' style=''>
                     <nav  class="ui menu navbar ">
                        <div class="item right">
@@ -273,7 +269,8 @@
               hide: 100
             }
         });
-        
+
+        // get link popup   
         $('#linkify .linkify').popup({
             inline   : true,
             hoverable: true,
@@ -288,20 +285,52 @@
             }
           });
 
-        // search in graph
+        /* keyboard shortcuts */
+        // input
+        Mousetrap.bind(['?', ',', 'up'], function(){
+            $("#query_form input").focus().select();
+            return false;
+        });
+        //random
+        Mousetrap.bind(['* enter'], function(){
+            console.log('* enter')
+            app.models.query.reset_random();
+            return false;
+        });
+
+        // tabs
         
-        var slide = function(){
-                $('#search_in_graph input')
-                  .transition({
-                        animation:'slide left',
-                        onShow: function(){
-                            $('#search_in_graph input').focus();
-                        },
-                    })                 
-                ;
-            };
-        $('#search_in_graph .icon').click(slide);
+        // tabs names @data-tab.substr(4)
+        var tabs = _($("#maintabs a.item")).map(function(e) {return $(e).attr('data-tab')});
+        // tab selector
+        var tab$el = function(tab){ return  $("#maintabs a[data-tab="+tab+"]") };
+
         
+        var move_tab = function(delta){
+            var active = $("#maintabs a.active").attr('data-tab');
+            if ( _.isString(active) ){
+                var index = tabs.indexOf(active);
+                index += delta;
+                if ( index < 0 ) index = tabs.length-1;
+                if ( index >= tabs.length ) index = 0;
+                return tab$el( tabs[index] ).click();
+            }
+        };
+        
+        _(tabs).each(function(v){
+            var letter = v.substring(0,1);
+            Mousetrap.bind(letter, function() {
+                $el = tab$el(v);
+                $el.click();
+            });                
+        });
+        // arrows
+        Mousetrap.bind('right', function(){
+                move_tab(1);
+        });
+        Mousetrap.bind('left', function(){
+                move_tab(-1);
+        });       
 
 
         // resize window event 
@@ -321,7 +350,9 @@
         }
         
         app.listenTo(app.models.cellist, 'play:complete', function() {
-            console.log("complete", "resize");
+            console.log(">>>>>complete", "resize", move_tab(0).focus());
+            $('input').blur();
+            move_tab(0).focus();
             _window_resized();
             } );
 

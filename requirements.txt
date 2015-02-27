@@ -7,5 +7,7 @@ pyyaml
 elasticsearch
 requests
 requests-cache
+urllib3
+lxml
 git+ssh://192.168.122.99/var-hdd/git/reliure/@master
 git+ssh://192.168.122.99/var-hdd/git/cello/@master

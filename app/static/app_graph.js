@@ -213,6 +213,10 @@ define([
         },
 
         random: function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+            $('input').blur();
+            $('.page').click(); // should hide keyboard on android
             this.model.reset_random();
         },
 
@@ -748,31 +752,6 @@ define([
             this.listenTo(app.models.cellist, 'play:complete', app.engine_play_completed);
             //when search failed
             this.listenTo(app.models.cellist, 'play:error', app.engine_play_error);
-
-            /* keyboard shortcuts */
-
-            Mousetrap.bind(['?', ','], function(){
-                $("#query_form input").focus().select();
-                return false;
-            });
-
-            
-            // arrows
-            Mousetrap.bind('right', function(){
-                $("#myCarousel").carousel("next");
-            });
-            Mousetrap.bind('left', function(){
-                $("#myCarousel").carousel("prev");
-            });
-
-            // direct slide access
-            var kevents = { 'g,G' : 0, 'c,C':1, 'l,L':2, 'd,D':3 }
-            _.each(kevents , function(v,k){
-                console.log(k,v)
-                Mousetrap.bind(k.split(','), function(){
-                    $("#myCarousel").carousel(v)
-                });
-            });
 
 
             // Router
