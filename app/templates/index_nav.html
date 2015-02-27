@@ -147,6 +147,13 @@
 
 
 
+            <div id="loading" class="ui itemview active  ">
+                    
+                    <div class="ui tab  loading"></div>
+                    <h1>Chargement.</h1>
+                    <h1></h1>
+            </div>
+            
             <div class="ui tab itemview active" data-tab="tab-graph">
 
 <!--
@@ -229,6 +236,8 @@
                        def_url:"{{ def_url }}", 
         });
         app.start();
+
+        $('#loading').remove();
         
         // panel tabs
         $('#maintabs .item').tab();
