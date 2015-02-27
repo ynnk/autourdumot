@@ -28,7 +28,7 @@
 <!--
             <a class="ui tiny teal button" title='Voir dans le graphe'><i class="square cube icon "></i></a>
 -->
-            <a class="ui tiny teal button" title="Explorer ce mot"><i class="square share icon "></i></a>
+            <a class="ui tiny button" title="Explorer ce mot"><i class="square share icon "></i></a>
             
     </script>
 
@@ -36,7 +36,7 @@
         <a href='#' class='' style='font-size:<%= size %>px' title='Voir dans le graphe'><% _.each(formatted_label, function(token){
         %><span class='<%= token.css.substring(1) %>'><%= token.form %></span><% });%>
         </a>
-        <a class="ui tiny teal button" title="Explorer ce mot"><i class="square share icon "></i></a>
+        <a class="ui tiny  button" title="Explorer ce mot"><i class="square share icon "></i></a>
     </script>
 
 
@@ -114,7 +114,7 @@
                   </a>
                   <a class="ui item" data-tab='tab-clust'>
                       <i class="block layout icon"></i>
-                      <span class='hidden-xs'>Clustering</span>
+                      <span class='hidden-xs'>Regroupement</span>
                       <!-- sous sens, agregats, regroupement, structure polysémique, champ semantique -->
                   </a>
                   
