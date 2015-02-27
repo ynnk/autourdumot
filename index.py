@@ -3,8 +3,9 @@
 import sys, os
 import argparse
 import igraph
-from itertools import islice
 import yaml 
+import unicodedata
+from itertools import islice
 
 from cello.providers.es import EsIndex, ESPhraseSuggest
 import cello.graphs.prox as prox
@@ -13,7 +14,7 @@ import glaff
 
 
 
-def index(es_index, cut_local = 500, cut_global = -1, start=0, offset=0,  **kwargs):
+def index(es_index, cut_local = 500, cut_global = -1, lcc=False, start=0, offset=0,  **kwargs):
     """
     :param cut_global: <int> global vector cut -1 to keep all
     :param cut_local: <int> local vector cut -1 to keep all
@@ -28,6 +29,10 @@ def index(es_index, cut_local = 500, cut_global = -1, start=0, offset=0,  **kwar
         completion = lambda lang, pos, text: text
 
     graph = igraph.read( path )
+    #if lcc:
+        #graph.
+
+    
     
     # { idx : (rank, prox) }    
     pg = prox.prox_markov_dict(graph, [], 4, add_loops=True)
@@ -112,6 +117,17 @@ def main():
         candidates.update( set( glaff_data.get( "%s.%s" % (pos, lemma) , [])) )
         return list(candidates)
 
+    def no_accent(lang, pos, lemma):
+        return [''.join(c for c in unicodedata.normalize('NFD', lemma) if unicodedata.category(c) != 'Mn')]
+
+    def completion(lang, pos, lemma):
+        methods  = (glaff_completion, no_accent )
+        complete = []
+        for m in methods:
+            complete.extend(m(lang,pos,lemma))
+
+        return list(set(complete))
+        
         
     dirpath = "%s/Graphs" % os.environ['PTDPATH']
 
@@ -120,19 +136,19 @@ def main():
                     'path':  "%s/dicosyn/dicosyn/V.dicosyn.pickle" % dirpath,
                     'pos' : 'V',
                     'lang': 'fr',
-                    'completion' : glaff_completion
+                    'completion' : completion
                 },
                 {   'name': 'dicosyn.N',
                     'path':  "%s/dicosyn/dicosyn/N.dicosyn.pickle" % dirpath,
                     'pos' : 'N',
                     'lang': 'fr',
-                    'completion' : glaff_completion
+                    'completion' : completion 
                 },
                 {   'name': 'dicosyn.A',
                     'path':  "%s/dicosyn/dicosyn/A.dicosyn.pickle" % dirpath,
                     'pos' : 'A',
                     'lang': 'fr',
-                    'completion' : glaff_completion
+                    'completion' : completion
                 },
             ]
     jdm = [
@@ -140,19 +156,19 @@ def main():
                     'path':  "%s/jdm/fr.A.JDM-01282014-v1-e5-s_avg.pickle" % dirpath,
                     'pos' : 'A',
                     'lang': 'fr',
-                    'completion' : glaff_completion
+                    'completion' : completion
                 },
                 {   'name': 'jdm.N',
                     'path':  "%s/jdm/fr.N.JDM-01282014-v1-e5-s_avg.pickle" % dirpath,
                     'pos' : 'N',
                     'lang': 'fr',
-                    'completion' : glaff_completion
+                    'completion' : completion
                 },
                 {   'name': 'jdm.V',
                     'path':  "%s/jdm/fr.V.JDM-01282014-v1-e5-s_avg.pickle" % dirpath,
                     'pos' : 'V',
                     'lang': 'fr',
-                    'completion' : glaff_completion
+                    'completion' : completion
                 },
             ]
 
@@ -161,25 +177,25 @@ def main():
                     'path':  "%s/jdm/fr.A.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
                     'pos' : 'A',
                     'lang': 'fr',
-                    'completion' : glaff_completion
+                    'completion' : completion
                 },
                 {   'name': 'jdm.N.flat',
                     'path':  "%s/jdm/fr.N.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
                     'pos' : 'N',
                     'lang': 'fr',
-                    'completion' : glaff_completion
+                    'completion' : completion
                 },
                 {   'name': 'jdm.V.flat',
                     'path':  "%s/jdm/fr.V.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
                     'pos' : 'V',
                     'lang': 'fr',
-                    'completion' : glaff_completion
+                    'completion' : completion
                 },
                 {   'name': 'jdm.E.flat', # adverbes
                     'path':  "%s/jdm/fr.E.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
                     'pos' : 'E',
                     'lang': 'fr',
-                    'completion' : glaff_completion
+                    'completion' : completion
                 }
             ]
             
