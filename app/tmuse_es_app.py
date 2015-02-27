@@ -19,7 +19,7 @@ app.debug = True
 logger = get_basic_logger(logging.DEBUG)
 
 import requests_cache
-requests_cache.install_cache('./cache/demo_cache')
+requests_cache.install_cache('../cache/demo_cache.sqlite')
 
 # remote api
 #tmuseApi = RemoteApi("http://carton.kodexlab.com/tmuse_alpha/tmuse_v1")
