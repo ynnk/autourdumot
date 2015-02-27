@@ -24,8 +24,21 @@
     
     <script id="ListLabel" type="text/template">
             <div class='puce' style='background-color:rgb(<%=color%>);'></div>
-            <a draggable="true"  href="#" class=''><%=rank %>. <%=form %></a>
+            <a draggable="true"  class='draggable' href="#" title='Voir dans le graphe'><%=rank %>. <%=form %></a>
+<!--
+            <a class="ui tiny teal button" title='Voir dans le graphe'><i class="square cube icon "></i></a>
+-->
+            <a class="ui tiny teal button" title="Explorer ce mot"><i class="square share icon "></i></a>
+            
     </script>
+
+    <script id="cluster_item" type="text/template">
+        <a href='#' class='' style='font-size:<%= size %>px' title='Voir dans le graphe'><% _.each(formatted_label, function(token){
+        %><span class='<%= token.css.substring(1) %>'><%= token.form %></span><% });%>
+        </a>
+        <a class="ui tiny teal button" title="Explorer ce mot"><i class="square share icon "></i></a>
+    </script>
+
 
     
     <script id="query_form_tmpl" type="text/template">
@@ -95,7 +108,7 @@
         <div class="row">
         <div class="column center aligned">
             <div id="maintabs" class="ui bottom attached  teal  menu">
-                  <a class="ui item active" data-tab='tab-graph'>
+                  <a class="ui item active tab-graph" data-tab='tab-graph'>
                       <i class="cube icon"></i>
                       <span class='hidden-xs'>Graphe</span>
                   </a>
@@ -243,8 +256,13 @@
         });
         $('#footer .item i').popup({
             inline   : true,
-            variation: 'large',
+            hoverable: true,
             position : 'top right',
+            variation: 'large',
+            delay: {
+              show: 100,
+              hide: 100
+            }
         });
         
         $('#linkify .linkify').popup({

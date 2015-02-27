@@ -58,20 +58,28 @@ define([
             this.def_url = options.def_url;
             this.collection = new Backbone.Collection();
             this.listenTo(this.collection, 'reset', this.render );
-
+            this.shortdesc = 'short';
             // wk dropdown
+            var _this = this;
             $('#wkdef .dropdown')
               .dropdown({
+                  on: "hover",
                 onChange: function(value, text, $selectedItem) {
-                  shortdesc = $("#wkdef nav .menu a.item.active").data('desc') == "short";
-                  if (shortdesc)
-                    $("#wkdef .wk-hiddable").hide()
-                  else
-                    $("#wkdef .wk-hiddable").show()
+                  _this.shortdesc = $("#wkdef nav .menu a.item.active").data('desc') == "short";
+                  _this.update_desc();
+                  
                 }
               })
             ;
         },
+
+        update_desc:function(){
+              if (this.shortdesc)
+                $("#wkdef .wk-hiddable").hide()
+              else
+                $("#wkdef .wk-hiddable").show()
+        },
+        
         render: function(){
             var _this = this;
             $('#wkdef nav>a.item').remove();
@@ -92,6 +100,7 @@ define([
                             $('#wkdef nav').append(li(unit));
                             $('#wkdef .def-content').append(content(unit));
                             $('#wkdef .item').tab({ context: $('#wkdef .def-content')});
+                            _this.update_desc();
                         }
                     }
                 );
@@ -331,17 +340,27 @@ define([
 
             var ClusterVtx = Cello.ui.clustering.ClusterMemberView.extend({
                 className : 'clabel',
+                template: _.template($('#cluster_item').html() ),
                 events: {
-                    "click": "clicked",
-                    "dragstart" : "drag",
+                    "dragstart" : "drag",                    
+                    "click a:has(> span) ": "click_to_graph",
+                    "click a.button:has(> i.share)": "click_to_request",
                 },
 
-                clicked: function(event){
+                click_to_request: function(event){
                     /* navigate */
                     event.preventDefault();
                     event.stopPropagation();                    
                     app.navigate_to_label(this.model);
                 },
+                
+                click_to_graph: function(event){
+                    $("#maintabs a.tab-graph").click();
+                    app.views.gviz.model.vs.set_selected(null);
+                    app.views.gviz.model.vs.set_selected(this.model);
+                    app.views.gviz.trigger("intersectOn:node", null, this.model);
+                },
+                
 
                 drag: function (event) {
                     event.originalEvent.dataTransfer.setData('model', this.model.to_str());
@@ -378,7 +397,9 @@ define([
             var ItemView = Cello.ui.doclist.DocView.extend({
                 template: _.template($("#ListLabel").html()),
                 events:{
-                    "click": "clicked",
+                    "click a.draggable ": "click_to_graph",
+                    "click a.button:has(> i.cube) ": "click_to_graph",
+                    "click a.button:has(> i.share)": "click_to_request",
                     "mouseover": "mouseover",
                     "mouseout": "mouseout",
                     "dragstart" : "drag",
@@ -398,7 +419,14 @@ define([
                     return this;
                 },
 
-                clicked: function(event){
+                click_to_graph: function(event){
+                    $("#maintabs a.tab-graph").click();
+                    app.views.gviz.model.vs.set_selected(null);
+                    app.views.gviz.model.vs.set_selected(this.model);
+                    app.views.gviz.trigger("intersectOn:node", null, this.model);
+                },
+                
+                click_to_request: function(event){
                     app.navigate_to_label(this.model);
                 },
 
@@ -444,7 +472,7 @@ define([
                 force_position_no_delay: false,
                 materials: Materials,
                 node_material_transition_delay: 200,
-                edge_material_transition_delay: 200,
+                edge_material_transition_delay: 300,
 
                 
             });
@@ -469,25 +497,25 @@ define([
             });
             /* Events */                        
             var graph = app.models.graph;
-            gviz.on( 'intersectOff', function(obj, mouse){
-                gviz.model.vs.set_intersected(null);
-                gviz.model.vs.set_selected(null);
+
+            intersectOff = function(obj, mouse){
+                graph.vs.set_intersected(null);
                 graph.vs.remove_flag('faded');
                 
-                gviz.model.es.set_intersected(null);
+                graph.es.set_intersected(null);
                 graph.es.remove_flag('faded');
                 graph.es.remove_flag('bolder');
 
                 gviz.request_animation();
-            } );
+            };
 
-            // click events http://www.youtube.com/watch?v=tw1lEOUWmN8
-            gviz.on( 'intersectOn:node', function(event, node){
+            intersectNode = function(event, node){
                 // multiple selection
                 //if ( event.ctrlKey )
                     //gviz.model.vs.add_selected(obj !== null ? obj : []);
                 //else // single
-                gviz.model.vs.set_intersected(node !== null ? node : []);
+                intersectOff();
+                graph.vs.set_intersected(node !== null ? node : []);
 
                 var nodes = node.neighbors();
                 graph.vs.add_flag('faded', _.difference(graph.vs.models, nodes));
@@ -496,14 +524,25 @@ define([
                 graph.es.add_flag('bolder', edges);
                 graph.es.add_flag('faded', _.difference(graph.es.models, edges));
                 
-            });
+            };
+            
+            gviz.on( 'intersectOff', intersectOff);
+
+            // click events http://www.youtube.com/watch?v=tw1lEOUWmN8
+            gviz.on( 'intersectOn:node', intersectNode );
 
             gviz.on( 'click:edge', function(event, edge){
                 //alert(JSON.stringify( event));
                 console.log( 'click:edge' , event);
             });
+
+
+            gviz.on( 'click', function(event, obj){
+                graph.vs.set_selected(obj);
+            });
             
             gviz.on( 'click:node', function(event, node){
+                graph.vs.set_selected(node);
                 console.log("click", node, event);
                 gviz.request_animation();
             });

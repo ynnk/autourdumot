@@ -40,7 +40,7 @@ define(['cello_gviz'], function(Cello) {
                         'fontFillStyle'  : '#333',  //#366633',           
                         //'fontStrokeStyle'  : '#F06',
                         //'fontStrokeWidth'  : .1,
-                        'textPaddingY'  : 0,
+                        'textPaddingY'  : -0.8,
                         'textPaddingX'  : 0,
                         'textAlign'     : 'left'
                     } },
@@ -55,17 +55,18 @@ define(['cello_gviz'], function(Cello) {
                         //'fontScale'  :  0.1,
                         'opacity'   : 0.2,
                     } },
-
-                    { '.form.selected': {
-                            'shape': 'square',
-                            'scale':1,
-                            'strokeStyle': "gradient:#1D1D1D",
-                            'fontScale'  :  0.4,
+                    
+                    { '.form.selected':  {
+                        'shape':"square",
+                        'scale':2.8,
+                        'strokeStyle': "gradient:#1D1D1D",
+                        'fontScale'  :  0.4,
+                        'paddingX': 200,
                     } },
 
                     { '.form.cluster': {
                             //'shape': 'square',
-                            'scale':1,
+                            //'scale':1,
                             'fontScale'  :  0.4,
                     } },
 
@@ -87,7 +88,7 @@ define(['cello_gviz'], function(Cello) {
                             'font' : "normal 10px sans",
                             'fontFillStyle'  : '#111',  //#366633',      
                             //'fontStrokeStyle'  : null, // '#333',
-                            'textPaddingY'  : -1,
+                            'textPaddingY'  : 2,
                             'textPaddingX'  : 0
                     } },
 
