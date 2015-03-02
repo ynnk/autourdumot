@@ -478,7 +478,7 @@ define([
                 materials: Materials,
                 node_material_transition_delay: 200,
                 edge_material_transition_delay: 300,
-
+                adaptive_zoom: true,
                 debug: false,
                 
             });
