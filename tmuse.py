@@ -4,11 +4,21 @@ import random
 import igraph 
 
 from reliure import Optionable
+from reliure.exceptions import ReliureValueError, ReliurePlayError
+
 from reliure.types import GenericType
 from reliure.types import Text, Numeric, Boolean
 
 from cello.schema import Doc, Schema
 from cello.graphs.builder import OptionableGraphBuilder
+
+
+
+class WrongQueryError(ReliurePlayError):
+    """ when qury unit is malformed """
+    
+class NoResultError(ReliurePlayError):
+    """ when query returns no result """
 
 class TmuseEsGraphBuilder(OptionableGraphBuilder):
     """ Build a graph from a tmuse Unipartite link graph """
@@ -118,7 +128,15 @@ def subgraph(index, query, length=50):
     proxs = {}
     pzeros = []
     for q in query:
-        p0, vect = extract(index, q, 500)
+        if q['form'] in ('', None):
+            raise WrongQueryError("attribute form can't be None")  
+        
+        result = extract(index, q, 500)
+        if not len(result): 
+            raise WrongQueryError("NoResults")  
+
+
+        p0, vect = result
         for k,v in vect:
             proxs[k] = proxs.get(k,0.) + v;
         pzeros.append(p0)
@@ -138,13 +156,6 @@ def subgraph(index, query, length=50):
     
     # build graph from docs
     graph = to_graph(docs)
-
-    #print 'graphname', query[0]['graph']
-    #print 'pzeros', [ q['form'] for q in query ]
-    #print 'ids', ids
-    #print 'pzeros', pzeros
-    #print 'docs', len(docs)
-    #print 'g', graph.summary()
     
     return graph
 
@@ -166,13 +177,13 @@ def extract(index, q,  length=50):
             }
         }
         
-    print body
     res = index.search(body=body, size=1)
         
     if 'hits' in res and 'hits' in res['hits']:
-        doc = res['hits']['hits'][0]['_source']
-        proxs  = [  p for p in doc['prox'] ]
-        return (doc['gid'], proxs[:length])
+        if len(res['hits']['hits']) :
+            doc = res['hits']['hits'][0]['_source']
+            proxs  = [  p for p in doc['prox'] ]
+            return (doc['gid'], proxs[:length])
 
     return []
 
