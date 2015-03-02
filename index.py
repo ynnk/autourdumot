@@ -29,10 +29,11 @@ def index(es_index, cut_local = 500, cut_global = -1, lcc=False, start=0, offset
         completion = lambda lang, pos, text: text
 
     graph = igraph.read( path )
-    #if lcc:
-        #graph.
-
     
+    if lcc:
+        graph = graph.clusters().giant()
+
+    print graph.summary()
     
     # { idx : (rank, prox) }    
     pg = prox.prox_markov_dict(graph, [], 4, add_loops=True)
@@ -82,7 +83,7 @@ def index(es_index, cut_local = 500, cut_global = -1, lcc=False, start=0, offset
                 }
             }
             
-            line = "%s %s/%s %s %s" % (name, i, graph.vcount(), len(neighborhood),  label)
+            line = "%s %s %s/%s %s %s" % (name, k, i, graph.vcount(), len(neighborhood),  label)
             line = line.encode('utf8')
             print line
 
@@ -95,6 +96,7 @@ def main():
     parser.add_argument("--host", action='store',default='localhost', help="")
     parser.add_argument("-i", dest='index', action='store_true',default=False, help="index")
     parser.add_argument("--drop", dest='drop', action='store_true',default=False, help="drop index before indexing")
+    parser.add_argument("--lcc", dest='lcc', action='store_true',default=False, help="computes only lcc of the loaded graph")
     parser.add_argument("-s", dest='suggest', action='store',nargs=2, help="suggest field text")
     parser.add_argument("--start", dest='start', action='store', help="indexing start from", default=0)
     parser.add_argument("--offset", dest='offset', action='store', help="offset", default=0)
@@ -220,8 +222,8 @@ def main():
         graphs = jdm_flat
 
         for conf in graphs:
-            print "indexing %s " % conf['name']
-            index(es_index, start=int(args.start), offset=int(args.offset), **conf) 
+            print "indexing %s " % conf['name'], 'lcc:', args.lcc
+            index(es_index, start=int(args.start), offset=int(args.offset),lcc=args.lcc, **conf) 
     
 if __name__ == '__main__':
     sys.exit(main())
