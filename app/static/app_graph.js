@@ -259,7 +259,7 @@ define([
         views: {},
 
         initialize: function(options){
-            app.DEBUG = DEBUG;
+            var app = this;
             this.root_url = options.root_url || "/";
             this.engine_url = options.engine_url;
             this.random_url = options.random_url;
@@ -721,6 +721,7 @@ define([
             // main function
         start: function(){
             var app = this;
+            app.DEBUG = DEBUG;
 
             // initialize the app it self
             app.create_models();
