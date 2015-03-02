@@ -226,12 +226,14 @@
     ],  function(App){
         // The "app" dependency is passed in as "App"
         app = new App( {
-                       root_url:"{{ root_url }}",
-                       engine_url:"{{ engine_url }}", 
-                       random_url:"{{ random_url }}", 
-                       complete_url:"{{ complete_url }}", 
-                       def_url:"{{ def_url }}", 
+           debug: {{ 'true' if debug else 'false' }},
+           root_url: "{{ root_url }}",
+           engine_url: "{{ engine_url }}",
+           random_url: "{{ random_url }}",
+           complete_url: "{{ complete_url }}",
+           def_url: "{{ def_url }}",
         });
+
         app.start();
 
         $('#loading').remove();
@@ -260,6 +262,7 @@
             variation: 'inverted large',
             position : 'right center',
         });
+
         $('#footer .item i').popup({
             inline   : true,
             hoverable: true,
@@ -331,12 +334,11 @@
         });
         Mousetrap.bind('left', function(){
                 move_tab(-1);
-        });       
-
+        });
 
         // resize window event 
         var min_height = 250;
-        
+
         var _window_resized = function(){
             var win = $(this); //this = window
             size =  $(window).height()
@@ -359,11 +361,8 @@
 
         $('#maintabs .item').click(_window_resized);
 
-        $(window).on('resize', _window_resized );
-
+        $(window).on('resize', _window_resized);
         _window_resized();
-
-
     })();
 </script>
 

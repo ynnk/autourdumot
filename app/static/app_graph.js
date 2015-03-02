@@ -30,17 +30,6 @@ define([
 // Above we have passed in jQuery, Underscore and Backbone
 // They will not be accessible in the global scope
 
-    // indicate if the app is in debug mode or not
-    var DEBUG = true;
-    Cello.DEBUG = DEBUG;
-
-    //// DEBUG: this un activate the console,
-    //// console log  may cause performance issue on small devices
-    if(!DEBUG){
-        console.log = function() {}
-    }
-
-
     /**************************************************************************/
     /** The app itself
      * defines models, views, and actions binding all that !
@@ -258,13 +247,26 @@ define([
         // the views, created in create_*_views()
         views: {},
 
+        // DEBUG
+        DEBUG: false, // should be false by default else initialize can't change it
+
         initialize: function(options){
             var app = this;
+            app.DEBUG = options.debug || app.DEBUG;
+            
             this.root_url = options.root_url || "/";
             this.engine_url = options.engine_url;
             this.random_url = options.random_url;
             this.complete_url = options.complete_url;
             this.def_url = options.def_url;
+
+            // manage debug
+            Cello.DEBUG = app.DEBUG;
+            // DEBUG: this un-activate the console,
+            // console log  may cause performance issue on small devices
+            if(!app.DEBUG){
+                console.log = function() {}
+            }
         },
 
         // create the models
@@ -721,7 +723,6 @@ define([
             // main function
         start: function(){
             var app = this;
-            app.DEBUG = DEBUG;
 
             // initialize the app it self
             app.create_models();

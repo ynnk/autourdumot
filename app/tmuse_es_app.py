@@ -44,6 +44,7 @@ app.add_url_rule('/_routes', 'routes', lambda : app_routes(app) ,  methods=["GET
 def index(query=None):
     return render_template(
          "index_nav.html",
+         debug=app.debug,
          root_url=url_for("index"),
          complete_url=url_for("%s.complete" % tmuseApi.name),
          engine_url=url_for("%s.subgraph" % tmuseApi.name),
