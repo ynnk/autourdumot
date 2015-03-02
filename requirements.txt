@@ -1,6 +1,7 @@
 gunicorn
 flask
 flask-runner
+git+https://github.com/citruspi/Flask-Analytics.git
 watchdog
 pyquery
 pyyaml

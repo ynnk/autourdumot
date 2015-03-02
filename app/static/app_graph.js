@@ -586,8 +586,6 @@ define([
             // placeholder
             app.views.query.$tagsinput.attr('placeholder', "          ... Loading ...");
             app.views.query.$tagsinput.addClass('loading');
-            // force piwik (if any) to track the new 'page'
-            //Cello.utils.piwikTrackCurrentUrl();
         },
 
         /** when a search response arrive (in success)
@@ -610,8 +608,9 @@ define([
             app.update_models(response);
             
             app.router.navigate(response.results.query.uri);
+            // force piwik (if any) to track the new 'page'
+            Cello.utils.piwikTrackCurrentUrl();
             // linkify
-           
         },
 
         /* callback when new data arrived */

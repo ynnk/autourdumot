@@ -5,18 +5,25 @@ import logging
 
 from flask import Flask
 from flask import request, render_template, url_for, abort, jsonify
+from flask.ext.analytics import Analytics
 
 from reliure.utils.log import get_basic_logger
-
 from reliure.web import RemoteApi, app_routes
+
 from tmuseapi import TmuseApi
 import wiktionary as wk
 
 
 # Build the app & 
 app = Flask(__name__)
-app.debug = True
+app.debug = False
 logger = get_basic_logger(logging.DEBUG)
+
+# ajout la config pour le tracker Piwik
+if not app.debug:
+    app.config["PIWIK_BASEURL"] = "stats.kodexlab.com"
+    app.config["PIWIK_SITEID"] = 8
+Analytics(app)
 
 import requests_cache
 requests_cache.install_cache('../cache/demo_cache.sqlite')
