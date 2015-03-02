@@ -24,8 +24,7 @@ def QueryUnit(**kwargs):
     }
     default.update(kwargs)
     default['graph'] = 'jdm.%s.flat' % default['pos']
-    if default['form'] is None:
-        raise ValueError, "attribute form can't be None"
+
     return default
 
 
