@@ -101,97 +101,91 @@
             </div>
         </div>
 
-        <div class="row">
-        <div class="column center aligned">
-            <div id="maintabs" class="ui bottom attached  teal  menu">
-                  <a class="ui item active tab-graph" data-tab='graph'>
-                      <i class="cube icon"></i>
-                      <span class='hidden-xs'>Graphe</span>
-                  </a>
+        <div class="row contenu">
+            <div class="column center aligned">
+                <div id="maintabs" class="ui bottom attached  teal  menu">
+                      <a class="ui item active tab-graph" data-tab='graph'>
+                          <i class="cube icon"></i>
+                          <span class='hidden-xs'>Graphe</span>
+                      </a>
 
-                  <a class="ui item" data-tab='list'>
-                      <i class="list layout icon"></i>
-                      <span class='hidden-xs'>Liste</span>
-                  </a>
-                  
-                  <a class="ui item" data-tab='clust'>
-                      <i class="block layout icon"></i>
-                      <span class='hidden-xs'>Regroupement</span>
-                      <!-- sous sens, agregats, regroupement, structure polysémique, champ semantique -->
-                  </a>
-                  
-                  <a class="ui item" data-tab='def'>
-                      <i class="book icon"></i>
-                      <span class='hidden-xs'>Définition</span>
-                  </a>
+                      <a class="ui item" data-tab='list'>
+                          <i class="list layout icon"></i>
+                          <span class='hidden-xs'>Liste</span>
+                      </a>
+                      
+                      <a class="ui item" data-tab='clust'>
+                          <i class="block layout icon"></i>
+                          <span class='hidden-xs'>Regroupement</span>
+                          <!-- sous sens, agregats, regroupement, structure polysémique, champ semantique -->
+                      </a>
+                      
+                      <a class="ui item" data-tab='def'>
+                          <i class="book icon"></i>
+                          <span class='hidden-xs'>Définition</span>
+                      </a>
 
 
-                  <div id="linkify" class="ui item right">
-                    <a class="circular icon" ><i class="linkify icon"></i></a>
-                    <div class="ui popup" data-variation='large'>
-                        <div class="ui header">Partager ce lien</div>
-                        <div class="">
-                            <input style="width:200px" value=""/>
-                            <p></p>
-                            <p>
-                            Copier le lien avec Ctrl C <br>Coller ce lien dans un document ou une barre de navigation.
-                            </p>
+                      <div id="linkify" class="ui item right">
+                        <a class="circular icon" ><i class="linkify icon"></i></a>
+                        <div class="ui popup" data-variation='large'>
+                            <div class="ui header">Partager ce lien</div>
+                            <div class="">
+                                <input style="width:200px" value=""/>
+                                <p></p>
+                                <p>
+                                Copier le lien avec Ctrl C <br>Coller ce lien dans un document ou une barre de navigation.
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                  </div>
+                      </div>
+                </div> <!--/maintabs-->
 
-            </div>
-
-
-
-            <div id="loading" class="ui itemview active  ">
-                    
-                    <div class="ui tab  loading"></div>
+                <div id="loading" class="ui itemview active">
+                    <div class="ui tab loading"></div>
                     <h1>Chargement.</h1>
                     <h1></h1>
-            </div>
-            
-            <div class="ui tab itemview active" data-tab="graph">
-
-<!--
-                <div id="search_in_graph" class="ui right labeled left icon input">
-                  <input placeholder="?" type="text" class="transition hidden">
-                  <div class="ui tag label">
-                    <i class="search icon"></i>
-                  </div>
                 </div>
--->
-                    
-                <div id='vz_threejs_main' class=''></div>
-            </div>
+    
+                <div class="ui tab itemview active" data-tab="graph">
+    <!--
+                    <div id="search_in_graph" class="ui right labeled left icon input">
+                      <input placeholder="?" type="text" class="transition hidden">
+                      <div class="ui tag label">
+                        <i class="search icon"></i>
+                      </div>
+                    </div>
+    -->
+                    <div id='vz_threejs_main' class=''></div>
+                </div>
 
-            <div class="ui tab itemview" data-tab="clust">
-                <h1> <i class="block layout icon"></i></h1>
-                <div id='clustering_items' class='subitem' style=''><ul></ul></div>
-            </div>
+                <div class="ui tab itemview" data-tab="clust">
+                    <h1> <i class="block layout icon"></i></h1>
+                    <div id='clustering_items' class='subitem' style=''><ul></ul></div>
+                </div>
 
-            <div class="ui tab itemview " data-tab="list">
-                <h1><i class="list layout icon"></i>&nbsp;</h1>
-                <div id='proxemy_items' class='ui left aligned segment subitem' style=''><ul></ul></div>
-            </div>
+                <div class="ui tab itemview " data-tab="list">
+                    <h1><i class="list layout icon"></i>&nbsp;</h1>
+                    <div id='proxemy_items' class='ui left aligned segment subitem' style=''><ul></ul></div>
+                </div>
 
-            <div class="ui tab  itemview " data-tab="def">
-                <div id='wkdef' class='ui left aligned segment subitem' style=''>
-                    <nav  class="ui menu navbar ">
-                       <div class="item right">
-                          <div class="ui icon top right pointing dropdown ">
+                <div class="ui tab  itemview " data-tab="def">
+                    <div id='wkdef' class='ui left aligned segment subitem' style=''>
+                        <nav  class="ui menu navbar ">
+                           <div class="item right">
+                              <div class="ui icon top right pointing dropdown ">
                                 <i class="book down icon"></i>
                                 <div class="menu">
-                                    <a class="item  active" data-desc='short'><i class="caret right teal icon"></i> Description courte </a>
-                                    <a class="item " data-desc='long'><i class=" caret right teal icon "></i>Description complète</a>
+                                  <a class="item  active" data-desc='short'><i class="caret right teal icon"></i> Description courte </a>
+                                  <a class="item " data-desc='long'><i class=" caret right teal icon "></i>Description complète</a>
                                 </div>
-                          </div>
-                        </div>
-                    </nav>
-                    <div class="def-content"></div>
+                              </div>
+                            </div>
+                        </nav>
+                        <div class="def-content"></div>
+                    </div>
                 </div>
             </div>
-        </div>
         </div>
 
         <div id="footer" class="row" style="padding-bottom:2px">
@@ -373,7 +367,7 @@
 
             <div class="header">Dictionnaire et synonymes</div>
 
-            <div class="content">        
+            <div class="content">
                 <p>
                     Données synonymiques <a href='http://jeuxdemots.org'>Jeux de mots</a> <br />
                     Définitions <a href='http://wiktionary.org'>Wiktionary.org</a> <br />

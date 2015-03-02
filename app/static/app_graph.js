@@ -705,7 +705,8 @@ define([
             }
 
             var alert = Cello.ui.getAlert(text);
-            $("body").prepend(alert);
+            alert.addClass("reliureError");
+            $("#maintabs").after(alert);
         },
 
 

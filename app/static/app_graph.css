@@ -8,7 +8,7 @@ html, body{
 */
 }
 
-
+/* very small screen */
 @media (max-width: 500px) {
     .hidden-xs {
         display:none!important;
@@ -16,7 +16,15 @@ html, body{
     #maintabs a.item {
         width:60px;
     }
+}
 
+/* Error Message */
+div.message.reliureError{
+    position: absolute;
+    overflow: auto;
+    max-height: calc(100% - 50px);
+    margin: 5px;
+    width: calc(100% - 40px);
 }
 
 .ui.grid {
