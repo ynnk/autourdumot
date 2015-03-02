@@ -24,6 +24,8 @@ def QueryUnit(**kwargs):
     }
     default.update(kwargs)
     default['graph'] = 'jdm.%s.flat' % default['pos']
+    if default['form'] is None:
+        raise ValueError, "attribute form can't be None"
     return default
 
 
@@ -112,9 +114,10 @@ def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph'):
             pos = random.sample(ALL_POS, 1)[0]
             
         graph = "jdm.%s.flat" % pos
-        doc = tmuse.random_node(esindex, graph)[0]
+        docs = tmuse.random_node(esindex, graph)
+        doc = docs[0] if len(docs) else dict()
         return jsonify({ 'pos':pos, 'doc': doc})
-    
+        
     # Debug views
     @api.route("/_extract/<string:graph>/<string:text>")
     def _extract(graph, text):
