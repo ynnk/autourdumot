@@ -46,6 +46,7 @@ define([
      * defines models, views, and actions binding all that !
     */
 
+    // traduction des POS pour les vues
     var POS_MAPPING = {
         "A" : 'Adj.',
         "V" : 'V.',
@@ -53,6 +54,8 @@ define([
         "E" : 'Adv.',
     };
 
+    /** View to manage WK definitions
+    */
     var WkView = Backbone.View.extend({
         initialize: function(options){
             this.def_url = options.def_url;
@@ -107,6 +110,7 @@ define([
             });
          },
      });
+
     /** Query input & completion **/
     var QueryView = Backbone.View.extend({
         //note: the template should have an input with class 'query_input'      
@@ -114,13 +118,13 @@ define([
 
         events: {
             'submit': 'submit',
-            'drop input' : 'drop',
-            'click i.random' : 'random'
+            'drop input': 'drop',
+            'click i.random': 'random'
         },
 
         initialize: function(attrs){
             var _this = this;
-            
+
             _.bindAll(this, "render")
 
             /* model events */
@@ -255,6 +259,7 @@ define([
         views: {},
 
         initialize: function(options){
+            app.DEBUG = DEBUG;
             this.root_url = options.root_url || "/";
             this.engine_url = options.engine_url;
             this.random_url = options.random_url;
@@ -276,14 +281,14 @@ define([
             // register the query model on the engine input "query"
             app.models.cellist.register_input("query", app.models.query);
 
-            //  completion
+            // completion
             CompleteCollection = AutoComplete.Collection.extend({
                 url:app.complete_url,
                 model: Backbone.Model.extend({
-                        defaults : {
-                            graph: "", lang: "", pos: "", form: ""
-                        },
-                    }),
+                    defaults: {
+                        graph: "", lang: "", pos: "", form: ""
+                    },
+                }),
                 update_data: function(data){
                     var units = app.models.query.models;
                     // prevents fetching completion with a different pos or lang
@@ -301,16 +306,16 @@ define([
 
             // --- Graph model ---
             app.models.graph = new Cello.Graph({
-                            vertex_model: Models.Vertex,
-                            edge_model: Models.Edge,
-                }) //warn: it is updated when result comes
+                vertex_model: Models.Vertex,
+                edge_model: Models.Edge,
+            }) //warn: it is updated when result comes
 
             // clustering
             app.models.clustering = new Cello.Clustering({
-                            ClusterModel: Models.Cluster,
-                            color_saturation:71,
-                            color_value: 80,
-                        });
+                ClusterModel: Models.Cluster,
+                color_saturation:71,
+                color_value: 80,
+            });
 
             // prox list (proxy to app.models.graph.vs)
             app.models.vertices = new Cello.DocList([], {sort_key:'label'});
@@ -378,7 +383,7 @@ define([
             // vertices list
             var ClusterVerticesView = Cello.ui.list.CollectionView.extend({
                 className: "vs_list",
-                ChildView: ClusterVtx, 
+                ChildView: ClusterVtx,
             });
 
             // view over a cluster
@@ -716,7 +721,6 @@ define([
             // main function
         start: function(){
             var app = this;
-            app.DEBUG = DEBUG;
 
             // initialize the app it self
             app.create_models();
