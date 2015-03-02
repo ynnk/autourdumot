@@ -476,11 +476,14 @@ define([
                     //return Math.log(vtx.get("neighbors")) ; 
                 },
 
-                force_position_no_delay: false,
                 materials: Materials,
                 node_material_transition_delay: 200,
                 edge_material_transition_delay: 300,
+
+                show_text: true,
+                
                 adaptive_zoom: true,
+                force_position_no_delay: false,
                 debug: false,
                 
             });
