@@ -150,17 +150,16 @@ define([
 
             $input.on('itemRemoved', function(event){
                 var item = event.item;
-                console.log("itemRemoved", item)
                 _this.model.remove(item);
             });
+
             this.$input = $input;
+            this.$tagsinput = $('.bootstrap-tagsinput input', this.$el);            
 
             /* completion */
             var CompletionItem = AutoComplete.ItemView.extend({
                 // item completion view 
                 template: _.template(""+
-                         //"<span class='label label-primary'><%= graph %></span> " +
-                         //"<span class='label label-primary'><%= lang %></span> " +
                          "<span class='label label-default pos-<%=pos%>'><%= text %></span> " +
                          "<span class=''><%= form %></span>"
                      ),
@@ -183,7 +182,7 @@ define([
             // completion view 
             _this.querycomplete = new AutoComplete.View({
                model : app.models.completion,          // CompleteCollection
-               input : this.$input.tagsinput('input'), // meta input created by tagsinput
+               input : this.$tagsinput, // meta input created by tagsinput
                itemView: CompletionItem,               // item view
                queryParameter: "form",                 // options.data key for input
             });
@@ -191,10 +190,9 @@ define([
             // append completion to the view
             $("#query_complete", this.$el).append(_this.querycomplete.render().$el);
 
-
             // random
             $("a", this.$el).click()
-
+            
             return this.render();
         },
 
@@ -207,8 +205,8 @@ define([
                 view.$input.tagsinput('add', unit);
             });
             
-            view.$input.tagsinput('input').val("");
-            view.$input.tagsinput('input').focus();
+            view.$tagsinput.val("");
+            view.$tagsinput.focus();
             return this;
         },
 
@@ -464,20 +462,24 @@ define([
 
 
             /** Create view for graph */
+            var graph = app.models.graph;
+
             var gviz = new Cello.gviz.ThreeViz({
                 el: "#vz_threejs_main",
-                model: app.models.graph,
+                model: graph,
                 background_color: 0xEEEEEE,
                 wnode_scale: function(vtx){
-                    return 12;  
+                    //return 12;  
                     //return ((Math.log(vtx.get('neighbors'))+28)) | 10;
-                    //return 8 + Math.log(10*vtx.get("neighbors")) ; 
+                    return 8 + Math.log(10*vtx.get("neighbors")) ; 
                 },
+
                 force_position_no_delay: false,
                 materials: Materials,
                 node_material_transition_delay: 200,
                 edge_material_transition_delay: 300,
 
+                debug: false,
                 
             });
             
@@ -491,16 +493,11 @@ define([
                 tween = new TWEEN.Tween(this.camera.position)
                     .to({x:0,y:0,z:1500}, 1000)
                     .easing(TWEEN.Easing.Linear.None)
-                    .onComplete(function(){
-                            //gviz.camera.lookAt( new THREE.Vector3(0,0,0));
-                            //gviz.request_animation(200)
-    
-                        })
                     .start();
-                    
+                                        
             });
+            
             /* Events */                        
-            var graph = app.models.graph;
 
             intersectOff = function(obj, mouse){
                 graph.vs.set_intersected(null);
@@ -536,10 +533,8 @@ define([
             gviz.on( 'intersectOn:node', intersectNode );
 
             gviz.on( 'click:edge', function(event, edge){
-                //alert(JSON.stringify( event));
                 console.log( 'click:edge' , event);
             });
-
 
             gviz.on( 'click', function(event, obj){
                 graph.vs.set_selected(obj);
@@ -548,16 +543,14 @@ define([
             gviz.on( 'click:node', function(event, node){
                 graph.vs.set_selected(node);
                 console.log("click", node, event);
-                gviz.request_animation();
             });
 
-            
-            
             /* Rendering looop */            
             gviz.enable().animate();
 
             app.views.gviz = gviz;
 
+            // wk definitions
             app.views.wkdef = new WkView({def_url:app.def_url});
         },
 
@@ -579,8 +572,8 @@ define([
         search_loading: function(kwargs, state){
             var app = this;
             // placeholder
-            app.views.query.$input.attr('placeholder', "          ... Loading ...");
-            app.views.query.$el.addClass('loading');
+            app.views.query.$tagsinput.attr('placeholder', "          ... Loading ...");
+            app.views.query.$tagsinput.addClass('loading');
             // force piwik (if any) to track the new 'page'
             //Cello.utils.piwikTrackCurrentUrl();
         },
@@ -594,9 +587,8 @@ define([
                 app.response = response;    // juste pour le debug
             }
             //stop waiting
-            app.views.query.$el.removeClass('loading');
             $("#loading-indicator").hide(0);
-            app.views.query.$input.attr('placeholder', "Search");
+            app.views.query.$tagsinput.attr('placeholder', "Votre recherche");
             
             // collapse current graph viz
             if ( app.views.gviz ) {
@@ -780,7 +772,6 @@ define([
             app.router = new AppRouter();
             // Everything is now in place...
 
-            console.log(app.models.cellist.url, {url: app.engine_url})
             app.models.cellist.fetch({ success: function(){
                 // start history
                 Backbone.history.start({pushState: true, root: app.root_url});
@@ -789,5 +780,4 @@ define([
         },
     });
     return App;
-    // What we return here will be used by other modules
 });

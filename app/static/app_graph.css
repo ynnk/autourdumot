@@ -216,6 +216,18 @@ line-height: 1.3em;
     padding: 0;
 }
 
+#vz_threejs_main .gviz-debug {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    top: 49px;
+    left: 62%;
+    text-align: left;
+    padding: 5px;
+    background-color: rgba(200,200,200,0.8);
+    border: 1px solid #333;
+
+}
 /* -- clustering -- */
 
 #clustering_items {
