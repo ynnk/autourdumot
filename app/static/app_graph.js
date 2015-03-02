@@ -469,9 +469,11 @@ define([
                 model: graph,
                 background_color: 0xEEEEEE,
                 wnode_scale: function(vtx){
-                    //return 12;  
-                    //return ((Math.log(vtx.get('neighbors'))+28)) | 10;
-                    return 8 + Math.log(10*vtx.get("neighbors")) ; 
+                    var size = 8;
+                    var v = 5 * Math.log(vtx.get("neighbors"));
+                    v = v < size ? size : v;
+                    return v
+                    //return Math.log(vtx.get("neighbors")) ; 
                 },
 
                 force_position_no_delay: false,
