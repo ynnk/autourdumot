@@ -87,7 +87,7 @@ def random_node(index, graph):
               "query": {
                 "function_score": {
                   "filter": {
-                    "term": { "graph": "jdm.V.flat" }
+                    "term": { "graph": graph }
                   },
                   "functions": [
                     {
@@ -99,7 +99,6 @@ def random_node(index, graph):
               }
             }
 
-    print body
     docs = []
     res = index.search(body=body, size=1)
     if 'hits' in res and 'hits' in res['hits']:
@@ -109,7 +108,6 @@ def random_node(index, graph):
         ids  = [  i for i in candidates ]
         vid = random.sample(ids,1)
         docs = [ d['_source'] for d in search_docs(index, graph, vid)['hits']['hits'] ]
-        #print graph, ids, len(candidates), vid, len(docs)
 
     return docs
     
@@ -129,11 +127,11 @@ def subgraph(index, query, length=50):
     pzeros = []
     for q in query:
         if q['form'] in ('', None):
-            raise WrongQueryError("attribute form can't be None")  
+            raise WrongQueryError("Un mot doit être sasie pour effectuer une recherche.")  
         
         result = extract(index, q, 500)
         if not len(result): 
-            raise WrongQueryError("NoResults")  
+            raise WrongQueryError(u"Aucun résultat pour le mot '%s'." % q['form'])  
 
 
         p0, vect = result

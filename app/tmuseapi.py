@@ -108,14 +108,17 @@ def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph'):
 
     @api.route("/random")
     @api.route("/random/<string:pos>")
-    def random_node(pos=None):
+    def random_node(pos=None, retry=5, count=0 ):
         if pos not in ALL_POS :
             pos = random.sample(ALL_POS, 1)[0]
             
         graph = "jdm.%s.flat" % pos
         docs = tmuse.random_node(esindex, graph)
+
         doc = docs[0] if len(docs) else dict()
+            
         return jsonify({ 'pos':pos, 'doc': doc})
+        
         
     # Debug views
     @api.route("/_extract/<string:graph>/<string:text>")
