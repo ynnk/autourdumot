@@ -3,7 +3,7 @@
  * rendering edges & vertices materials 
  */
 
-define(['cello_gviz'], function(Cello) {
+define(['cello_gviz'], function(gviz) {
 
 
         return {
