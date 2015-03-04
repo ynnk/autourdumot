@@ -338,6 +338,20 @@
                 move_tab(-1);
         });
 
+
+        // vertex size
+        Mousetrap.bind('o', function(){
+            app.views.gviz.user_vtx_size -=1;
+            app.views.gviz.request_animation();
+            console.log("size", app.views.gviz.user_vtx_size);
+        });
+        Mousetrap.bind('p', function(){
+            app.views.gviz.user_vtx_size +=1;
+            app.views.gviz.request_animation();
+            console.log("size", app.views.gviz.user_vtx_size);
+        });
+
+
         // resize window event 
         var min_height = 250;
 

@@ -35,6 +35,17 @@ define([
      * defines models, views, and actions binding all that !
     */
 
+    function arrayMax(arr) {
+      return arr.reduce(function (p, v) {
+        return ( p > v ? p : v );
+      });
+    }
+    function arrayMin(arr) {
+      return arr.reduce(function (p, v) {
+        return ( p < v ? p : v );
+      });
+    }
+
     // traduction des POS pour les vues
     var POS_MAPPING = {
         "A" : 'Adj.',
@@ -470,15 +481,10 @@ define([
                 el: "#vz_threejs_main",
                 model: graph,
                 background_color: 0xEEEEEE,
+                
                 wnode_scale: function(vtx){
-                    var size = 8;
-                    var v = 5 * Math.log(vtx.get("neighbors"));
-                    v = v < size ? size : v;
-                    var n = vtx.graph.vs.length;
-                    n = Math.max(0.7, n / 50 );
-        
-                    return Math.min( 18,  (v / n) | size);
-                                        //return Math.log(vtx.get("neighbors")) ; 
+                    var v = (vtx.get('_size') * 14);
+                    return 9 + this.user_vtx_size + v; 
                 },
 
                 materials: Materials,
@@ -490,7 +496,7 @@ define([
                 
                 adaptive_zoom: true,
                 force_position_no_delay: false,
-                debug: false,
+                debug: true,
                 
             });
             
@@ -598,13 +604,24 @@ define([
             // parse and reset graph
             app.models.graph.reset(response.results.graph);
             
-
             // apply layout
             var coords = response.results.layout.coords;
             for (var i in coords){
                 app.models.graph.vs.get(i).set("coords", coords[i], {silent:true});
             }
 
+            // computes node size [0,1]
+            var neigh = app.models.graph.vs.map(function(vtx){
+                //var v = 5 * Math.log(vtx.get("neighbors")); 
+                return vtx.get('neighbors');
+            });
+            var mx = arrayMax(neigh);
+            var mn = arrayMin(neigh);
+            app.models.graph.vs.each(function(vtx){
+                var nei = vtx.get('neighbors');
+                vtx.set('_size', (nei-mn) / (mx-mn)) ;
+            });
+            
             // reset clustering
             app.models.clustering.reset(
                 response.results.clusters,

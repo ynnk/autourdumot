@@ -16,7 +16,7 @@ import wiktionary as wk
 
 # Build the app & 
 app = Flask(__name__)
-app.debug = False
+app.debug = True
 logger = get_basic_logger(logging.DEBUG)
 
 # ajout la config pour le tracker Piwik
