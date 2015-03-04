@@ -34,6 +34,7 @@ def index(es_index, cut_local = 500, cut_global = -1, lcc=False, start=0, offset
         graph = graph.clusters().giant()
 
     print graph.summary()
+
     
     # { idx : (rank, prox) }    
     pg = prox.prox_markov_dict(graph, [], 4, add_loops=True)
