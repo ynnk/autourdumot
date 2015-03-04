@@ -212,8 +212,8 @@
 <!--
                     <a class=""><i class=" help teal icon " title="Aide"></i></a>
                     <a class=""><i class=" bug teal icon " title="Signaler un bug"></i></a>
-                    <a class=""><i class=" comments teal icon" title="Votre avis nous intéresse"></i></a>
 -->
+                    <a class=""><i class=" comments teal icon" title="Votre avis nous intéresse"></i></a>
                 </div>
             </div>
             
@@ -223,9 +223,16 @@
     </div>
 
 <script>
+    // main js is not yet charged, need this config here
+    require.config({
+      paths: {
+        feedback_client: 'http://feedback.kodexlab.com/static/feedback_client',
+      },
+    });
+
     require([
-        "app_graph"
-    ],  function(App){
+        "app_graph", "feedback_client"
+    ],  function(App, feedback){
         // The "app" dependency is passed in as "App"
         app = new App( {
            debug: {{ 'true' if debug else 'false' }},
@@ -379,6 +386,15 @@
 
         $(window).on('resize', _window_resized);
         _window_resized();
+        
+        // Feedback system
+        // activate the feedback system
+        feedback.activate("autourdumot", "http://feedback.kodexlab.com/")
+        // bind it to my custom btn
+        $(".comments").click(function(){
+            feedback.show();
+        })
+
     })();
 </script>
 
