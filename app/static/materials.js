@@ -78,8 +78,6 @@ define(['cello_gviz'], function(gviz) {
                     { '.form.cluster-faded': {
                             'opacity'   : 0.3,
                     } },
-
-
                     {'.form.mo-faded': {
                         'opacity'   : 0.2,
                     } },
