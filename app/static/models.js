@@ -141,13 +141,17 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
     // --- Clustering model ---
     // Clustering model and view
 
+    function hide_cluster(cluster){
+
+    };
+
     Models.Cluster = Cello.Cluster.extend({
         initialize : function(attrs, options){
             var _this = this;
             Models.Cluster.__super__.initialize.apply(this, arguments);
             
              this.on('add remove reset', function(){
-                 this.each(function(model){
+                 _this.each(function(model){
                      model._compute_membership();
                      model._compute_colors();
                  })
@@ -159,22 +163,23 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
                 });
             });
             
+
             
             //add faded flag to the vs of the clusters not selected and remove faded flag to them if useful
             this.listenTo(this, "addflag:selected", function(){ 
-                var other_clusters = this.collection.without(this);
+                var other_clusters = _this.collection.without(_this);
                 
                 //if there is other selected clusters remove faded flag to its vertices
                 _this.members.vs.each( function(vertex){
                       vertex.add_flag('cluster');
                 });
                 
-                _(other_clusters).each(function(cluster){
-                    if (!cluster.selected) {
-                        cluster.members.vs.each( function(vertex){
+                _(other_clusters).each(function(_this){
+                    if (!_this.selected) {
+                        _this.members.vs.each( function(vertex){
                             vertex.add_flag('cluster-faded');
                             _.each(vertex.incident(), function(edge){
-                                    edge.add_flag('cluster-faded');
+                                    edge.add_flag('es-cluster-faded');
                             });
                         });
                     }
@@ -182,24 +187,23 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
             });
             //add faded flag to the vs of the clusters not selected
             this.listenTo(this, "rmflag:selected", function(){
-                //if other clusters are still selected, just remove flag faded on the vertices of the current cluster
-                if( this.collection.some_selected() ){
-                    this.members.vs.each( function(vertex){
-                        //vertex.remove_flag('cluster');
-                    });
-                }
-                // else remove faded flag on the vertices of all other clusters
-                else { 
-                    var other_clusters = this.collection.without(this);
-                    _(other_clusters).each(function(cluster){
-                        cluster.members.vs.each( function(vertex){
-                            vertex.remove_flag('cluster-faded');
-                        _.each(vertex.incident(), function(edge){
-                                edge.remove_flag('cluster-faded');
-                        });
+                    // remove flag cluster on the vertices of the current cluster
+                _this.members.vs.each( function(vertex){
+                        vertex.remove_flag('cluster');
+                });
+                
+                // remove faded flag on the vertices of all other clusters
+                var other_clusters = _this.collection.without(this);
+
+                _(other_clusters).each(function(clust){
+                    clust.members.vs.each( function(vertex){
+                        vertex.remove_flag('cluster-faded');
+                    _.each(vertex.incident(), function(edge){
+                            edge.remove_flag('es-cluster-faded');
                         });
                     });
-                }
+                });
+
             });
         }
     });
@@ -207,19 +211,22 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
 
     // --- Graph model ---
     Models.Vertex = Cello.Vertex.extend({
+
+        label: function(){ return this.get('form') },
+        
          _format_label : function(){
              // css should be in materials
             var font = ".normal-font"
                 font = this.has_flag('form') ? '.form' : font 
                 font = this.has_flag('target') ? '.target' : font 
-            return [ {form : this.get('form'), css : font} ];
+            return [ {form : this.label(), css : font} ];
         },
+
         to_str : function(){
             var _this = this;
-            return  _(['lang', 'pos', 'form']).map( function(e){
-                                    return _this.get(e)
-                                   })
-                                .join('.');
+            return  _(['lang', 'pos', 'form'])
+                        .map( function(e){ return _this.get(e)  })
+                        .join('.');
         }
     },{ // !! static not in the same brackets !!
         active_flags : ['intersected', 'faded', 'selected']

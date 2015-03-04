@@ -364,12 +364,9 @@ define([
                 },
                 
                 click_to_graph: function(event){
-                    $("#maintabs a.tab-graph").click();
                     app.views.gviz.model.vs.set_selected(null);
                     app.views.gviz.model.vs.set_selected(this.model);
-                    app.views.gviz.trigger("intersectOn:node", null, this.model);
                 },
-                
 
                 drag: function (event) {
                     event.originalEvent.dataTransfer.setData('model', this.model.to_str());
@@ -416,7 +413,7 @@ define([
                     "rmflag": "some_flags_changed",
                 },
 
-                 initialize: function(options){
+                initialize: function(options){
                     ItemView.__super__.initialize.apply(this);
                     this.listenTo(this.model, "rmflag:selected", this.flags_changed);
                     this.listenTo(this.model, "addflag:selected", this.some_flags_changed);
@@ -429,10 +426,8 @@ define([
                 },
 
                 click_to_graph: function(event){
-                    $("#maintabs a.tab-graph").click();
                     app.views.gviz.model.vs.set_selected(null);
                     app.views.gviz.model.vs.set_selected(this.model);
-                    app.views.gviz.trigger("intersectOn:node", null, this.model);
                 },
                 
                 click_to_request: function(event){
@@ -479,11 +474,15 @@ define([
                     var size = 8;
                     var v = 5 * Math.log(vtx.get("neighbors"));
                     v = v < size ? size : v;
-                    return v
-                    //return Math.log(vtx.get("neighbors")) ; 
+                    var n = vtx.graph.vs.length;
+                    n = Math.max(0.7, n / 50 );
+        
+                    return Math.min( 18,  (v / n) | size);
+                                        //return Math.log(vtx.get("neighbors")) ; 
                 },
 
                 materials: Materials,
+                use_material_transitions: true,
                 node_material_transition_delay: 200,
                 edge_material_transition_delay: 300,
 
@@ -511,38 +510,19 @@ define([
             
             /* Events */                        
 
-            intersectOff = function(obj, mouse){
-                graph.vs.set_intersected(null);
-                graph.vs.remove_flag('faded');
-                
-                graph.es.set_intersected(null);
-                graph.es.remove_flag('faded');
-                graph.es.remove_flag('bolder');
-
-                gviz.request_animation();
-            };
-
-            intersectNode = function(event, node){
-                // multiple selection
-                //if ( event.ctrlKey )
-                    //gviz.model.vs.add_selected(obj !== null ? obj : []);
-                //else // single
-                intersectOff();
-                graph.vs.set_intersected(node !== null ? node : []);
-
-                var nodes = node.neighbors();
-                graph.vs.add_flag('faded', _.difference(graph.vs.models, nodes));
-
-                var edges = graph.incident(node);
-                graph.es.add_flag('bolder', edges);
-                graph.es.add_flag('faded', _.difference(graph.es.models, edges));
-                
-            };
-            
-            gviz.on( 'intersectOff', intersectOff);
-
+            gviz.on( 'intersectOff', function(event, node){
+                graph.vs.set_intersected([]);
+                app.views.gviz.request_animation();
+            });
             // click events http://www.youtube.com/watch?v=tw1lEOUWmN8
-            gviz.on( 'intersectOn:node', intersectNode );
+            gviz.on( 'intersectOn:node', function(event, node){
+                gviz.trigger('intersectOff');
+                graph.vs.set_intersected(node !== null ? node : []);
+            });
+            
+            gviz.on( 'intersectOn:edge', function(event, node){
+                app.views.gviz.request_animation();
+            });    
 
             gviz.on( 'click:edge', function(event, edge){
                 console.log( 'click:edge' , event);
@@ -647,18 +627,65 @@ define([
             // edge color on node selection
             var graph = app.models.graph;
             graph.vs.each( function(node){
-                
-                app.views.gviz.listenTo(node, "rmflag:selected", function() {
-                    _.each(graph.incident(node), function(edge){
-                        edge.remove_flag("selected");
-                    });            
+
+                app.views.gviz.listenTo(node, "addflag:intersected", function() {
+                    
+                    var nodes = node.neighbors();
+                    graph.vs.add_flag('mo-faded', _(graph.vs.models).without(nodes));
+                    graph.vs.add_flag('mo-adjacent', _(nodes).without(node));
+                    
+                    var edges = graph.incident(node);
+                    graph.es.add_flag('es-bolder', edges);
+                    graph.es.add_flag('es-mo-adjacent',  edges);
+                    graph.es.add_flag('es-mo-faded', _.difference(graph.es.models, edges));
+
                     app.views.gviz.request_animation();
                 });
 
+                app.views.gviz.listenTo(node, "rmflag:intersected", function() {
+                    graph.vs.remove_flag('mo-faded');
+                    graph.vs.remove_flag('mo-adjacent');
+                    
+                    graph.es.remove_flag('es-mo-adjacent');
+                    graph.es.remove_flag('es-mo-faded');
+                    graph.es.remove_flag('es-bolder');
+                       
+                    app.views.gviz.request_animation();
+                });
+                
                 app.views.gviz.listenTo(node, "addflag:selected", function() {
-                    _.each(graph.incident(node), function(edge){
-                        edge.add_flag('selected');
+
+                    app.models.clustering.clusters.each(function(model){
+                        model.remove_flag('selected');
                     });
+                    
+                    node.collection.remove_flag('cluster');
+                    node.collection.remove_flag('selected', _(graph.vs.models).without(node));
+
+                    var nodes = node.neighbors();
+                    node.collection.add_flag('sel-faded', _(graph.vs.models).without(nodes));
+                    node.collection.add_flag('sel-adjacent', _(nodes).without(node));
+                    
+                    var edges = graph.incident(node);
+                    graph.es.add_flag('es-bolder', edges);
+                    graph.es.add_flag('es-sel-adjacent', edges);
+                    graph.es.add_flag('es-sel-faded', _(graph.es.models).without(edges));
+                    
+                    $("#maintabs a.tab-graph").click();
+                    app.views.gviz.request_animation();
+                });
+                
+                app.views.gviz.listenTo(node, "rmflag:selected", function() {
+                    graph.vs.remove_flag('sel-faded');
+                    graph.vs.remove_flag('sel-adjacent');
+                    graph.es.remove_flag('es-sel-adjacent');
+                    graph.es.remove_flag('es-sel-faded');
+                    app.views.gviz.request_animation();
+                });
+                
+                app.views.gviz.listenTo(node, "addflag:cluster", function() {
+                    $("#maintabs a.tab-graph").click();
+                    graph.vs.set_selected(null);                    
                     app.views.gviz.request_animation();
                 });
             });
@@ -669,7 +696,7 @@ define([
                     vtx.add_flag('target');
                 else
                     vtx.add_flag("form");
-                vtx.label = function(){ return this.get('form') };
+                
             });
 
             /*  definition */

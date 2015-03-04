@@ -6,24 +6,52 @@
 define(['cello_gviz'], function(gviz) {
 
 
-        return {
+        Materials =  {
           'edge' : [
-                    { '.faded': {  
+                    {'default' : {
+                            'lineWidth'  : 2,
+                            //'color'    : "#AAA",
+                            'opacity'    : 0.4,
+
+                    }},
+                    
+                    { '.es-cluster-faded': {
+                            'lineWidth'  : 1,
+                            'opacity'    : 0.2,
+                    } },
+
+                    { '.es-mo-faded': {  
                             'lineWidth'  : 1,
                             'opacity'    : 0.2,
                             }
                     },
-                    {  '.bolder': {  
+
+                    { '.es-sel-faded': {  
+                            'lineWidth'  : 1,
+                            'opacity'    : 0.2,
+                            }
+                    },
+
+                    
+                    { '.es-mo-adjacent': {  
+                            'lineWidth'  : 2,
+                            'opacity'    : 1,
+                            }
+                    },
+                    
+                    { '.es-sel-adjacent': {  
+                            'lineWidth'  : 2,
+                            'opacity'    : 1,
+                            }
+                    },
+                    
+
+                    {  '.es-bolder': {  
                             'lineWidth'  : 2,
                             'opacity'    : 1,
                         }
                     },
-                    
 
-                    { '.cluster-faded': {
-                            'lineWidth'  : 1,
-                            'opacity'    : 0.3,
-                    } },
                     ],
             
           'node': [
@@ -32,6 +60,7 @@ define(['cello_gviz'], function(gviz) {
                         'shape': 'circle',
                         'scale':1.,
                         'strokeStyle': "#EEEEEE",
+                        'fillStyle'  : 'get:color',  //#366633',           
                         'lineWidth' : .1,
                         
                         'fontScale'  :  0.2,
@@ -39,57 +68,66 @@ define(['cello_gviz'], function(gviz) {
                         'font' : "normal 8px sans",
                         'fontFillStyle'  : '#333',  //#366633',           
                         //'fontStrokeStyle'  : '#F06',
-                        //'fontStrokeWidth'  : .1,
+                        //'fontStrokeWidth' : .1,
                         'textPaddingY'  : -0.8,
                         'textPaddingX'  : 0,
                         'textAlign'     : 'left'
                     } },
+                    
 
-                    { '.form.intersected':  {
-                        'fontScale'  :  0.3,
-                        'scale':1.2,
+                    { '.form.cluster-faded': {
+                            'opacity'   : 0.3,
                     } },
 
-                    {'.form.faded': {
-                        //'scale':0.8,
-                        //'fontScale'  :  0.1,
+
+                    {'.form.mo-faded': {
                         'opacity'   : 0.2,
                     } },
                     
-                    { '.form.selected':  {
-                        'shape':"square",
-                        'scale':2.8,
-                        'strokeStyle': "gradient:#1D1D1D",
-                        'fontScale'  :  0.4,
-                        'paddingX': 200,
+                    {'.form.sel-faded': {
+                        'opacity'   : 0.2,
+                    } },
+                    
+                    {'.form.mo-adjacent': {
+                        'opacity'   : 1.,
+                    } },
+
+                    {'.form.sel-adjacent': {
+                        'opacity'   : 1,
                     } },
 
                     { '.form.cluster': {
                             //'shape': 'square',
                             //'scale':1,
-                            'fontScale'  :  0.4,
+                            'opacity'   : 1,
+                            'fontScale'  :  0.2,
                     } },
 
-                    { '.form.cluster-faded': {
-                            'opacity'   : 0.3,
-                            //'fontScale'  :  0.2,
-                            //'scale':0.8,
-                            //'strokeStyle': "gradient:#DDD",
+                    { '.form.intersected':  {
+                        'fontScale'  :  0.3,
+                        'scale':1.2,
+                        'opacity'   : 1,
                     } },
                     
+                    { '.form.selected':  {
+                        'shape':"square",
+                        'scale':1.4,
+                        'strokeStyle': "#EEEEEE",
+                        'opacity'   : 1,
+                        //'fontScale'  :  0.4,
+                        'paddingX': 200,
+                    } },
+
                     { '.target': {
                             'shape': 'triangle',
-                            'scale':3,
-                            'strokeStyle': "gradient:#EEEEEE",
+                            'scale':2,
+                            'strokeStyle': "#EEEEEE",
                             'fontScale'  :  0.3,
-                            //'textPaddingY'  : 14,
-                            'textPaddingX'  : -2,
+                            'textPaddingY'  : 14,
 
                             'font' : "normal 10px sans",
                             'fontFillStyle'  : '#111',  //#366633',      
                             //'fontStrokeStyle'  : null, // '#333',
-                            'textPaddingY'  : 2,
-                            'textPaddingX'  : 0
                     } },
 
                     { '.target.intersected': {
@@ -99,4 +137,6 @@ define(['cello_gviz'], function(gviz) {
                 ]
         };
 
+        
+    return Materials
 });
