@@ -215,7 +215,9 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
     // --- Graph model ---
     Models.Vertex = Cello.Vertex.extend({
 
-        label: function(){ return this.get('form') },
+        label: function(){
+            return this.get('form');
+        },
         
          _format_label : function(){
              // css should be in materials

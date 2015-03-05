@@ -654,7 +654,8 @@ define([
                 app.views.gviz.listenTo(node, "addflag:intersected", function() {
                     
                     var nodes = node.neighbors();
-                    graph.vs.add_flag('mo-faded', _(graph.vs.models).without(nodes));
+                    nodes.push(node);
+                    graph.vs.add_flag('mo-faded', _(graph.vs.models).difference(nodes));
                     graph.vs.add_flag('mo-adjacent', _(nodes).without(node));
                     
                     var edges = graph.incident(node);
@@ -686,13 +687,13 @@ define([
                     node.collection.remove_flag('selected', _(graph.vs.models).without(node));
 
                     var nodes = node.neighbors();
-                    node.collection.add_flag('sel-faded', _(graph.vs.models).without(nodes));
+                    node.collection.add_flag('sel-faded', _(graph.vs.models).difference(nodes));
                     node.collection.add_flag('sel-adjacent', _(nodes).without(node));
                     
                     var edges = graph.incident(node);
                     graph.es.add_flag('es-bolder', edges);
                     graph.es.add_flag('es-sel-adjacent', edges);
-                    graph.es.add_flag('es-sel-faded', _(graph.es.models).without(edges));
+                    graph.es.add_flag('es-sel-faded', _(graph.es.models).difference(edges));
                     
                     $("#maintabs a.tab-graph").click();
                     app.views.gviz.request_animation();

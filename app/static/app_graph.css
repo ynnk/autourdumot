@@ -142,6 +142,22 @@ line-height: 1.3em;
     box-shadow:none;
 }
 
+.itemview .tab.loading {
+/*
+    min-height: 120px;
+*/
+}
+#loading {
+    
+/*
+    background-image: url("img/bg.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: 50%;
+*/
+    height: calc( 100% - 100px);
+}
+
 .itemview h1 {
     padding:20px;
     padding-top:6px;
@@ -173,9 +189,14 @@ line-height: 1.3em;
 */
 #wkdef {
     padding-top: 12px;
+    padding-right: 0px;
     overflow: hidden;
     height: 100%;
 }
+#wkdef nav.navbar {
+    margin-right: 1rem;
+}
+
 #wkdef nav>li.active>a, #wkdef nav>li.active>a:hover, #wkdef nav>li.active>a:focus {
     color: #fff;
     background-color: #428BCA;

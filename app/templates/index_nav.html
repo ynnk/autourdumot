@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <title> Dictionnaires et synonymes - autourdumot.fr - </title>
+    <title>autourdumot.fr - Dictionnaires et synonymes</title>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google-site-verification" content="EsT1uwZPTLB080M8Hh-1OQTaVgWuiOLUzyfqVHTtcmQ" />
 
      <meta name="description" content="Autour du mot, exploration de graphe de synomymes, dictionnaire, définition, exploration lexical, réseau de mot, exploration dans le petit monde des mots, visualisation de graphe">
      <meta name="keywords" content="autour du mot, définition, dictionnaire, synonyme, graphe, réseau linguistique, réseau sémantique, visualisation de graphe"> 
@@ -86,9 +87,9 @@
         
     <div class="ui page grid">
         <div class="row entete">
-            <div class="five wide column  hidden-xs">
-                    <h2 class="ui inverted header">Dictionnaire et synonymes
-                        <div class="sub header hidden-xs">Explorations dans le petit monde des mots.</div>
+            <div class="five wide column ">
+                    <h2 class="ui  header teal ">Autour<span style='color:lightgrey'>du</span>mot.<span style='color:lightgrey'>fr</span>
+                        <div class="sub header  hidden-xs" style='color:lightgrey'>Explorez le petit monde des mots.</div>
                     </h2>
             </div>
 
@@ -146,8 +147,12 @@
                 </div> <!--/maintabs-->
 
                 <div id="loading" class="ui itemview active">
-                    <div class="ui tab loading"></div>
-                    <h1>Chargement.</h1>
+                    <div class="ui tab teal loading">
+                    </div>
+<!--
+                    <img src="{{url_for('static', filename='img/bg2.png')}}"/>
+-->
+                    <h1 class="ui header teal">Chargement ...</h1>
                     <h1></h1>
                 </div>
     
@@ -222,17 +227,28 @@
 
 <script>
     // main js is not yet charged, need this config here
+
+    (function(){
+
+        var size =  window.screen.availHeight - 215;
+        var e = document.getElementById('loading');
+        e.setAttribute("style", "height:"+size+"px");
+    })();
+    
+</script>
+<script>
     require.config({
       paths: {
         feedback_client: 'http://feedback.kodexlab.com/static/feedback_client',
       },
     });
 
+
     require([
         "app_graph", "feedback_client"
     ],  function(App, feedback){
         // The "app" dependency is passed in as "App"
-        app = new App( {
+        app = new  App( {
            debug: {{ 'true' if debug else 'false' }},
            root_url: "{{ root_url }}",
            engine_url: "{{ engine_url }}",
@@ -315,7 +331,6 @@
         var tabs = _($("#maintabs a.item")).map(function(e) {return $(e).attr('data-tab')});
         // tab selector
         var tab$el = function(tab){ return  $("#maintabs a[data-tab="+tab+"]") };
-
         
         var move_tab = function(delta){
             var active = $("#maintabs a.active").attr('data-tab');
