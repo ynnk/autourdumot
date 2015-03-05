@@ -65,7 +65,7 @@ define(['cello_gviz'], function(gviz) {
                         
                         'fontScale'  :  0.2,
                         'line_max_length': 12,
-                        'font' : "normal 10px Helvetica",
+                        'font' : "normal 10px",
                         'fontFillStyle'  : '#333',  //#366633',           
                         //'fontStrokeStyle'  : '#F06',
                         //'fontStrokeWidth' : .1,
