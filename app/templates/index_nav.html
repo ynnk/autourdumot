@@ -348,13 +348,15 @@
 
         // vertex size
         Mousetrap.bind('o', function(){
-            app.views.gviz.user_vtx_size -=1;
-            app.views.gviz.request_animation();
+            if (app.views.gviz.user_vtx_size > -5 )
+                app.views.gviz.user_vtx_size -= 1;
+            app.views.gviz.request_animation(100);
             console.log("size", app.views.gviz.user_vtx_size);
         });
         Mousetrap.bind('p', function(){
-            app.views.gviz.user_vtx_size +=1;
-            app.views.gviz.request_animation();
+            if (app.views.gviz.user_vtx_size < 5 )
+                app.views.gviz.user_vtx_size +=1;
+            app.views.gviz.request_animation(100);
             console.log("size", app.views.gviz.user_vtx_size);
         });
 

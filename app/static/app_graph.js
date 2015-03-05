@@ -496,7 +496,7 @@ define([
                 
                 adaptive_zoom: true,
                 force_position_no_delay: false,
-                debug: true,
+                debug: app.DEBUG,
                 
             });
             
