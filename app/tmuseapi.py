@@ -3,6 +3,8 @@
 
 from flask import request, jsonify
 
+import time
+
 from reliure.types import GenericType, Text, Numeric
 from reliure.web import ReliureAPI, EngineView, ComponentView, RemoteApi
 from reliure.pipeline import Optionable, Composable
@@ -70,11 +72,17 @@ class ComplexQuery(GenericType):
 
 
 
-def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph'):
+def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph', retry=5):
     """ API over tmuse elastic search
     """
     esindex = EsIndex(index_name, doc_type=doc_type , host=host)
-    print "# TmuseApi", host, doc_type, index_name 
+    print "# TmuseApi", host, doc_type, index_name
+
+    # let es start
+    for i in range(retry) :
+        if not esindex._es.ping() :
+            print "waiting for es to start"
+            time.sleep(i)
     assert esindex._es.ping(), "impossible to reach ES server"
 
     # build the API from this engine

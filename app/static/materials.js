@@ -121,7 +121,7 @@ define(['cello_gviz'], function(gviz) {
                             'scale':2,
                             'strokeStyle': "#EEEEEE",
                             'fontScale'  :  0.3,
-                            'textPaddingY'  : 14,
+                            'textPaddingY'  : 12,
 
                             'font' : "normal 10px sans",
                             'fontFillStyle'  : '#111',  //#366633',      
