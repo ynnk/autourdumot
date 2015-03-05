@@ -526,7 +526,7 @@ define([
                 graph.vs.set_intersected(node !== null ? node : []);
             });
             
-            gviz.on( 'intersectOn:edge', function(event, node){
+            gviz.on( 'intersectOn:edge', function(event, edge){
                 app.views.gviz.request_animation();
             });    
 
@@ -536,6 +536,9 @@ define([
 
             gviz.on( 'click', function(event, obj){
                 graph.vs.set_selected(obj);
+                if (obj === null)
+                    gviz.trigger('unselect_clusters');
+                
             });
             
             gviz.on( 'click:node', function(event, node){
@@ -634,6 +637,9 @@ define([
                     }
                 }
             );
+            app.models.clustering.clusters.each(function(cluster){
+                cluster.listenTo(app.views.gviz, "unselect_clusters", function(){cluster.remove_flag('selected')})
+            });
 
             // reset vertices collection !!! should be done after clustering reset 
             app.models.vertices.reset(app.models.graph.vs.models);

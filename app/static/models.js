@@ -186,25 +186,28 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
                 });
             });
             //add faded flag to the vs of the clusters not selected
-            this.listenTo(this, "rmflag:selected", function(){
-                    // remove flag cluster on the vertices of the current cluster
-                _this.members.vs.each( function(vertex){
-                        vertex.remove_flag('cluster');
-                });
-                
-                // remove faded flag on the vertices of all other clusters
-                var other_clusters = _this.collection.without(this);
+            this.listenTo(this, "rmflag:selected", this._unselect)
 
-                _(other_clusters).each(function(clust){
-                    clust.members.vs.each( function(vertex){
-                        vertex.remove_flag('cluster-faded');
-                    _.each(vertex.incident(), function(edge){
-                            edge.remove_flag('es-cluster-faded');
-                        });
+        },
+        
+        _unselect : function(){
+                // remove flag cluster on the vertices of the current cluster
+            this.members.vs.each( function(vertex){
+                    vertex.remove_flag('cluster');
+            });
+            
+            // remove faded flag on the vertices of all other clusters
+            var other_clusters = this.collection.without(this);
+
+            _(other_clusters).each(function(clust){
+                clust.members.vs.each( function(vertex){
+                    vertex.remove_flag('cluster-faded');
+                _.each(vertex.incident(), function(edge){
+                        edge.remove_flag('es-cluster-faded');
                     });
                 });
-
             });
+
         }
     });
 
