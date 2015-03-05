@@ -484,7 +484,7 @@ define([
                 
                 wnode_scale: function(vtx){
                     var v = (vtx.get('_size') * 14);
-                    return 9 + this.user_vtx_size + v; 
+                    return 10 + this.user_vtx_size + v; 
                 },
 
                 materials: Materials,
