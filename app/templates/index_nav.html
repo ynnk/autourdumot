@@ -345,6 +345,10 @@
 
 
         // vertex size
+        Mousetrap.bind('0', function(){
+            app.views.gviz.user_vtx_size = 0;
+            app.views.gviz.request_animation(100);
+        });
         Mousetrap.bind('o', function(){
             if (app.views.gviz.user_vtx_size > -9 )
                 app.views.gviz.user_vtx_size -= 1;
