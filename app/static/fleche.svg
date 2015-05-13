@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="204.59503"
+   height="376.23016"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="fleche.svg"
+   inkscape:export-filename="/home/navarro/workspace/autourdumot/app/static/fleche.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="-71.835697"
+     inkscape:cy="170.05241"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1366"
+     inkscape:window-height="719"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Calque 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-106.75877,-122.75086)">
+    <path
+       style="fill:#ff6317;fill-opacity:1;stroke:none"
+       d="m 131.3538,244.10765 c 0,0 37.33168,-43.18491 49.61018,-63.46668 12.27851,-20.28178 24.15559,-57.89011 24.15559,-57.89011 0,0 24.11758,28.58113 41.81929,45.11015 17.70171,16.52902 64.41494,53.38949 64.41494,53.38949 l -66.23423,0.83684 c 0,0 17.47976,67.72153 -7.79406,143.02536 -25.27382,75.30383 -14.74449,133.86833 -14.74449,133.86833 L 106.75877,454.18628 c 0,0 29.15693,-45.42978 64.10482,-80.67547 34.94788,-35.24569 23.34735,-144.3524 23.34735,-144.3524 z"
+       id="path2987"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="czczcczcczcc" />
+  </g>
+</svg>
