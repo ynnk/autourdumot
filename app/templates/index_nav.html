@@ -53,37 +53,6 @@
 </head>
 <body>
 
-<!--
-    <div class="ui page grid" style='background:#222'>
-        <div class="two column row">
-            <div class="center  column">
-                    <h2 class="ui inverted header">Dictionnaire et synonymes
-                        <div class="sub header">Explorations dans le petit monde des mots.</div>
-                    </h2>
-            </div>
-
-
-            <div class="right aligned column">
-                <nav class="ui text inverted menu navbar ">
-                    <a class="item "><i class="circular inverted teal large mail outline icon "></i>  </a>
-                      <div id='cubes' class="ui item right icon top pointing dropdown " >
-                            <i class="circular inverted teal large cubes  icon"></i>
-                            <div class="menu">
-                                <div class="item "><i class=" help teal icon "></i> Aide </div>
-                                <div class="divider"></div>
-                                <div class="item "><i class=" bug teal icon "></i> Signaler un bug </div>
-                                <div class="item "><i class=" comments teal icon "></i> Votre avis nous intéresse </div>
-                                <div class="divider"></div>
-                                <div class="item about"><i class=" info teal icon "></i> A propos </div>
-                            </div>
-                    </div>
-                    <a class="item "><i class="circular inverted teal large github icon "></i>  </a>
-                </nav>
-            </div>
-        </div> <!-- row - ->
--->
-    </div> <!--grid-->
-
         
     <div class="ui page grid">
         <div class="row entete">
@@ -106,7 +75,20 @@
             </div>
         </div>
 
-        <div class="row contenu">
+        <div  id="loading" class="row contenu">
+            <div class="column center aligned">
+
+                <div class="ui itemview active">
+                    <div class="ui tab teal loading">
+                    </div>
+                    <h1 class="ui header teal">accueil ...</h1>
+                </div>
+
+            </div>
+        </div>
+    
+
+        <div id='app' class="row contenu" style="display:none">
             <div class="column center aligned">
                 <div id="maintabs" class="ui bottom attached  teal  menu">
                       <a class="ui item active tab-graph" data-tab='graph'>
@@ -146,15 +128,6 @@
                       </div>
                 </div> <!--/maintabs-->
 
-                <div id="loading" class="ui itemview active">
-                    <div class="ui tab teal loading">
-                    </div>
-<!--
-                    <img src="{{url_for('static', filename='img/bg2.png')}}"/>
--->
-                    <h1 class="ui header teal">Chargement ...</h1>
-                    <h1></h1>
-                </div>
     
                 <div class="ui tab itemview active" data-tab="graph">
     <!--
@@ -256,9 +229,9 @@
            def_url: "{{ def_url }}",
         });
 
+        $('#loading .loading').remove();
         app.start();
 
-        $('#loading').remove();
         
         // panel tabs
         $('#maintabs .item').tab();
@@ -361,7 +334,7 @@
         });
         // arrows
         Mousetrap.bind(['up up down down left right left right b a enter'], function(){
-               alert('bouncing')
+               alert('bouncing');
         });
         Mousetrap.bind('right', function(){
                 move_tab(1);
@@ -397,7 +370,7 @@
             var win = $(this); //this = window
             size =  $(window).height()
                     -$(".page .row.entete").height()
-                    - $("#maintabs").height()
+                    - ( 30 | $("#maintabs").height() )
                     - $(".footer").height()
                     - 45;
             size = size < min_height ? min_height : size;
@@ -410,8 +383,10 @@
             console.log(">>>>>complete", "resize", move_tab(0).focus());
             $('input').blur();
             move_tab(0).focus();
+            $('#loading').hide();
+            $('#app').show();
             _window_resized();
-            } );
+        } );
 
         $('#maintabs .item').click(_window_resized);
 
