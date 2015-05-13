@@ -10,8 +10,14 @@ define(['cello_gviz'], function(gviz) {
           'edge' : [
                     {'default' : {
                             'lineWidth'  : 2,
-                            //'color'    : "#AAA",
-                            'opacity'    : 0.4,
+                            //'color'    : "#F00",
+                            'opacity'  : 0.9, //.4
+                            
+                            //'lineType' : "plain",
+
+                            //'lineType' : "dashed",
+                            //'dashSize' : 2,
+                            //'gapSize'  : 5,
 
                     }},
                     
@@ -34,7 +40,7 @@ define(['cello_gviz'], function(gviz) {
 
                     
                     { '.es-mo-adjacent': {  
-                            'lineWidth'  : 2,
+                            'lineWidth'  : 26,
                             'opacity'    : 1,
                             }
                     },
@@ -59,9 +65,11 @@ define(['cello_gviz'], function(gviz) {
                     { '.form': {
                         'shape': 'circle',
                         'scale':1.,
-                        'strokeStyle': "#EEEEEE",
+                        'strokeStyle': "#EEEEEE", //"#2B51FF", //"#EEEEEE",
                         'fillStyle'  : 'get:color',  //#366633',           
-                        'lineWidth' : .1,
+                        'lineWidth'  : .1,
+                        'lineJoin'   : 'bevel',
+                        
                         
                         'fontScale'  :  0.2,
                         'line_max_length': 12,
@@ -105,6 +113,10 @@ define(['cello_gviz'], function(gviz) {
                         'fontScale'  :  0.3,
                         'scale':1.2,
                         'opacity'   : 1,
+                        
+                        'lineType' : "dashed",
+                        'dashSize' : .1,
+                        'gapSize'  : .5,
                     } },
                     
                     { '.form.selected':  {
@@ -118,6 +130,7 @@ define(['cello_gviz'], function(gviz) {
 
                     { '.target': {
                             'shape': 'triangle',
+                            'lineJoin' : 'bevel',
                             'scale':2,
                             'strokeStyle': "#EEEEEE",
                             'fontScale'  :  0.3,

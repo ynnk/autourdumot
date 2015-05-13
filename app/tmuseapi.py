@@ -201,8 +201,8 @@ def engine(index):
     
     engine.layout.set(
         ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(kelastic=.9),
-        ProxLayoutPCA(dim=2, name="ProxPca2d") | Shaker(kelastic=1.8),
         KamadaKawaiLayout(dim=3, name="KamadaKawai3D"),
+        ProxLayoutPCA(dim=2, name="ProxPca2d") | Shaker(kelastic=1.8),
         KamadaKawaiLayout(dim=2, name="KamadaKawai2D")
     )
     return engine

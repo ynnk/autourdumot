@@ -263,6 +263,11 @@
         // panel tabs
         $('#maintabs .item').tab();
         
+        $('#maintabs .item').click(
+             function(){console.log("onchange", this, 
+                        $('#maintabs .item').tab('get tab')
+                     )}
+        );
         // cubes dropdown 
         $('#cubes')
           .dropdown({
@@ -323,6 +328,11 @@
             app.models.query.reset_random();
             return false;
         });
+        
+        Mousetrap.bind([': d'], function(){
+            $('.gviz-debug').toggle();
+            return false;
+        });
 
         // tabs
         
@@ -350,6 +360,9 @@
             });                
         });
         // arrows
+        Mousetrap.bind(['up up down down left right left right b a enter'], function(){
+               alert('bouncing')
+        });
         Mousetrap.bind('right', function(){
                 move_tab(1);
         });

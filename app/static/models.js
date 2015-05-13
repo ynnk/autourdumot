@@ -150,12 +150,12 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
             var _this = this;
             Models.Cluster.__super__.initialize.apply(this, arguments);
             
-             this.on('add remove reset', function(){
-                 _this.each(function(model){
-                     model._compute_membership();
-                     model._compute_colors();
-                 })
-             });
+             //this.on('add remove reset', function(){
+                 //_this.each(function(model){
+                     //model._compute_membership();
+                     //model._compute_colors();
+                 //})
+             //});
             
             this.on("change:color", function(){
                 _this.members.vs.each( function(vertex){
@@ -165,28 +165,28 @@ define(['underscore','backbone', 'cello_core'],    function(_,Backbone, Cello) {
             
 
             
-            //add faded flag to the vs of the clusters not selected and remove faded flag to them if useful
-            this.listenTo(this, "addflag:selected", function(){ 
-                var other_clusters = _this.collection.without(_this);
+            ////add faded flag to the vs of the clusters not selected and remove faded flag to them if useful
+            //this.listenTo(this, "addflag:selected", function(){ 
+                //var other_clusters = _this.collection.without(_this);
                 
-                //if there is other selected clusters remove faded flag to its vertices
-                _this.members.vs.each( function(vertex){
-                      vertex.add_flag('cluster');
-                });
+                ////if there is other selected clusters remove faded flag to its vertices
+                //_this.members.vs.each( function(vertex){
+                      //vertex.add_flag('cluster');
+                //});
                 
-                _(other_clusters).each(function(_this){
-                    if (!_this.selected) {
-                        _this.members.vs.each( function(vertex){
-                            vertex.add_flag('cluster-faded');
-                            _.each(vertex.incident(), function(edge){
-                                    edge.add_flag('es-cluster-faded');
-                            });
-                        });
-                    }
-                });
-            });
-            //add faded flag to the vs of the clusters not selected
-            this.listenTo(this, "rmflag:selected", this._unselect)
+                //_(other_clusters).each(function(_this){
+                    //if (!_this.selected) {
+                        //_this.members.vs.each( function(vertex){
+                            //vertex.add_flag('cluster-faded');
+                            //_.each(vertex.incident(), function(edge){
+                                    //edge.add_flag('es-cluster-faded');
+                            //});
+                        //});
+                    //}
+                //});
+            //});
+            ////add faded flag to the vs of the clusters not selected
+            //this.listenTo(this, "rmflag:selected", this._unselect)
 
         },
         

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+import sys
 import re
 import requests
 import lxml
@@ -103,3 +104,100 @@ def get_wk_definition(domain, query, allowed=None):
             }
 
 
+def extract_syn(dump_path):
+    
+    from xml.sax.handler import ContentHandler
+    from xml.sax import make_parser
+    from collections import namedtuple
+
+    re_lang = re.compile(r"== {{langue\|(.+)}} ?==")
+    #re_pos  = re.compile(r"=== {{S\|([^\|]+)\|+.+}} ?===")
+    #re_pos = re.compile(r"=== {{S\|([^\|]+)(?:\|.+)?}} ===")
+    re_pos = re.compile(r"=== {{S\|([^\|]+\|?){,5}}} ===")
+    re_sect = re.compile(r"==== {{S\|([^\|]+)(?:\|.+)?}} ====")
+    re_syns = re.compile(r"\[\[([^\[\]]+)\]\]")
+    
+    def parseArticle(title, text):
+
+        art = namedtuple("Article", 'lang pos section syns')
+        art.lang = None
+        art.pos = None
+        art.section = None
+        art.syns = []
+
+        def _flush():
+            if art.lang and art.pos and art.section and len(art.syns):
+                syns = ",".join([ s for s in art.syns ])
+                line = ";".join( x for x in  [title, art.lang, art.pos, art.section, syns])
+                print  line.encode('utf8')
+                art.syns = []
+
+        
+        for line in text.split('\n'):
+            line = line.strip()
+                
+            if line.startswith("== {{langue|"):
+                _flush()
+                l = re_lang.findall(line)
+                if len(l) :
+                    art.lang = l[0]
+                
+            elif line.startswith("=== {{S|"):
+                _flush()
+                m = re_pos.findall(line)
+                m = re.findall(r'(\w+)', line, re.UNICODE ) 
+                if len(m) > 1:
+                    art.pos = m[1]
+                
+            elif line.startswith("==== {{S|"):
+                _flush()
+            
+                m = [ x for x  in re_sect.findall(line) if len(x) ]
+                #print ";".join( repr(x) for x in  [art.lang, title, line, ", ".join( [ repr(_) for _ in m ])]).encode('utf8')
+                if len(m): 
+                    art.section = m[0]
+                    
+            else :
+                if art.lang == "fr" and art.section == "synonymes" and art.pos in ('adjectif', 'nom', 'verbe'):
+                    if line[:1] == "*":
+                        art.syns.extend( re_syns.findall(line) )
+
+    
+    class myHandler(ContentHandler):
+        title = None
+        text = None
+        chflag = False
+
+        def startElement(self, name, attrs):
+            self.chflag = False 
+
+            if name == "page":
+                self.title = None
+                self.text = None
+            elif name == "title":
+                self.text = ""
+                self.chflag = True
+            elif name == "text":
+                self.text = ""
+                self.chflag = True 
+
+        def endElement(self, name):
+            if name == "title":
+                self.title = self.text
+                
+            elif name == "page":
+                parseArticle(self.title, self.text)
+            
+        def characters(self, ch):
+            if self.chflag :
+                self.text +=  ch
+
+    saxparser = make_parser()
+    saxparser.setContentHandler(myHandler())
+
+    datasource = open(dump_path, "r")
+    saxparser.parse(datasource)
+
+
+if __name__ == '__main__':
+    sys.exit(extract_syn("/home/yk/Downloads/frwiktionary-20150321-pages-articles.xml"))

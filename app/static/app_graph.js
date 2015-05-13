@@ -502,15 +502,16 @@ define([
             
             gviz.on('reset', function(){
 
-                this.camera.position.x = 500;
-                this.camera.position.y = 600,
-                this.camera.position.z = 600;
+                this.camera.position.x = 0;
+                this.camera.position.y = 0,
+                this.camera.position.z = 1600;
 
                 this.camera.lookAt( new THREE.Vector3(0,0,0));
-                tween = new TWEEN.Tween(this.camera.position)
-                    .to({x:0,y:0,z:1500}, 1000)
-                    .easing(TWEEN.Easing.Linear.None)
-                    .start();
+                
+                //tween = new TWEEN.Tween(this.camera.position)
+                    //.to({x:0,y:0,z:1500}, 1000)
+                    //.easing(TWEEN.Easing.Linear.None)
+                    //.start();
                                         
             });
             
@@ -544,6 +545,13 @@ define([
             gviz.on( 'click:node', function(event, node){
                 graph.vs.set_selected(node);
                 console.log("click", node, event);
+            });
+            gviz.on( 'dblclick', function(event, node){
+                console.log("dblclick", node, event);
+                if (node){
+                    app.navigate_to_label(node);
+                }
+                
             });
 
             /* Rendering looop */            
