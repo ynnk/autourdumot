@@ -370,7 +370,7 @@
             var win = $(this); //this = window
             size =  $(window).height()
                     -$(".page .row.entete").height()
-                    - ( 30 | $("#maintabs").height() )
+                    - Math.max( 40 | $("#maintabs").height() )
                     - $(".footer").height()
                     - 45;
             size = size < min_height ? min_height : size;
