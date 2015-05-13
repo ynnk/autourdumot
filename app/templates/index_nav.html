@@ -238,7 +238,7 @@
            def_url: "{{ def_url }}",
         });
 
-        $('#loading .loading').remove();
+        $('#landing .loading').removeClass('loading');
         app.start();
 
         
@@ -392,7 +392,7 @@
             console.log(">>>>>complete", "resize", move_tab(0).focus());
             $('input').blur();
             move_tab(0).focus();
-            $('#loading').hide();
+            $('#landing').hide();
             $('#app').show();
             _window_resized();
         } );
