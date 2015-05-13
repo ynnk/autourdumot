@@ -63,15 +63,7 @@
             </div>
 
 
-            <div class="right aligned eleven wide column">
-                
-                <div id="query_form" class=""></div>
-    <!--
-                <div class="ui item  icon">
-                    </div>
-    -->
-                <div id="query_complete"></div>
-
+            <div class="right aligned eleven wide column query_head">
             </div>
         </div>
 
@@ -86,11 +78,16 @@
 <!--                </div>-->
 
                 <!-- info de base en landing -->
-                <div class="ui basic itemview segment loading">
-                    <div class="ui huge message" style="height: 100%; padding-top: 10%; text-align: left; background-image: url('/static/fleche.png'); background-repeat: no-repeat; background-position: 95% 30px;">
-                        Suivez la fleche et partez explorer <br /> 
-                        le voisinage d'un ou plusieurs mots ...
+                <div class="ui itemview segment loading">
+                    <h3>
+                        Explorez le voisinage des mots ...
+                    </h3>
+                    <div class="query_home">
+                        <div id="query_form" class=""></div>
+                        <div id="query_complete"></div>
                     </div>
+<!--                    <div class="ui huge message" style="height: 100%; padding-top: 10%; text-align: left; background-image: url('/static/fleche.png'); background-repeat: no-repeat; background-position: 95% 15px;">-->
+<!--                    </div>-->
                 </div>
 
             </div>
@@ -238,7 +235,9 @@
            def_url: "{{ def_url }}",
         });
 
+        // stop initial loading
         $('#landing .loading').removeClass('loading');
+        // run the app
         app.start();
 
         
@@ -388,8 +387,16 @@
             $("#wkdef .def-content").height(size - $("#wkdef nav").height() -30);
         }
         
+        var data_loaded = false;
+            // move the query form if needed
         app.listenTo(app.models.cellist, 'play:complete', function() {
             console.log(">>>>>complete", "resize", move_tab(0).focus());
+            // move the input form
+            if(!data_loaded){
+                // reconfigure view for results vw
+                data_loaded = true;
+                $(".query_home").detach().appendTo(".query_head");
+            }
             $('input').blur();
             move_tab(0).focus();
             $('#landing').hide();

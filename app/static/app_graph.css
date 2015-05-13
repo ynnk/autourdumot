@@ -30,6 +30,15 @@ html, body{
     padding-top:6px;
 }
 
+#landing .itemview{
+    height: 400px; 
+    background-color: rgb(238, 238, 238);
+}
+
+#landing .segment #query_form{
+    margin-top: 3%;
+}
+
 #query_form {
     padding-top:2px;
 }

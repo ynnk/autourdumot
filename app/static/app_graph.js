@@ -258,6 +258,10 @@ define([
         // the views, created in create_*_views()
         views: {},
 
+        data_loaded: false, // becames true when the first data are loaded from engine
+        // basicly : false => search form in the middle of the page
+        //            true => search form on top
+
         // DEBUG
         DEBUG: false, // should be false by default else initialize can't change it
 
@@ -593,6 +597,7 @@ define([
                 console.log("play:complete", 'args', args, 'state', state);
                 app.response = response;    // juste pour le debug
             }
+
             //stop waiting
             $("#loading-indicator").hide(0);
             app.views.query.$tagsinput.attr('placeholder', "Votre recherche");
