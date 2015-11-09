@@ -11,8 +11,8 @@ Glaff 1.2.1:
     $ make get_glaff
 
 
-install
---------
+Full install
+------------
 
 Install virtualenv and requirements :
 
@@ -27,6 +27,7 @@ Get cello_libjs dep:
 
 Create index (~5 minutes on my laptop):
 
+    $ export PYTHONPATH=./:$PYTHONPATH
     $ python index.py -i tmuse
 
 it loads jdm & dicosyn graphs, computes proxemies and stores in elasticsearch
@@ -35,12 +36,16 @@ Run the app:
 
     $ python app/tmuse_es_app.py
 
-Note that you need to first edit index name in `tmuse_es_app.py` if you changed the index name default is 'tmuse'.
-
 Browse app: (only french verbs supported, ex 'causer'):
 
     $ firefox http://localhost:5000/causer
 
 
+Run it using external ES
+------------------------
 
-   
+You can use `ES_HOST` and `ES_INDEX` env variable to setup ES host and index:
+
+    $ export ES_HOST=10.10.21.125
+    $ export ES_HOST=tmuse_test
+    $ python app/tmuse_es_app.py
