@@ -26,7 +26,6 @@ def QueryUnit(**kwargs):
     }
     default.update(kwargs)
     default['graph'] = 'jdm.%s.flat' % default['pos']
-
     return default
 
 
@@ -64,7 +63,7 @@ class ComplexQuery(GenericType):
 
     @staticmethod
     def serialize(complexquery):
-        uri = ",".join([  '.'.join( ( q['lang'], q['pos'], q['form'] ) ) for q in complexquery ])
+        uri = ",".join([ '.'.join( ( q['lang'], q['pos'], q['form'] ) ) for q in complexquery ])
         return {
             'units': complexquery,
             'uri': uri

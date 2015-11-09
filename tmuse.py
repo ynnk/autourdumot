@@ -1,7 +1,8 @@
-#!/usr/bin/env python
 #-*- coding:utf-8 -*-
+from __future__ import unicode_literals
+
 import random
-import igraph 
+import igraph
 
 from reliure import Optionable
 from reliure.exceptions import ReliureValueError, ReliurePlayError
@@ -16,9 +17,11 @@ from cello.graphs.builder import OptionableGraphBuilder
 
 class WrongQueryError(ReliurePlayError):
     """ when qury unit is malformed """
-    
+
+
 class NoResultError(ReliurePlayError):
     """ when query returns no result """
+
 
 class TmuseEsGraphBuilder(OptionableGraphBuilder):
     """ Build a graph from a tmuse Unipartite link graph """
@@ -27,9 +30,9 @@ class TmuseEsGraphBuilder(OptionableGraphBuilder):
         OptionableGraphBuilder.__init__(self, "GraphBuilder", directed=False)
         self.reflexive = reflexive
         
-        self.add_option("label_attr", Text( vtype=str, default=label_attr))
-        self.add_option("vtx_attr", Text( vtype=str, default=vtx_attr))
-        self.add_option("links_attr", Text( vtype=str, default=links_attr))
+        self.add_option("label_attr", Text(default=label_attr))
+        self.add_option("vtx_attr", Text(default=vtx_attr))
+        self.add_option("links_attr", Text(default=links_attr))
         
          # Graph builder init
 
@@ -110,8 +113,7 @@ def random_node(index, graph):
         docs = [ d['_source'] for d in search_docs(index, graph, vid)['hits']['hits'] ]
 
     return docs
-    
-    
+
 
 def subgraph(index, query, length=50):
     """
@@ -187,10 +189,8 @@ def extract(index, q,  length=50):
 
 
 def to_graph(docs, pzeros=[]):
-    
     build_graph = TmuseEsGraphBuilder()
     graph = build_graph(docs)
-        
     return graph
 
 
@@ -225,17 +225,18 @@ def search_docs(index, graph, ids):
 TmuseDocSchema = Schema(
     docnum=Numeric(),
     # stored fields
-    graph=Text(vtype=str),
-    lang=Text(vtype=str),
-    pos=Text(vtype=str),
+    graph=Text(),
+    lang=Text(),
+    pos=Text(),
     pzero=Boolean(),
-    form=Text(vtype=str),
+    form=Text(),
     neighbors=Numeric(),
     out_links=Numeric(multi=True, uniq=True),
     # computed fields
     rank=Numeric(),
     score=Numeric(vtype=float, default=0.)
 )
+
 
 def to_docs(es_res, pzeros):
     _pzeros = set(pzeros) or set([]) 
@@ -245,10 +246,10 @@ def to_docs(es_res, pzeros):
             data = {}
             data["docnum"] = doc["_source"]["gid"]
             data["pzero"] = doc["_source"]["gid"] in _pzeros
-            data["graph"] = doc["_source"]["graph"].encode('utf8')
-            data["lang"] = doc["_source"]["lang"].encode('utf8')
-            data["pos"] = doc["_source"]["pos"].encode('utf8')
-            data["form"] = doc["_source"]["form"].encode('utf8')
+            data["graph"] = doc["_source"]["graph"]
+            data["lang"] = doc["_source"]["lang"]
+            data["pos"] = doc["_source"]["pos"]
+            data["form"] = doc["_source"]["form"]
             data["out_links"] = doc["_source"]["neighborhood"]
             data["neighbors"] = doc["_source"]["neighbors"]
             data["score"] = doc.get('_score', -1)
