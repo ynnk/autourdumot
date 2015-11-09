@@ -26,7 +26,9 @@ if not app.debug:
 Analytics(app)
 
 import requests_cache
-requests_cache.install_cache('../cache/demo_cache.sqlite')
+cache_file = os.path.dirname(os.path.realpath(__file__))
+cache_file = os.path.join(cache_file, '../cache', 'demo_cache.sqlite')
+requests_cache.install_cache(cache_file)
 
 # remote api
 #tmuseApi = RemoteApi("http://carton.kodexlab.com/tmuse_alpha/tmuse_v1")
