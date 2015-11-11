@@ -13,8 +13,7 @@ import cello.graphs.prox as prox
 import glaff
 
 
-
-def index(es_index, cut_local = 500, cut_global = -1, lcc=False, start=0, offset=0,  **kwargs):
+def index(es_index, cut_local=500, cut_global=-1, lcc=False, start=0, offset=0, **kwargs):
     """
     :param cut_global: <int> global vector cut -1 to keep all
     :param cut_local: <int> local vector cut -1 to keep all
@@ -28,24 +27,23 @@ def index(es_index, cut_local = 500, cut_global = -1, lcc=False, start=0, offset
     if completion is None:
         completion = lambda lang, pos, text: text
 
-    graph = igraph.read( path )
-    
+    graph = igraph.read(path)
+
     if lcc:
         graph = graph.clusters().giant()
 
     print graph.summary()
 
-    
     # { idx : (rank, prox) }    
     pg = prox.prox_markov_dict(graph, [], 4, add_loops=True)
     pg = prox.sortcut(pg, cut_global)
-    pg = { e[0]: ( rank+1, e[1] ) for rank, e in enumerate(pg) }
-    
+    pg = { e[0]: (rank+1, e[1]) for rank, e in enumerate(pg) }
+
     def _prox(pzero):
         pl = prox.prox_markov_dict(graph, pzero, 3, add_loops=True)
         cut = prox.sortcut(pl, 500)
         return cut
-        
+
     def iter_vertices():
         count = 0
         for i, k in enumerate(pg):
@@ -89,32 +87,33 @@ def index(es_index, cut_local = 500, cut_global = -1, lcc=False, start=0, offset
             print line
 
             yield body
-    
+
     es_index.add_documents(iter_vertices())
 
-def main():    
+
+def main(): 
     parser = argparse.ArgumentParser(prog="main")
-    parser.add_argument("--host", action='store',default='localhost', help="")
-    parser.add_argument("-i", dest='index', action='store_true',default=False, help="index")
-    parser.add_argument("--drop", dest='drop', action='store_true',default=False, help="drop index before indexing")
-    parser.add_argument("--lcc", dest='lcc', action='store_true',default=False, help="computes only lcc of the loaded graph")
-    parser.add_argument("-s", dest='suggest', action='store',nargs=2, help="suggest field text")
-    parser.add_argument("--start", dest='start', action='store', help="indexing start from", default=0)
-    parser.add_argument("--offset", dest='offset', action='store', help="offset", default=0)
-    
-    parser.add_argument("--noprompt", dest='noprompt', action='store_false',default=True, help="No user prompt ")
-    
-    parser.add_argument("name", action='store',help="index name")
+    parser.add_argument("--host", action='store',default='localhost', help="ElasticSearch hostname")
+
+    parser.add_argument("-i", "--index", dest='index', action='store_true',default=False, help="Index graph in ES")
+    parser.add_argument("-d", "--drop", dest='drop', action='store_true',default=False, help="Drop index before indexing")
+
+    parser.add_argument("--lcc", dest='lcc', action='store_true', default=False, help="Computes only lcc of the loaded graph")
+    parser.add_argument("-s", dest='suggest', action='store', nargs=2, help="Suggest field text")
+    parser.add_argument("--start", dest='start', action='store', type=int, help="Indexing start from", default=0)
+    parser.add_argument("--offset", dest='offset', action='store', type=int, help="offset", default=0)
+    parser.add_argument("--noprompt", dest='noprompt', action='store_false', default=True, help="No user prompt ")
+
+    parser.add_argument("name", action='store', help="Index name")
 
     args = parser.parse_args()
-    
-    schema_path = "./schema.yml"
 
+    schema_path = "./schema.yml"
     glaff_data = glaff.parse("GLAFF-1.2.1/glaff-1.2.1.txt")
-    
+
     if args.noprompt and not len(glaff_data):
         read = raw_input('No glaff data \n <Enter> to continue <ctrl C> to stop')
-    
+
     def glaff_completion(lang, pos, lemma):
         candidates = set([lemma])
         candidates.update( set( glaff_data.get( "%s.%s" % (pos, lemma) , [])) )
@@ -130,8 +129,7 @@ def main():
             complete.extend(m(lang,pos,lemma))
 
         return list(set(complete))
-        
-        
+
     dirpath = "%s/Graphs" % os.environ['PTDPATH']
 
     dicosyn =  [ 
@@ -201,7 +199,7 @@ def main():
                     'completion' : completion
                 }
             ]
-            
+
     jdm_asso = [
                 {   'name': 'jdm.asso',
                     'path':  "%s/jdm/fr.JDM-12312014-v1_666_777-e0-s_no.pickle" % dirpath,
@@ -216,15 +214,17 @@ def main():
 
         if args.drop and es_index.exists():
             es_index.delete(full=True)
+
         if not es_index.exists():
             es_index.create()
 
         #graphs = dicosyn + jdm_flat
-        graphs = jdm_flat
+        graphs_config = jdm_flat
 
-        for conf in graphs:
-            print "indexing %s " % conf['name'], 'lcc:', args.lcc
-            index(es_index, start=int(args.start), offset=int(args.offset),lcc=args.lcc, **conf) 
-    
+        for conf in graphs_config:
+            print("indexing:%s - LCC:%s" % (conf['name'], args.lcc))
+            index(es_index, start=int(args.start), offset=int(args.offset), lcc=args.lcc, **conf) 
+
 if __name__ == '__main__':
     sys.exit(main())
+
