@@ -8,8 +8,7 @@ ES_HOST ?= "localhost:9200"
 ES_INDEX ?= "autourdumot"
 #ES_DOC_TYPE ?= "graph" #TODO make it configurable
 
-#XXX: better default graph dir
-GRAPH_DIR="/home/navarro/workspace/sandbox/graph_shelf/jdm/data_graph/"
+GRAPH_DIR="./data_graph/"
 
 
 .PHONY: get_libjs link_libjs python_dep index_graphs
