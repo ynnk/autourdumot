@@ -8,7 +8,7 @@ ES_HOST ?= "localhost:9200"
 ES_INDEX ?= "autourdumot"
 #ES_DOC_TYPE ?= "graph" #TODO make it configurable
 
-GRAPH_DIR=./data_graph/
+GRAPH_DIR=./data_graphs/
 
 
 .PHONY: get_libjs link_libjs python_dep index_graphs
