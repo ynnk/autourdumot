@@ -32,7 +32,7 @@ def index(es_index, cut_local=500, cut_global=-1, lcc=False, start=0, offset=0, 
     if lcc:
         graph = graph.clusters().giant()
 
-    print graph.summary()
+    print(graph.summary())
 
     # { idx : (rank, prox) }    
     pg = prox.prox_markov_dict(graph, [], 4, add_loops=True)
@@ -49,9 +49,9 @@ def index(es_index, cut_local=500, cut_global=-1, lcc=False, start=0, offset=0, 
         for i, k in enumerate(pg):
             if i < start:
                 continue
-            if offset  and count >= offset:
+            if offset and count >= offset:
                 break
-                
+
             count +=1
             vtx = graph.vs[k]
             label = vtx['label']
@@ -84,7 +84,7 @@ def index(es_index, cut_local=500, cut_global=-1, lcc=False, start=0, offset=0, 
             
             line = "%s %s %s/%s %s %s" % (name, k, i, graph.vcount(), len(neighborhood),  label)
             line = line.encode('utf8')
-            print line
+            print(line)
 
             yield body
 
@@ -94,25 +94,26 @@ def index(es_index, cut_local=500, cut_global=-1, lcc=False, start=0, offset=0, 
 def main(): 
     parser = argparse.ArgumentParser(prog="main")
     parser.add_argument("--host", action='store',default='localhost', help="ElasticSearch hostname")
+    parser.add_argument("--idx", action='store', help="ES index name")
 
-    parser.add_argument("-i", "--index", dest='index', action='store_true',default=False, help="Index graph in ES")
-    parser.add_argument("-d", "--drop", dest='drop', action='store_true',default=False, help="Drop index before indexing")
+    parser.add_argument("-d", "--drop", dest='drop', action='store_true', default=False, help="Drop index before indexing")
 
-    parser.add_argument("--lcc", dest='lcc', action='store_true', default=False, help="Computes only lcc of the loaded graph")
-    parser.add_argument("-s", dest='suggest', action='store', nargs=2, help="Suggest field text")
+    #parser.add_argument("--lcc", dest='lcc', action='store_true', default=False, help="Computes only lcc of the loaded graph")
+
     parser.add_argument("--start", dest='start', action='store', type=int, help="Indexing start from", default=0)
     parser.add_argument("--offset", dest='offset', action='store', type=int, help="offset", default=0)
-    parser.add_argument("--noprompt", dest='noprompt', action='store_false', default=True, help="No user prompt ")
 
-    parser.add_argument("name", action='store', help="Index name")
+    parser.add_argument("--gname", action='store', help="Graph name")
+    parser.add_argument("--gpath", action='store', help="Graph path")
+    parser.add_argument("--gpos", action='store', help="POS of graph vertices")
+    parser.add_argument("--glang", action='store', help="Language of graph vertices")
 
     args = parser.parse_args()
 
     schema_path = "./schema.yml"
-    glaff_data = glaff.parse("GLAFF-1.2.1/glaff-1.2.1.txt")
 
-    if args.noprompt and not len(glaff_data):
-        read = raw_input('No glaff data \n <Enter> to continue <ctrl C> to stop')
+    ## Glaff for autocompletion
+    glaff_data = glaff.parse("GLAFF-1.2.1/glaff-1.2.1.txt")
 
     def glaff_completion(lang, pos, lemma):
         candidates = set([lemma])
@@ -123,107 +124,32 @@ def main():
         return [''.join(c for c in unicodedata.normalize('NFD', lemma) if unicodedata.category(c) != 'Mn')]
 
     def completion(lang, pos, lemma):
-        methods  = (glaff_completion, no_accent )
+        methods  = (glaff_completion, no_accent)
         complete = []
-        for m in methods:
-            complete.extend(m(lang,pos,lemma))
-
+        for mth in methods:
+            complete.extend(mth(lang, pos, lemma))
         return list(set(complete))
 
-    dirpath = "%s/Graphs" % os.environ['PTDPATH']
+    graph_conf = {
+        'name': args.gname,
+        'path': args.gpath,
+        'pos' : args.gpos,
+        'lang': args.glang,
+        'completion': completion,
+    }
 
-    dicosyn =  [ 
-                {   'name': 'dicosyn.V',
-                    'path':  "%s/dicosyn/dicosyn/V.dicosyn.pickle" % dirpath,
-                    'pos' : 'V',
-                    'lang': 'fr',
-                    'completion' : completion
-                },
-                {   'name': 'dicosyn.N',
-                    'path':  "%s/dicosyn/dicosyn/N.dicosyn.pickle" % dirpath,
-                    'pos' : 'N',
-                    'lang': 'fr',
-                    'completion' : completion 
-                },
-                {   'name': 'dicosyn.A',
-                    'path':  "%s/dicosyn/dicosyn/A.dicosyn.pickle" % dirpath,
-                    'pos' : 'A',
-                    'lang': 'fr',
-                    'completion' : completion
-                },
-            ]
-    jdm = [
-                {   'name': 'jdm.A',
-                    'path':  "%s/jdm/fr.A.JDM-01282014-v1-e5-s_avg.pickle" % dirpath,
-                    'pos' : 'A',
-                    'lang': 'fr',
-                    'completion' : completion
-                },
-                {   'name': 'jdm.N',
-                    'path':  "%s/jdm/fr.N.JDM-01282014-v1-e5-s_avg.pickle" % dirpath,
-                    'pos' : 'N',
-                    'lang': 'fr',
-                    'completion' : completion
-                },
-                {   'name': 'jdm.V',
-                    'path':  "%s/jdm/fr.V.JDM-01282014-v1-e5-s_avg.pickle" % dirpath,
-                    'pos' : 'V',
-                    'lang': 'fr',
-                    'completion' : completion
-                },
-            ]
+    schema = yaml.load(open(schema_path))
+    es_index = EsIndex(args.idx, host=args.host, doc_type='graph', schema=schema['mappings']['graph'])
 
-    jdm_flat = [
-                {   'name': 'jdm.A.flat',
-                    'path':  "%s/jdm/fr.A.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
-                    'pos' : 'A',
-                    'lang': 'fr',
-                    'completion' : completion
-                },
-                {   'name': 'jdm.N.flat',
-                    'path':  "%s/jdm/fr.N.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
-                    'pos' : 'N',
-                    'lang': 'fr',
-                    'completion' : completion
-                },
-                {   'name': 'jdm.V.flat',
-                    'path':  "%s/jdm/fr.V.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
-                    'pos' : 'V',
-                    'lang': 'fr',
-                    'completion' : completion
-                },
-                {   'name': 'jdm.E.flat', # adverbes
-                    'path':  "%s/jdm/fr.E.JDM-12312014-v1_666_777-e5-s_avg-flat.pickle" % dirpath,
-                    'pos' : 'E',
-                    'lang': 'fr',
-                    'completion' : completion
-                }
-            ]
+    if args.drop and es_index.exists():
+        es_index.delete(full=True)
 
-    jdm_asso = [
-                {   'name': 'jdm.asso',
-                    'path':  "%s/jdm/fr.JDM-12312014-v1_666_777-e0-s_no.pickle" % dirpath,
-                    'pos' : 'A',
-                    'lang': 'fr',
-                    'completion' : glaff_completion
-                }]
+    if not es_index.exists():
+        es_index.create()
 
-    if args.index:
-        schema = yaml.load(open(schema_path))
-        es_index = EsIndex(args.name, host=args.host, doc_type='graph', schema=schema['mappings']['graph'])
-
-        if args.drop and es_index.exists():
-            es_index.delete(full=True)
-
-        if not es_index.exists():
-            es_index.create()
-
-        #graphs = dicosyn + jdm_flat
-        graphs_config = jdm_flat
-
-        for conf in graphs_config:
-            print("indexing:%s - LCC:%s" % (conf['name'], args.lcc))
-            index(es_index, start=int(args.start), offset=int(args.offset), lcc=args.lcc, **conf) 
+    if graph_conf['name'] is not None:
+        print("indexing:%s" % (graph_conf['name']))
+        index(es_index, start=int(args.start), offset=int(args.offset), **graph_conf)
 
 if __name__ == '__main__':
     sys.exit(main())
