@@ -36,7 +36,7 @@ requests_cache.install_cache(cache_file)
 
 # locale api
 ES_HOST = os.environ.get('ES_HOST', "localhost:9200")
-ES_INDEX = os.environ.get('ES_INDEX', "tmuse")
+ES_INDEX = os.environ.get('ES_INDEX', "autourdumot")
 ES_DOC_TYPE = os.environ.get('ES_DOC_TYPE', "graph")
 
 tmuseApi = TmuseApi("tmuse_v1", ES_HOST, ES_INDEX, ES_DOC_TYPE)
