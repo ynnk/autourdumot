@@ -8,7 +8,7 @@ ES_HOST ?= "localhost:9200"
 ES_INDEX ?= "autourdumot"
 #ES_DOC_TYPE ?= "graph" #TODO make it configurable
 
-GRAPH_DIR="./data_graph/"
+GRAPH_DIR=./data_graph/
 
 
 .PHONY: get_libjs link_libjs python_dep index_graphs
@@ -33,6 +33,9 @@ get_glaff:
 	wget http://redac.univ-tlse2.fr/lexiques/glaff/GLAFF-1.2.1.tar.bz2  
 	tar -xjf GLAFF-1.2.1.tar.bz2
 
+
+check_index:
+	echo "host: ${ES_HOST} idx: ${ES_INDEX}"
 
 index_graphs:
 	python index.py --host ${ES_HOST} --idx ${ES_INDEX} -d
