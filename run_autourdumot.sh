@@ -31,11 +31,14 @@ test -d $LOGDIR || mkdir -p $LOGDIR
 #end script
 
 # mv into app dir
+export PYTHONPATH=$BASEDIR
 cd app
 
 # set Elastic Search host
 export ES_HOST="localhost:9200"
-export ES_INDEX="autourdumot"
+#export ES_INDEX="autourdumot"
+#use old index for now
+export ES_INDEX="tmuse"
 export APP_DEBUG=false
 
 # run the gunicorn server
