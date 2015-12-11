@@ -1,6 +1,6 @@
 #CELLO LibJS dep
 LIBJS_DIR=./app/cello_libjs
-LIBJS_ORIGIN=ssh://192.168.122.99/var-hdd/git/cello_libjs/
+LIBJS_ORIGIN=git@git.kodexlab.com:kodexlab/cellojs.git
 LIBJS_VERSION=master
 
 ## This var may be overriden by var env
