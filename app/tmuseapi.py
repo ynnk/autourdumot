@@ -193,18 +193,22 @@ def engine(index):
     engine.labelling.set(labelling)
 
     ## Layout
-    from cello.layout.simple import KamadaKawaiLayout
-    from cello.layout.proxlayout import ProxLayoutRandomProj
+    #from cello.layout.simple import KamadaKawaiLayout
+    #from cello.layout.proxlayout import ProxLayoutRandomProj
     from cello.layout.proxlayout import ProxLayoutPCA
     from cello.layout.transform import Shaker
+    from cello.layout.transform import ByConnectedComponent, normalise
+    
+    default_layout = ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(kelastic=.9)
     
     engine.layout.set(
-        ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(kelastic=.9),
-        KamadaKawaiLayout(dim=3, name="KamadaKawai3D"),
-        ProxLayoutPCA(dim=2, name="ProxPca2d") | Shaker(kelastic=1.8),
-        KamadaKawaiLayout(dim=2, name="KamadaKawai2D")
+        ByConnectedComponent(default_layout) | normalise,
+        #KamadaKawaiLayout(dim=3, name="KamadaKawai3D"),
+        #ProxLayoutPCA(dim=2, name="ProxPca2d") | Shaker(kelastic=1.8),
+        #KamadaKawaiLayout(dim=2, name="KamadaKawai2D")
     )
     return engine
+
 
 class TmuseEsComplete(Optionable):
     """ auto complete helper to find matching candidates 
