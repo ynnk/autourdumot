@@ -43,7 +43,7 @@ Create index (~5 minutes on my laptop):
 
 ```bash
 $ export PYTHONPATH=./:$PYTHONPATH
-$ python index.py -i tmuse
+$ make index
 ```
 
 it loads jdm & dicosyn graphs, computes proxemies and stores in elasticsearch
@@ -51,7 +51,7 @@ it loads jdm & dicosyn graphs, computes proxemies and stores in elasticsearch
 Run the app:
 
 ```bash
-$ python app/tmuse_es_app.py
+$ python app/autourdumot.py
 ```
 
 Browse app: (only french verbs supported, ex 'causer'):
@@ -67,7 +67,7 @@ You can use `ES_HOST` and `ES_INDEX` env variable to setup ES host and index:
 
 ```bash
 $ export ES_HOST=10.10.21.125
-$ export ES_HOST=tmuse_test
+$ export ES_HOST=autourdumot_test
 ```
 
 To activate debugging:
@@ -75,3 +75,35 @@ To activate debugging:
 ```bash
 $ export APP_DEBUG=true
 ```
+
+
+Install for prod
+----------------
+
+Clone the repository:
+
+```bash
+$ git clone git@git.kodexlab.com:kodexlab/autourdumot.git
+$ cd autourdumot.git
+```
+
+Setup python virtualenv:
+
+```bash
+$ virtualenv --system-site-packages venv
+$ source venv/bin/activate
+$ pip install -r requirements.txt
+$ pip install -I gunicorn   # Force local install for gunicorn
+```
+
+Get cellojs:
+
+```bash
+$ make get_libjs
+```
+
+Then:
+* Make sure you have ES installed...
+* configure a sh to run everything
+* configure supervisor
+
