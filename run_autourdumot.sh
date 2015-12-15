@@ -36,9 +36,7 @@ cd app
 
 # set Elastic Search host
 export ES_HOST="localhost:9200"
-#export ES_INDEX="autourdumot"
-#use old index for now
-export ES_INDEX="tmuse"
+export ES_INDEX="autourdumot"
 export APP_DEBUG=false
 
 # run the gunicorn server
