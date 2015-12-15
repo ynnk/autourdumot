@@ -21,9 +21,9 @@ logger = get_basic_logger(logging.DEBUG)
 
 # ajout la config pour le tracker Piwik
 if not app.debug:
-    app.config["PIWIK_BASEURL"] = "stats.kodexlab.com"
-    app.config["PIWIK_SITEID"] = 8
-Analytics(app)
+    Analytics(app)
+    app.config['ANALYTICS']['PIWIK']['BASE_URL'] = 'stats.kodexlab.com'
+    app.config['ANALYTICS']['PIWIK']['SITE_ID'] = '8'
 
 import requests_cache
 cache_file = os.path.dirname(os.path.realpath(__file__))
