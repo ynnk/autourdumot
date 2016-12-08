@@ -223,8 +223,8 @@
 
 
     require([
-        "app_graph", "feedback_client"
-    ],  function(App, feedback){
+        "app_graph", //"feedback_client"
+    ],  function(App/*, feedback*/){
         // The "app" dependency is passed in as "App"
         app = new  App( {
            debug: {{ 'true' if debug else 'false' }},
@@ -410,12 +410,14 @@
         _window_resized();
         
         // Feedback system
+        /*
         // activate the feedback system
         feedback.activate("autourdumot", "http://feedback.kodexlab.com/")
         // bind it to my custom btn
         $(".comments").click(function(){
             feedback.show();
         })
+        */
 
     })();
 </script>
