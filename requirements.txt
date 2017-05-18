@@ -14,4 +14,4 @@ requests-cache
 urllib3
 lxml
 reliure
-git+ssh://git@git.kodexlab.com/kodexlab/cello.git@nclustring
+git+ssh://git@git.kodexlab.com/kodexlab/cello.git

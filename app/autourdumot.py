@@ -3,14 +3,14 @@
 import sys, os
 import logging
 
-from flask import Flask
+from flask import Flask, make_response
 from flask import request, render_template, url_for, abort, jsonify
-from flask.ext.analytics import Analytics
+from flask_analytics import Analytics
 
 from reliure.utils.log import get_basic_logger
 from reliure.web import RemoteApi, app_routes
 
-from tmuseapi import TmuseApi
+from tmuseapi import TmuseApi, proxlist
 import wiktionary as wk
 
 
@@ -39,6 +39,10 @@ ES_HOST = os.environ.get('ES_HOST', "localhost:9200")
 ES_INDEX = os.environ.get('ES_INDEX', "autourdumot")
 ES_DOC_TYPE = os.environ.get('ES_DOC_TYPE', "graph")
 
+
+from cello.providers.es import EsIndex
+esindex = EsIndex(ES_INDEX, doc_type=ES_DOC_TYPE , host=ES_HOST)
+
 tmuseApi = TmuseApi("tmuse_v1", ES_HOST, ES_INDEX, ES_DOC_TYPE)
 
 # Configure the app
@@ -60,6 +64,41 @@ def index(query=None):
          random_url=url_for("%s.random_node" % tmuseApi.name),
          def_url=url_for("wkdef", domain="", query="")[:-1] # rm trailing /
     )
+
+
+@app.route("/liste/<string:graph>/<string:text>.txt")
+@app.route("/liste/<string:graph>/<string:text>.txt/<int:count>")
+def dl(graph, text, count=200):
+    tri = request.args.get('tri', 'score') # score/form
+    l = proxlist(esindex, graph, text, count)
+    l.sort( key=lambda e : e[tri], reverse= tri == 'score' )
+    for i,e in enumerate(l) : e['rank']=i+1
+
+    txt = "\n".join([ "%s.\t%s\t%s" % (e['rank'],e['form'],e['score']) for e in l ])
+    print txt
+    response = make_response(txt)
+    response.headers['Content-Type'] = 'application/%s' % "text"
+    response.headers['Content-Disposition'] = 'inline; filename=%s.txt' % text
+    return response
+    
+    
+@app.route("/liste/<string:graph>/<string:text>")
+@app.route("/liste/<string:graph>/<string:text>/<int:count>")
+def liste(graph, text, count=200):
+    tri = request.args.get('tri', 'score') # score/form
+    
+    ROWS = 30
+    COLS = 3
+    
+    l = proxlist(esindex, graph, text, count)
+    l.sort( key=lambda e : e[tri], reverse= tri == 'score' )
+    for i,e in enumerate(l) : e['rank']=i+1
+    l = [  l[ROWS*i:ROWS*(i+1)]  for i in range( int(count/ROWS)+1 ) ]
+    print len(l)
+    l = [  l[COLS*i:COLS*(i+1)]  for i in range( int(len(l)/COLS)+1 ) ]
+    print len(l)
+    return render_template( "liste.html", query=text, data=l)
+    
 
 @app.route("/def/<string:domain>/<string:query>")
 def wkdef(domain, query):

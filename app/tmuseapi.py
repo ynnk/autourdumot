@@ -44,7 +44,7 @@ class ComplexQuery(GenericType):
     """
     def parse(self, value):
         query = []
-        if isinstance(value, basestring):
+        if isinstance(value, basestring):   
             for ele in value.split():
                 ele = ele.strip().split(".")
                 qunit = {}
@@ -71,10 +71,24 @@ class ComplexQuery(GenericType):
 
 
 
+def proxlist(esindex, graph, text, count=50):
+    query = QueryUnit(graph=graph, form=text)
+    pz, proxs = tmuse.extract(esindex, query, count)
+    proxs = dict(proxs)
+    ids = proxs.keys()
+    # request es with ids
+    es_res = tmuse.search_docs(esindex, graph, ids)
+    l = [ e['_source'] for e in es_res['hits']['hits']]
+    for i,e in enumerate(l) : e['score']=proxs[e['gid']]
+    [ e.pop('neighborhood') for e in l ]      
+    return l
+    
+
+
 def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph', retry=5):
     """ API over tmuse elastic search
     """
-    esindex = EsIndex(index_name, doc_type=doc_type , host=host)
+    esindex = EsIndex(index_name, doc_type=doc_type , host=host)     
     print "# TmuseApi", host, doc_type, index_name
 
     # let es start
@@ -125,8 +139,7 @@ def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph', 
         doc = docs[0] if len(docs) else dict()
             
         return jsonify({ 'pos':pos, 'doc': doc})
-        
-        
+
     # Debug views
     @api.route("/_extract/<string:graph>/<string:text>")
     def _extract(graph, text):
@@ -136,13 +149,8 @@ def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph', 
         
     @api.route("/_prox/<string:graph>/<string:text>" )
     def _prox(graph, text):
-        query = QueryUnit(graph=graph, form=text)
-        pz, proxs = tmuse.extract(esindex, query, 10)
-        proxs = dict(proxs)
-        ids = proxs.keys()
-        # request es with ids
-        es_res = tmuse.search_docs(esindex, graph, ids)
-        return jsonify({ 'ids': ids, 'res': es_res})
+        es_res = proxlist(esindex, graph, text, 100)
+        return jsonify({ 'res': es_res})
 
     return api
 

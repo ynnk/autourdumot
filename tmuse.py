@@ -256,7 +256,7 @@ def to_docs(es_res, pzeros):
             
             docs.append( Doc(TmuseDocSchema, **data) )
  
-    print [ doc['_source']['form'] for doc in es_res['hits']['hits']]
+    #print [ doc['_source']['form'] for doc in es_res['hits']['hits']]
     
     return docs
 

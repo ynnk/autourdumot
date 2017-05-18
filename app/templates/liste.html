@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <title>autourdumot.fr - Dictionnaires et synonymes</title>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google-site-verification" content="EsT1uwZPTLB080M8Hh-1OQTaVgWuiOLUzyfqVHTtcmQ" />
+
+     <meta name="description" content="Autour du mot, exploration de graphe de synomymes, dictionnaire, définition, exploration lexical, réseau de mot, exploration dans le petit monde des mots, visualisation de graphe">
+     <meta name="keywords" content="autour du mot, définition, dictionnaire, synonyme, graphe, réseau linguistique, réseau sémantique, visualisation de graphe"> 
+
+    
+    <!--  SemUI CSS    -->
+    <link rel="stylesheet" href="{{url_for('static', filename='lib/semantic-UI-1.8.1-dist/semantic.min.css')}}" type="text/css" />
+
+    <!--  our CSS    -->
+    <link rel="stylesheet" href="{{url_for('static', filename='app_graph.css')}}" type="text/css" />
+    <link rel="stylesheet" href="{{url_for('static', filename='engine.css')}}" type="text/css" />
+
+    <style>
+    .column.vz a {
+        color: #666;
+        text-decoration: none;
+    }
+    .column.vz ul {
+        display: inline;
+    }
+    h1.liste { color:#333 }
+    </style>
+</head>
+<body>
+
+        
+    <div class="ui page grid">
+        <div class="row entete">
+            <div class="five wide column ">
+                    <h2 class="ui  header teal ">Autour<span style='color:lightgrey'>du</span>mot.<span style='color:lightgrey'>fr</span>
+                        <div class="sub header  hidden-xs" style='color:lightgrey'>Explorez le petit monde des mots.</div>
+                    </h2>
+            </div>
+
+
+            <div class="right aligned eleven wide column query_head">
+            </div>
+        </div>
+
+
+        <div id='app' class="row contenu" >
+            <div class="column center aligned">
+                <div class="ui tab itemview active" data-tab="graph">
+                    <div class="ui menu">
+                      <div class="header item">
+                        {{query}}
+                      </div>
+                      <div class="right compact menu">  
+                          <a class="item" href="{{query}}?tri=score"><i class="list ordered icon"></i>score</a>
+                          <a class="item" href="{{query}}?tri=form"><i class="list ordered icon"></i>alphabétique</a>
+                          <a class="item" href="{{query}}.txt?tri=score"><i class="save icon"></i>téléchargement</a>
+                      </div>  
+                    </div>
+
+                    <div id="proxemy_items" class="ui left aligned segment subitem" style="">
+                      <div class="ui three column grid" STYLE="margin:12px">
+                        {% for grid in data %}
+                        
+                        {% for col in grid %}
+                        <div class="column vz">
+                            <ul >
+                            {% for e in col %}
+                            <li class="form">
+                            <div class="puce" style="background-color:#eee;"></div>
+                            <a draggable="true" class="draggable" href="{{e.form}}">{{e.rank}}. {{e.form}}</a>
+                            </li>
+                            {%endfor%}
+                            </ul>
+                        </div>
+                        {%endfor%}
+                        <div class="ui divider"></div>
+                        {%endfor%}
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="footer" class="row" style="padding-bottom:2px">
+            <div class="thirteen wide column center aligned">        
+                <div class='item hidden-xs'>
+                    Synonymes <a target='_blank' href='http://jeuxdemots.org' class="ui teal">Jeux de mots</a> - 
+                    Définitions <a target='_blank' href='http://wiktionary.org' class="ui teal">Wiktionary.org</a> - 
+                    Réalisation <a target='_blank' href="http://kodexlab.com" class="ui teal">Kodex·Lab</a>
+                    <a class="item" href="mailto:contact@kodexlab.com"><i class=" inverted small teal mail outline icon "></i></a>
+                     - 
+                    <a href='http://autourdumot.fr' class="ui teal">autour<span style='color:#AAA'>du</span>mot.fr</a>
+                     - 2015
+                </div>
+            </div>
+            
+            <div class="three wide column right aligned">
+                <div class='item right'>
+<!--
+                    <a class=""><i class=" help teal icon " title="Aide"></i></a>
+                    <a class=""><i class=" bug teal icon " title="Signaler un bug"></i></a>
+-->
+                    <a class=""><i class=" comments teal icon" title="Votre avis nous intéresse"></i></a>
+                </div>
+            </div>
+            
+            
+        </div>
+    
+    </div>
+
+<div class="ui dimmer modals page " style="">
+
+    <div class="ui modal ">
+            <i class="close icon"></i>
+
+            <div class="header">Dictionnaire et synonymes</div>
+
+            <div class="content">
+                <p>
+                    Données synonymiques <a href='http://jeuxdemots.org'>Jeux de mots</a> <br />
+                    Définitions <a href='http://wiktionary.org'>Wiktionary.org</a> <br />
+                    Réalisation <a href="http://kodexlab.com">Kodex·Lab</a> 2014 <br />
+                </p>
+                <p>
+                    remarques et cmt : <a href="https://proxteam.eu/pad/p/cello_tmuse">https://proxteam.eu/pad/p/cello_tmuse</a>
+                </p>
+            </div>
+    </div>
+
+</div>
+
+<!-- Piwik -->
+{{ analytics }}
+
+</body>
+</html>

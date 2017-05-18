@@ -241,7 +241,7 @@ define([
              * Note: returns false to avoid HTML form submit
              */
             if (event){
-                event.stopPropagation(); //not always necessary
+                event.stopPropagation(); //not always n ecessary
                 event.preventDefault(); // this will stop the event from further propagation and the submission will not be executed
             }
             // note: this is not necessary for Chrome, but needed for FF
@@ -617,6 +617,8 @@ define([
 
         /* callback when new data arrived */
         update_models: function(response){
+            var unit = response.results.query.units[0];
+            
             // parse and reset graph
             app.models.graph.reset(response.results.graph);
             
@@ -651,11 +653,20 @@ define([
                 }
             );
             app.models.clustering.clusters.each(function(cluster){
+                cluster.members.vs.each( function(vertex){
+                    vertex.set('color',cluster.color);
+                });
+
+            });
+            
+            app.models.clustering.clusters.each(function(cluster){
                 cluster.listenTo(app.views.gviz, "unselect_clusters", function(){cluster.remove_flag('selected')})
             });
 
             // reset vertices collection !!! should be done after clustering reset 
             app.models.vertices.reset(app.models.graph.vs.models);
+            var url = "/liste/"+ unit.graph+"/"+unit.form;
+            $('#proxemy_more').html('<a target="_blank" href="'+url+'">+ de résultats</a>')
 
             // reset graph visualization
             app.views.gviz.reset();
@@ -738,6 +749,8 @@ define([
 
             /*  definition */
             app.views.wkdef.collection.reset(response.results.query.units);
+
+            
 
         },
 
