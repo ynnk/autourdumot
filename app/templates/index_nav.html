@@ -118,7 +118,22 @@
                           <span class='hidden-xs'>Définition</span>
                       </a>
 
-
+                      <div class="ui item right">
+                        <div id="select" class="ui icon dropdown ">
+                            <i class="dropdown icon"></i>
+                            <div class="menu">
+                              <div class="header">
+                                <i class="tags icon"></i>
+                                Résultats
+                              </div>
+                              <div class="item">20</div>
+                              <div class="item">50</div>
+                              <div class="item">100</div>
+                              <div class="item">200</div>
+                            </div>
+                        </div>
+                      </div>
+                      
                       <div id="linkify" class="ui item right">
                         <a class="circular icon" ><i class="linkify icon"></i></a>
                         <div class="ui popup" data-variation='large'>
@@ -132,6 +147,7 @@
                             </div>
                         </div>
                       </div>
+
                 </div> <!--/maintabs-->
 
     
@@ -243,7 +259,17 @@
         // run the app
         app.start();
 
-        
+        // more results
+        $('#select')
+          .dropdown({
+              onChange: function(value, text, $selectedItem) {
+                  console.log(value, text );
+                  var cellist = app.models.cellist;
+                  cellist.get_block('graph').components.at(0).set_option('length', value)
+                  cellist.play();
+              }
+          });
+
         // panel tabs
         $('#maintabs .item').tab();
         

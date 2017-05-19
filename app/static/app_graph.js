@@ -665,8 +665,10 @@ define([
 
             // reset vertices collection !!! should be done after clustering reset 
             app.models.vertices.reset(app.models.graph.vs.models);
-            var url = "/liste/"+ unit.graph+"/"+unit.form;
-            $('#proxemy_more').html('<a target="_blank" href="'+url+'">+ de résultats</a>')
+
+            /* opens liste.html page */
+            //var url = "/liste/"+ unit.graph+"/"+unit.form;
+            //$('#proxemy_more').html('<a target="_blank" href="'+url+'">+ de résultats</a>')
 
             // reset graph visualization
             app.views.gviz.reset();
