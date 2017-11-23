@@ -55,9 +55,9 @@
                         {{query}}
                       </div>
                       <div class="right compact menu">  
-                          <a class="item" href="{{query}}?tri=score"><i class="list ordered icon"></i>score</a>
-                          <a class="item" href="{{query}}?tri=form"><i class="list ordered icon"></i>alphabétique</a>
-                          <a class="item" href="{{query}}.txt?tri=score"><i class="save icon"></i>téléchargement</a>
+                          <a class="item" href="{{query}}?tri=score&count={{count}}"><i class="list ordered icon"></i>score</a>
+                          <a class="item" href="{{query}}?tri=form&count={{count}}"><i class="list ordered icon"></i>alphabétique</a>
+                          <a class="item" href="{{query}}.txt?tri=score&count={{count}}"><i class="save icon"></i>téléchargement</a>
                       </div>  
                     </div>
 
@@ -71,7 +71,7 @@
                             {% for e in col %}
                             <li class="form">
                             <div class="puce" style="background-color:#eee;"></div>
-                            <a draggable="true" class="draggable" href="{{e.lang}}.{{e.pos}}.{{e.form}}">{{e.rank}}. {{e.form}}</a>
+                            <a draggable="true" class="draggable" href="{{e.lang}}.{{e.pos}}.{{e.form}}?tri={{tri}}&count={{count}}">{{e.rank}}. {{e.form}}</a>
                             </li>
                             {%endfor%}
                             </ul>

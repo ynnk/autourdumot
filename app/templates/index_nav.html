@@ -235,6 +235,8 @@
     
 </script>
 <script>
+    var value = {{count}};
+    
     require.config({
       paths: {
         feedback_client: 'http://feedback.kodexlab.com/static/feedback_client',
@@ -260,12 +262,13 @@
         // run the app
         app.start();
 
+        var cellist = app.models.cellist;
+
         // more results
         $('#select')
           .dropdown({
               onChange: function(value, text, $selectedItem) {
                   console.log(value, text );
-                  var cellist = app.models.cellist;
                   cellist.get_block('graph').components.at(0).set_option('length', value)
                   cellist.play();
               }

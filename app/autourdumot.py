@@ -54,10 +54,13 @@ app.add_url_rule('/_routes', 'routes', lambda : app_routes(app) ,  methods=["GET
 # index page
 @app.route("/")
 @app.route("/<string:query>")
-def index(query=None):
+@app.route("/<string:query>/<int:count>")
+def index(query=None, count = 50):
+
     return render_template(
          "index_nav.html",
          debug=app.debug,
+         count=count,
          root_url=url_for("index"),
          complete_url=url_for("%s.complete" % tmuseApi.name),
          engine_url=url_for("%s.subgraph" % tmuseApi.name),
@@ -66,10 +69,20 @@ def index(query=None):
     )
 
 
+@app.route("/export/<string:text>")
+@app.route("/export/<string:text>/<int:count>")
+def dl(text, count=200, ):
+    return liste(text, count, True)
+
 @app.route("/liste/<string:text>")
 @app.route("/liste/<string:text>/<int:count>")
 def l(text, count=200):
+    return liste(text, count, False)
+
+def liste(text, count, inline=False):
     tri = request.args.get('tri', 'score') # score/form
+    count = int(request.args.get('count', count))
+    
     q = text.split(".") + ['']
     lang, pos, form , ext = q[:4]
     if ext not in ('', 'txt', 'csv', 'tsv') : return abort(404)
@@ -86,20 +99,19 @@ def l(text, count=200):
         for i,e in enumerate(l) : e['rank']=i+1
         l = [ l[ROWS*i:ROWS*(i+1)]  for i in range( int(count/ROWS)+1 ) ]
         l = [ l[COLS*i:COLS*(i+1)]  for i in range( int(len(l)/COLS)+1 )]
-        return render_template( "liste.html", query=text, data=l)
+        return render_template( "liste.html", query=text, data=l, tri=tri, count=count)
     else :
         separators = {'txt':" ", 'csv': "," , 'tsv' : '\t'}
         sep = separators[ext]
         
         txt = "\n".join([ "%s%s%s%s%s" % (e['rank'],sep, e['form'],sep, e['score']) for e in l ])
         response = make_response(txt)
-        response.headers['Content-Type'] = 'application/%s' % "text"
-        response.headers['Content-Disposition'] = 'inline; filename=%s.%s' % (ext,text)
+        if inline : 
+            response.headers['Content-Type'] = 'application/%s' % "text"
+            response.headers['Content-Disposition'] = 'inline; filename=%s' % (text)
 
         return response
 
-def liste(lang, pos, form, count=200):
-    return l
     
     
 

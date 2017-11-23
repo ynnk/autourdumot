@@ -790,9 +790,11 @@ define([
 
         /** Navigate (=play engine) to a vertex by giving it exact label
         */
-        navigate_to_label: function(model){
+        navigate_to_label: function(model, count){
             var app = this;
-            //XXX: rename label to ??
+            count = count ? count : 50;
+            app.models.cellist.get_block('graph').components.at(0).set_option('length', count)
+    
             if (_.isString(model) )
                 app.models.query.reset_from_str(model) ;
             else
@@ -841,6 +843,7 @@ define([
                 routes: {
                     '': 'index',
                     ':query': 'search',
+                    ':query/:count': 'search',
                 },
 
                 initialize: function() {
@@ -851,9 +854,10 @@ define([
                     console.log('<router> root /');
                 },
 
-                search: function( query){
+                search: function( query, count ){
+                    
                     console.log("<router> search start");
-                    console.log("navigate_to_label", query);
+                    console.log("navigate_to_label", query, count);
                     app.navigate_to_label(query);
                 }
             });
