@@ -135,12 +135,11 @@ def subgraph(index, query, length=50):
         if not len(result): 
             raise WrongQueryError(u"Aucun résultat pour le mot '%s'." % q['form'])  
 
-
-        p0, vect = result
+        p0, vect = result.keys()[0], result.values()[0]
         for k,v in vect:
             proxs[k] = proxs.get(k,0.) + v;
         pzeros.append(p0)
-        
+    
     proxs = proxs.items()
     proxs.sort(key=lambda x : x[1], reverse=True)
     proxs = dict(proxs[:length])
@@ -160,7 +159,7 @@ def subgraph(index, query, length=50):
     return graph
 
 
-def extract(index, q,  length=50):
+def extract(index, q, length=50):
     body = {
             "_source": ['graph', 'form','gid', 'prox', 'neighbors'],
             "query": {
@@ -183,9 +182,9 @@ def extract(index, q,  length=50):
         if len(res['hits']['hits']) :
             doc = res['hits']['hits'][0]['_source']
             proxs  = [  p for p in doc['prox'] ]
-            return (doc['gid'], proxs[:length])
+            return { doc['gid']: proxs[:length] }
 
-    return []
+    return {}
 
 
 def to_graph(docs, pzeros=[]):

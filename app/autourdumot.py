@@ -3,14 +3,14 @@
 import sys, os
 import logging
 
-from flask import Flask, make_response
+from flask import Flask, abort, make_response
 from flask import request, render_template, url_for, abort, jsonify
 from flask_analytics import Analytics
 
 from reliure.utils.log import get_basic_logger
 from reliure.web import RemoteApi, app_routes
 
-from tmuseapi import TmuseApi, proxlist
+from tmuseapi import TmuseApi, proxlist, QueryUnit
 import wiktionary as wk
 
 
@@ -66,38 +66,41 @@ def index(query=None):
     )
 
 
-@app.route("/liste/<string:graph>/<string:text>.txt")
-@app.route("/liste/<string:graph>/<string:text>.txt/<int:count>")
-def dl(graph, text, count=200):
+@app.route("/liste/<string:text>")
+@app.route("/liste/<string:text>/<int:count>")
+def l(text, count=200):
     tri = request.args.get('tri', 'score') # score/form
-    l = proxlist(esindex, graph, text, count)
-    l.sort( key=lambda e : e[tri], reverse= tri == 'score' )
-    for i,e in enumerate(l) : e['rank']=i+1
+    q = text.split(".") + ['']
+    lang, pos, form , ext = q[:4]
+    if ext not in ('', 'txt', 'csv', 'tsv') : return abort(404)
 
-    txt = "\n".join([ "%s.\t%s\t%s" % (e['rank'],e['form'],e['score']) for e in l ])
-    print txt
-    response = make_response(txt)
-    response.headers['Content-Type'] = 'application/%s' % "text"
-    response.headers['Content-Disposition'] = 'inline; filename=%s.txt' % text
-    return response
-    
-    
-@app.route("/liste/<string:graph>/<string:text>")
-@app.route("/liste/<string:graph>/<string:text>/<int:count>")
-def liste(graph, text, count=200):
-    tri = request.args.get('tri', 'score') # score/form
-    
-    ROWS = 30
-    COLS = 3
-    
-    l = proxlist(esindex, graph, text, count)
+    query = QueryUnit(lang=lang, pos=pos, form=form)
+    l = proxlist(esindex, query, count)
     l.sort( key=lambda e : e[tri], reverse= tri == 'score' )
     for i,e in enumerate(l) : e['rank']=i+1
-    l = [  l[ROWS*i:ROWS*(i+1)]  for i in range( int(count/ROWS)+1 ) ]
-    print len(l)
-    l = [  l[COLS*i:COLS*(i+1)]  for i in range( int(len(l)/COLS)+1 ) ]
-    print len(l)
-    return render_template( "liste.html", query=text, data=l)
+    
+
+    if ext == "":
+        ROWS = 30
+        COLS = 3
+        for i,e in enumerate(l) : e['rank']=i+1
+        l = [ l[ROWS*i:ROWS*(i+1)]  for i in range( int(count/ROWS)+1 ) ]
+        l = [ l[COLS*i:COLS*(i+1)]  for i in range( int(len(l)/COLS)+1 )]
+        return render_template( "liste.html", query=text, data=l)
+    else :
+        separators = {'txt':" ", 'csv': "," , 'tsv' : '\t'}
+        sep = separators[ext]
+        
+        txt = "\n".join([ "%s%s%s%s%s" % (e['rank'],sep, e['form'],sep, e['score']) for e in l ])
+        response = make_response(txt)
+        response.headers['Content-Type'] = 'application/%s' % "text"
+        response.headers['Content-Disposition'] = 'inline; filename=%s.%s' % (ext,text)
+
+        return response
+
+def liste(lang, pos, form, count=200):
+    return l
+    
     
 
 @app.route("/def/<string:domain>/<string:query>")

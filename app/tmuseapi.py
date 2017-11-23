@@ -71,16 +71,20 @@ class ComplexQuery(GenericType):
 
 
 
-def proxlist(esindex, graph, text, count=50):
-    query = QueryUnit(graph=graph, form=text)
-    pz, proxs = tmuse.extract(esindex, query, count)
-    proxs = dict(proxs)
-    ids = proxs.keys()
-    # request es with ids
-    es_res = tmuse.search_docs(esindex, graph, ids)
-    l = [ e['_source'] for e in es_res['hits']['hits']]
-    for i,e in enumerate(l) : e['score']=proxs[e['gid']]
-    [ e.pop('neighborhood') for e in l ]      
+def proxlist(esindex, query, count=50):
+    
+    print "\nquery", query
+    l = []
+    rs = tmuse.extract(esindex, query, count)
+    if len(rs):
+        proxs = dict(rs.values()[0])
+        ids = proxs.keys()
+        # request es with ids
+        es_res = tmuse.search_docs(esindex, query['graph'], ids)
+        l = [ e['_source'] for e in es_res['hits']['hits']]
+        for i,e in enumerate(l) : e['score']=proxs[e['gid']]
+        [ e.pop('neighborhood') for e in l ]      
+
     return l
     
 
@@ -137,7 +141,7 @@ def TmuseApi(name, host='localhost:9200', index_name='tmuse', doc_type='graph', 
         docs = tmuse.random_node(esindex, graph)
 
         doc = docs[0] if len(docs) else dict()
-            
+        
         return jsonify({ 'pos':pos, 'doc': doc})
 
     # Debug views
