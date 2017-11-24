@@ -370,7 +370,9 @@ line-height: 1.3em;
 
 
 #proxemy_items ul li.target a {
+/*
     text-decoration: underline;
+*/
     font-weight: bold;
 }
 #proxemy_items.subitem a {
@@ -392,11 +394,16 @@ line-height: 1.3em;
     text-decoration: none;
 }
 #proxemy_items li a.draggable:hover {
+/*
     text-decoration:underline;
+*/
 }
 #proxemy_items li.selected a {
+/*
     text-decoration:underline;
+*/
     font-weight:bold;
+    color:#000;
 }
 
 #proxemy_items li.cluster-faded {
@@ -411,6 +418,7 @@ line-height: 1.3em;
 
 #proxemy_items li.intersected a {
     font-weight:bold;
+    color:#000;
 }
 
 #proxemy_items div.puce {

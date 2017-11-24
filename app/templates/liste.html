@@ -28,6 +28,10 @@
         display: inline;
     }
     h1.liste { color:#333 }
+
+    .disable-score span.score {
+        display:none;
+    }
     </style>
 </head>
 <body>
@@ -54,14 +58,28 @@
                       <div class="header item">
                         {{query}}
                       </div>
-                      <div class="right compact menu">  
-                          <a class="item" href="{{query}}?tri=score&count={{count}}"><i class="list ordered icon"></i>score</a>
-                          <a class="item" href="{{query}}?tri=form&count={{count}}"><i class="list ordered icon"></i>alphabétique</a>
-                          <a class="item" href="{{query}}.txt?tri=score&count={{count}}"><i class="save icon"></i>téléchargement</a>
+                      <div class="right compact menu">
+                          <div class="item">
+                              <div class="ui form">
+                                  <div class="inline field">
+                                    <div class="ui">
+                                      <input id="chkscore" type="checkbox" tabindex="0" class="hidden" onclick="toggle()">
+                                      <label>Afficher les scores</label>
+                                    </div>
+                                  </div>
+                              </div>
+                          </div> 
+                          <a class="item" href="{{query}}?t=l&tri=score&count={{count}}"><i class="list ordered icon"></i>score</a>
+                          <a class="item" href="{{query}}?t=l&tri=form&count={{count}}"><i class="list ordered icon"></i>alphabétique</a>
+                          <a class="item" href="{{query}}.txt?i=1&t=l&tri=score&count={{count}}"><i class="save icon"></i>téléchargement</a>
                       </div>  
                     </div>
 
-                    <div id="proxemy_items" class="ui left aligned segment subitem" style="">
+                    <div id="proxemy_items" class="ui left aligned segment subitem disable-score">
+
+
+
+                      
                       <div class="ui three column grid" STYLE="margin:12px">
                         {% for grid in data %}
                         
@@ -72,6 +90,7 @@
                             <li class="form">
                             <div class="puce" style="background-color:#eee;"></div>
                             <a draggable="true" class="draggable" href="{{e.lang}}.{{e.pos}}.{{e.form}}?tri={{tri}}&count={{count}}">{{e.rank}}. {{e.form}}</a>
+                            <span class="score">{{e.score}}</span>
                             </li>
                             {%endfor%}
                             </ul>
@@ -89,22 +108,12 @@
             <div class="thirteen wide column center aligned">        
                 <div class='item hidden-xs'>
                     Synonymes <a target='_blank' href='http://jeuxdemots.org' class="ui teal">Jeux de mots</a> - 
-                    Définitions <a target='_blank' href='http://wiktionary.org' class="ui teal">Wiktionary.org</a> - 
-                    Réalisation <a target='_blank' href="http://kodexlab.com" class="ui teal">Kodex·Lab</a>
-                    <a class="item" href="mailto:contact@kodexlab.com"><i class=" inverted small teal mail outline icon "></i></a>
-                     - 
-                    <a href='http://autourdumot.fr' class="ui teal">autour<span style='color:#AAA'>du</span>mot.fr</a>
-                     - 2015
-                </div>
-            </div>
-            
-            <div class="three wide column right aligned">
-                <div class='item right'>
-<!--
-                    <a class=""><i class=" help teal icon " title="Aide"></i></a>
-                    <a class=""><i class=" bug teal icon " title="Signaler un bug"></i></a>
--->
-                    <a class=""><i class=" comments teal icon" title="Votre avis nous intéresse"></i></a>
+                    Définitions <a target='_blank' href='http://wiktionary.org' class="ui teal">Wiktionary.org</a> 
+                    </a> 
+                    <a class="item" href="http://redac.univ-tlse2.fr/applications/index.html"><i class=" inverted small teal  icon "></i></a>
+                    <a href='http://autourdumot.fr' class="ui teal">autour<span style='color:#AAA'>du</span>mot.fr</a> & 
+                    <a target='_blank' href="http://redac.univ-tlse2.fr/applications/index.html" class="ui teal">
+                     CLLE-ERSS
                 </div>
             </div>
             
@@ -133,6 +142,13 @@
     </div>
 
 </div>
+
+<script>
+    function toggle(){
+        var el = document.getElementById('proxemy_items');
+        el.classList.toggle('disable-score');
+    }
+</script>
 
 <!-- Piwik -->
 {{ analytics }}

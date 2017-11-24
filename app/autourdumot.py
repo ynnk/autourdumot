@@ -53,9 +53,13 @@ app.add_url_rule('/_routes', 'routes', lambda : app_routes(app) ,  methods=["GET
 
 # index page
 @app.route("/")
-@app.route("/<string:query>")
-@app.route("/<string:query>/<int:count>")
-def index(query=None, count = 50):
+@app.route("/<string:text>")
+@app.route("/<string:text>/<int:count>")
+def index(text=None, count = 50):
+
+    if request.args.get("t") == "l":
+        inline = request.args.get("i") == "1"
+        return liste(text, count, inline)
 
     return render_template(
          "index_nav.html",

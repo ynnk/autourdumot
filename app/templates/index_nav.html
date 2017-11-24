@@ -30,14 +30,14 @@
     <script id="ListLabel" type="text/template">
             <div class='puce' style='background-color:rgb(<%=color%>);'></div>
             <a draggable="true"  class='draggable' href="#" title='Voir dans le graphe'><%=rank %>. <%=form %></a>
-<a class="ui tiny button" title="Explorer ce mot"><i class="square share icon "></i></a>
+<a class="ui mini button" title="Explorer ce mot"><i class="square share icon "></i></a>
             
     </script>
 
     <script id="cluster_item" type="text/template"><%
         %><a href='#' class='' style='font-size:<%= size %>px' title='Voir dans le graphe'><% _.each(formatted_label, function(token){
         %><span class='<%= token.css.substring(1) %>'><%= token.form %></span><%});%></a><%
-        %><a class="ui tiny  button" title="Explorer ce mot"><i class="square share icon "></i></a><%
+        %><a class="ui mini  button" title="Explorer ce mot"><i class="square share icon "></i></a><%
     %></script>
 
 
@@ -172,7 +172,7 @@
                 <div class="ui tab itemview " data-tab="list">
                     <h1><i class="list layout icon"></i>&nbsp;</h1>
                     <div id='proxemy_items' class='ui left aligned segment subitem' style=''><ul></ul></div>
-                    <div id='proxemy_more'></div>
+                    <div id='proxemy_more'><a href="?t=l&count=200">Télécharger la liste</a></div>
                     
                 </div>
 
@@ -200,17 +200,12 @@
                 <div class='item hidden-xs'>
                     Synonymes <a target='_blank' href='http://jeuxdemots.org' class="ui teal">Jeux de mots</a> - 
                     Définitions <a target='_blank' href='http://wiktionary.org' class="ui teal">Wiktionary.org</a> - 
-                    Réalisation
-
                     <a target='_blank' href="http://redac.univ-tlse2.fr/applications/index.html" class="ui teal">
                      CLLE-ERSS
-                    </a> / 
-                    <a target='_blank' href="http://kodexlab.com" class="ui teal">Kodex·Lab</a>
-                    <a class="item" href="mailto:contact@kodexlab.com"><i class=" inverted small teal mail outline icon "></i>  </a>
+                    </a> 
                     <a class="item" href="http://redac.univ-tlse2.fr/applications/index.html"><i class=" inverted small teal  icon "></i></a>
                      -
                     <a href='http://autourdumot.fr' class="ui teal">autour<span style='color:#AAA'>du</span>mot.fr</a>
-                     - 2015
                 </div>
             </div>
             
