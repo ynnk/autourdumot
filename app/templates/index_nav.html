@@ -225,7 +225,7 @@
     (function(){
         var size =  window.screen.availHeight - 215;
         var e = document.getElementById('loading');
-        e.setAttribute("style", "height:"+size+"px");
+        if (e) e.setAttribute("style", "height:"+size+"px");
     })();
     
 </script>
