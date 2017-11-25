@@ -330,7 +330,7 @@ define([
             // clustering
             app.models.clustering = new Cello.Clustering({
                 ClusterModel: Models.Cluster,
-                color_saturation:88,
+                color_saturation:43,
                 color_value: 79,
             });
 
