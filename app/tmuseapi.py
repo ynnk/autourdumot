@@ -205,13 +205,14 @@ def engine(index):
     engine.labelling.set(labelling)
 
     ## Layout
-    #from cello.layout.simple import KamadaKawaiLayout
+    from cello.layout.simple import KamadaKawaiLayout
     #from cello.layout.proxlayout import ProxLayoutRandomProj
     from cello.layout.proxlayout import ProxLayoutPCA
     from cello.layout.transform import Shaker
     from cello.layout.transform import ByConnectedComponent, normalise
     
     default_layout = ProxLayoutPCA(dim=3, name="ProxPca3d") | Shaker(kelastic=.9)
+    default_layout = KamadaKawaiLayout(dim=3, name="KamadaKawaiLayout") | Shaker(kelastic=.9)
     
     engine.layout.set(
         ByConnectedComponent(default_layout) | normalise,
