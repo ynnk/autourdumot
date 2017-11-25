@@ -67,17 +67,25 @@
                                   </div>
                               </div>
                           </div> 
+
                           <a class="item" href="{{query}}?t=l&tri=score&count={{count}}"><i class="list ordered icon"></i>score</a>
+
                           <a class="item" href="{{query}}?t=l&tri=form&count={{count}}"><i class="list ordered icon"></i>alphabétique</a>
-                          <a class="item" href="{{query}}.txt?i=1&t=l&tri=score&count={{count}}"><i class="save icon"></i>téléchargement</a>
+
+                          <div class="ui simple dropdown item">
+                            <i class="save icon"></i>téléchargement
+                            <div class="menu">
+                              <a class="item" href="{{query}}?e=txt&i=1&t=l&tri=score&count={{count}}">txt ` `</a>
+                              <a class="item" href="{{query}}?e=csv&i=1&t=l&tri=score&count={{count}}">csv `,`</a>
+                              <a class="item" href="{{query}}?e=tsv&i=1&t=l&tri=score&count={{count}}">tsv `tab`</a>
+                            </div>
+                          </div>
+                          
                       </div>  
                     </div>
 
                     <div id="proxemy_items" class="ui left aligned segment subitem disable-score">
 
-
-
-                      
                       <div class="ui three column grid" STYLE="margin:12px">
                         {% for grid in data %}
                         
@@ -102,20 +110,17 @@
             </div>
         </div>
 
-        <div id="footer" class="row" style="padding-bottom:2px">
-            <div class="thirteen wide column center aligned">        
+        <div class="row" style="color:#AAA; margin-bottom:12px">
+            <div class="center aligned column">        
                 <div class='item hidden-xs'>
                     Synonymes <a target='_blank' href='http://jeuxdemots.org' class="ui teal">Jeux de mots</a> - 
-                    Définitions <a target='_blank' href='http://wiktionary.org' class="ui teal">Wiktionary.org</a> 
-                    </a> 
-                    <a class="item" href="http://redac.univ-tlse2.fr/applications/index.html"><i class=" inverted small teal  icon "></i></a>
+                    Définitions <a target='_blank' href='http://wiktionary.org' class="ui teal">Wiktionary.org</a> -
                     <a href='http://autourdumot.fr' class="ui teal">autour<span style='color:#AAA'>du</span>mot.fr</a> & 
-                    <a target='_blank' href="http://redac.univ-tlse2.fr/applications/index.html" class="ui teal">
-                     CLLE-ERSS
+                    <a target='_blank' href="http://redac.univ-tlse2.fr/applications/index.html">CLLE-ERSS</a>
+                     
+                    </a> 
                 </div>
             </div>
-            
-            
         </div>
     
     </div>

@@ -59,7 +59,8 @@ def index(text=None, count = 50):
 
     if request.args.get("t") == "l":
         inline = request.args.get("i") == "1"
-        return liste(text, count, inline)
+        ext = request.args.get("ext", "") 
+        return liste(text, count, inline, ext)
 
     return render_template(
          "index_nav.html",
@@ -83,7 +84,7 @@ def dl(text, count=200, ):
 def l(text, count=200):
     return liste(text, count, False)
 
-def liste(text, count, inline=False):
+def liste(text, count, inline=False, ext=""):
 
     
     print "liste", text
@@ -119,6 +120,7 @@ def liste(text, count, inline=False):
         
         txt = "\n".join([ "%s%s%s%s%s" % (e['rank'],sep, e['form'],sep, e['score']) for e in l ])
         response = make_response(txt)
+
         if inline : 
             response.headers['Content-Type'] = 'application/%s' % "text"
             response.headers['Content-Disposition'] = 'inline; filename=%s' % (text)

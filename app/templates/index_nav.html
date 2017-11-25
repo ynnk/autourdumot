@@ -96,31 +96,31 @@
 
         <div id='app' class="row contenu" style="display:none">
             <div class="column center aligned">
-                <div id="maintabs" class="ui bottom attached  teal  menu">
-                      <a class="ui item active tab-graph" data-tab='graph'>
+                <div id="maintabs" class="ui bottom attached borderless   teal  menu">
+                      <a class="ui item tab active tab-graph" data-tab='graph'>
                           <i class="cube icon"></i>
                           <span class='hidden-xs'>Graphe</span>
                       </a>
 
-                      <a class="ui item" data-tab='list'>
+                      <a class="ui item tab" data-tab='list'>
                           <i class="list layout icon"></i>
                           <span class='hidden-xs'>Liste</span>
                       </a>
                       
-                      <a class="ui item" data-tab='clust'>
+                      <a class="ui item tab" data-tab='clust'>
                           <i class="block layout icon"></i>
                           <span class='hidden-xs'>Regroupement</span>
                           <!-- sous sens, agregats, regroupement, structure polysémique, champ semantique -->
                       </a>
                       
-                      <a class="ui item" data-tab='def'>
+                      <a class="ui item tab" data-tab='def'>
                           <i class="book icon"></i>
                           <span class='hidden-xs'>Définition</span>
                       </a>
 
-                      <div class="ui right borderless compact  menu">
+                      <div class="ui right compact text menu">
                           <div class="ui item ">
-                            <div id="select" class="ui icon dropdown ">
+                            <div id="select" class="ui icon pointing dropdown ">
                                 <i class="tags icon"></i>
                                 Résultats
                                 <div class="menu">
@@ -137,9 +137,9 @@
                             </div>
                           </div>
                           
-                          <div id="linkify" class="ui item">
-                            <a class="circular icon" ><i class="linkify icon"></i> Partager</a>
-                            <div class="ui fluid popup">
+                          <div id="linkify" class="ui item ">
+                            <a class="grey item" ><i class="linkify icon"></i> Partager</a>
+                            <div class="ui popup">
                                 <h2 class="ui header">Partager ce lien</h2>
                                 <div class="">
                                     <input style="width:200px" value=""/>
@@ -174,7 +174,7 @@
 
 
                 <div class="ui tab itemview " data-tab="list">
-                    <h1><i class="list layout icon"></i>&nbsp;</h1>
+                    <br/>
                     <div id='proxemy_more'><a href="?t=l&count=200">Télécharger la liste</a></div>
                     <div id='proxemy_items' class='ui left aligned segment subitem' style=''><ul></ul></div>
                     
@@ -199,8 +199,8 @@
             </div>
         </div>
 
-        <div id="footer" class="row" style="padding-bottom:2px">
-            <div class="thirteen wide column center aligned">        
+        <div id="footer" class="row" style="bottom: 0px;">
+            <div class="sixteen wide column center aligned">        
                 <div class='item hidden-xs'>
                     Synonymes <a target='_blank' href='http://jeuxdemots.org' class="ui teal">Jeux de mots</a> - 
                     Définitions <a target='_blank' href='http://wiktionary.org' class="ui teal">Wiktionary.org</a> 
@@ -209,11 +209,6 @@
                     <a href='http://autourdumot.fr' class="ui teal">autour<span style='color:#AAA'>du</span>mot.fr</a> & 
                     <a target='_blank' href="http://redac.univ-tlse2.fr/applications/index.html" class="ui teal">
                      CLLE-ERSS
-                </div>
-            </div>
-            
-            <div class="three wide column right aligned">
-                <div class='item right'>
                 </div>
             </div>
             
@@ -265,6 +260,7 @@
         // more results
         $('#select')
           .dropdown({
+              on : "hover",
               onChange: function(value, text, $selectedItem) {
                   console.log(value, text );
                   cellist.get_block('graph').components.at(0).set_option('length', value)
@@ -314,7 +310,7 @@
         });
 
         // get link popup   
-        $('#linkify .linkify').popup({
+        $('#linkify a').popup({
             inline   : true,
             hoverable: true,
             position : 'bottom right',
@@ -348,7 +344,7 @@
         // tabs
         
         // tabs names @data-tab.substr(4)
-        var tabs = _($("#maintabs a.item")).map(function(e) {return $(e).attr('data-tab')});
+        var tabs = _($("#maintabs a.item.tab")).map(function(e) {return $(e).attr('data-tab')});
         // tab selector
         var tab$el = function(tab){ return  $("#maintabs a[data-tab="+tab+"]") };
         
@@ -410,7 +406,7 @@
                     -$(".page .row.entete").height()
                     - Math.max( 40 | $("#maintabs").height() )
                     - $(".footer").height()
-                    - 45;
+                    - 30;
             size = size < min_height ? min_height : size;
             $(".itemview").height(size);
             app.views.gviz.resize_rendering();
