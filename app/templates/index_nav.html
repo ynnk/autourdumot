@@ -13,7 +13,7 @@
 
     
     <!--  SemUI CSS    -->
-    <link rel="stylesheet" href="{{url_for('static', filename='lib/semantic-UI-1.8.1-dist/semantic.min.css')}}" type="text/css" />
+    <link rel="stylesheet" href="{{url_for('static', filename='semantic/semantic.min.css')}}" type="text/css" />
 
     <!--  our CSS    -->
     <link rel="stylesheet" href="{{url_for('static', filename='app_graph.css')}}" type="text/css" />
@@ -30,7 +30,7 @@
     <script id="ListLabel" type="text/template">
             <div class='puce' style='background-color:rgb(<%=color%>);'></div>
             <a draggable="true"  class='draggable' href="#" title='Voir dans le graphe'><%=rank %>. <%=form %></a>
-<a class="ui mini button" title="Explorer ce mot"><i class="square share icon "></i></a>
+            <a class="share" title="Explorer ce mot"><i class="mini square share icon "></i></a>
             
     </script>
 
@@ -118,34 +118,38 @@
                           <span class='hidden-xs'>Définition</span>
                       </a>
 
-                      <div class="ui item right">
-                        <div id="select" class="ui icon dropdown ">
-                            <i class="dropdown icon"></i>
-                            <div class="menu">
-                              <div class="header">
+                      <div class="ui right borderless compact  menu">
+                          <div class="ui item ">
+                            <div id="select" class="ui icon dropdown ">
                                 <i class="tags icon"></i>
                                 Résultats
-                              </div>
-                              <div class="item">20</div>
-                              <div class="item">50</div>
-                              <div class="item">100</div>
-                              <div class="item">200</div>
+                                <div class="menu">
+                                  <div class="header">
+                                    
+                                  </div>
+                                  <div class="item">20</div>
+                                  <div class="item">50</div>
+                                  <div class="item">100</div>
+                                  <div class="item">200</div>
+                                  <div class="item">250</div>
+                                  <div class="item">300</div>
+                                </div>
                             </div>
-                        </div>
-                      </div>
-                      
-                      <div id="linkify" class="ui item right">
-                        <a class="circular icon" ><i class="linkify icon"></i></a>
-                        <div class="ui popup" data-variation='large'>
-                            <div class="ui header">Partager ce lien</div>
-                            <div class="">
-                                <input style="width:200px" value=""/>
-                                <p></p>
-                                <p>
-                                Copier le lien avec Ctrl C <br>Coller ce lien dans un document ou une barre de navigation.
-                                </p>
+                          </div>
+                          
+                          <div id="linkify" class="ui item">
+                            <a class="circular icon" ><i class="linkify icon"></i> Partager</a>
+                            <div class="ui fluid popup">
+                                <h2 class="ui header">Partager ce lien</h2>
+                                <div class="">
+                                    <input style="width:200px" value=""/>
+                                    <p></p>
+                                    <p>
+                                    Copier le lien avec Ctrl C <br>Coller ce lien dans un document ou une barre de navigation.
+                                    </p>
+                                </div>
                             </div>
-                        </div>
+                          </div>
                       </div>
 
                 </div> <!--/maintabs-->
@@ -171,16 +175,16 @@
 
                 <div class="ui tab itemview " data-tab="list">
                     <h1><i class="list layout icon"></i>&nbsp;</h1>
-                    <div id='proxemy_items' class='ui left aligned segment subitem' style=''><ul></ul></div>
                     <div id='proxemy_more'><a href="?t=l&count=200">Télécharger la liste</a></div>
+                    <div id='proxemy_items' class='ui left aligned segment subitem' style=''><ul></ul></div>
                     
                 </div>
 
                 <div class="ui tab  itemview " data-tab="def">
                     <div id='wkdef' class='ui left aligned segment subitem' style=''>
-                        <nav  class="ui menu navbar ">
-                           <div class="item right">
-                              <div class="ui icon top right pointing dropdown ">
+                        <nav  class="ui menu ">
+                           <div class="item ">
+                              <div class="ui icon top left pointing dropdown ">
                                 <i class="book down icon"></i>
                                 <div class="menu">
                                   <a class="item  active" data-desc='short'><i class="caret right teal icon"></i> Description courte </a>
@@ -199,13 +203,12 @@
             <div class="thirteen wide column center aligned">        
                 <div class='item hidden-xs'>
                     Synonymes <a target='_blank' href='http://jeuxdemots.org' class="ui teal">Jeux de mots</a> - 
-                    Définitions <a target='_blank' href='http://wiktionary.org' class="ui teal">Wiktionary.org</a> - 
-                    <a target='_blank' href="http://redac.univ-tlse2.fr/applications/index.html" class="ui teal">
-                     CLLE-ERSS
+                    Définitions <a target='_blank' href='http://wiktionary.org' class="ui teal">Wiktionary.org</a> 
                     </a> 
                     <a class="item" href="http://redac.univ-tlse2.fr/applications/index.html"><i class=" inverted small teal  icon "></i></a>
-                     -
-                    <a href='http://autourdumot.fr' class="ui teal">autour<span style='color:#AAA'>du</span>mot.fr</a>
+                    <a href='http://autourdumot.fr' class="ui teal">autour<span style='color:#AAA'>du</span>mot.fr</a> & 
+                    <a target='_blank' href="http://redac.univ-tlse2.fr/applications/index.html" class="ui teal">
+                     CLLE-ERSS
                 </div>
             </div>
             
@@ -315,7 +318,6 @@
             inline   : true,
             hoverable: true,
             position : 'bottom right',
-            variation: 'huge',
             popup: $("#maintabs .popup"),
             //on    : 'click',
             onShow : function(){ $("#linkify input").val(window.location.href).focus().select();},

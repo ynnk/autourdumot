@@ -63,7 +63,7 @@ def index(text=None, count = 50):
 
     return render_template(
          "index_nav.html",
-         debug=app.debug,
+         debug=False, #app.debug,
          count=count,
          root_url=url_for("index"),
          complete_url=url_for("%s.complete" % tmuseApi.name),
@@ -84,15 +84,23 @@ def l(text, count=200):
     return liste(text, count, False)
 
 def liste(text, count, inline=False):
+
+    
+    print "liste", text
+    
     tri = request.args.get('tri', 'score') # score/form
     count = int(request.args.get('count', count))
+    l = []
     
-    q = text.split(".") + ['']
-    lang, pos, form , ext = q[:4]
-    if ext not in ('', 'txt', 'csv', 'tsv') : return abort(404)
+    for t in text.split(',') : 
+        q = t.split(".") + ['']
+        print "liste", t
+        lang, pos, form , ext = q[:4]
+        if ext not in ('', 'txt', 'csv', 'tsv') : return abort(404)
 
-    query = QueryUnit(lang=lang, pos=pos, form=form)
-    l = proxlist(esindex, query, count)
+        query = QueryUnit(lang=lang, pos=pos, form=form)
+        l.extend(proxlist(esindex, query, count))
+    
     l.sort( key=lambda e : e[tri], reverse= tri == 'score' )
     for i,e in enumerate(l) : e['rank']=i+1
     
@@ -104,6 +112,7 @@ def liste(text, count, inline=False):
         l = [ l[ROWS*i:ROWS*(i+1)]  for i in range( int(count/ROWS)+1 ) ]
         l = [ l[COLS*i:COLS*(i+1)]  for i in range( int(len(l)/COLS)+1 )]
         return render_template( "liste.html", query=text, data=l, tri=tri, count=count)
+        
     else :
         separators = {'txt':" ", 'csv': "," , 'tsv' : '\t'}
         sep = separators[ext]

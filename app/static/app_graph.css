@@ -80,8 +80,9 @@ h1 {
 ul.autocomplete {
     display:none;
     position:absolute;
-    margin-top:10px;
+    margin-top:-1px;
     margin-left:-2px;
+    right:61px;
     z-index:200;
     border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 8px;
@@ -337,6 +338,8 @@ line-height: 1.3em;
     display: inline-block;
 }
 
+
+
 /* -- vtx list -- */
 #proxemy_items.subitem ul {
     -webkit-column-count: 1; /* Chrome, Safari, Opera */
@@ -379,16 +382,19 @@ line-height: 1.3em;
     color: #666;
 }
 
-#proxemy_items li a.button {
+#proxemy_items li a.share {
+/*
     padding: 6px;
+*/
     padding-right: 0px;
     margin-right: 0px;
     display: none;
 }
-#proxemy_items li:hover a.button {
+#proxemy_items li:hover a.share {
     display: inline-block;
+    cursor:pointer;
 }
-#proxemy_items li a.button i.icon {
+#proxemy_items li a.share i.icon {
     padding-right: 0px;
     margin-right: 5px;
     text-decoration: none;
@@ -432,7 +438,9 @@ line-height: 1.3em;
 #proxemy_items li.selected div.puce  {
     border-radius: 3px;
     width: 18px;
+/*
     height: 18px;
+*/
     margin-left: 3px;
 }
 

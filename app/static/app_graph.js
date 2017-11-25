@@ -325,13 +325,13 @@ define([
             app.models.graph = new Cello.Graph({
                 vertex_model: Models.Vertex,
                 edge_model: Models.Edge,
-            }) //warn: it is updated when result comes
+            }) 
 
             // clustering
             app.models.clustering = new Cello.Clustering({
                 ClusterModel: Models.Cluster,
-                color_saturation:71,
-                color_value: 80,
+                color_saturation:88,
+                color_value: 79,
             });
 
             // prox list (proxy to app.models.graph.vs)
@@ -419,8 +419,8 @@ define([
                 template: _.template($("#ListLabel").html()),
                 events:{
                     "click a.draggable ": "click_to_graph",
-                    "click a.button:has(> i.cube) ": "click_to_graph",
-                    "click a.button:has(> i.share)": "click_to_request",
+                    "click a:has(> i.cube) ": "click_to_graph",
+                    "click a:has(> i.share)": "click_to_request",
                     "mouseover": "mouseover",
                     "mouseout": "mouseout",
                     "dragstart" : "drag",

@@ -70,8 +70,9 @@ define(['cello_gviz'], function(gviz) {
                         'lineWidth'  : .1,
                         'lineJoin'   : 'bevel',
                         
+                        'opacity'   : 1.,
                         
-                        'fontScale'  :  0.2,
+                        'fontScale'  :  0.17,
                         'line_max_length': 12,
                         'font' : "normal 10px",
                         'fontFillStyle'  : '#333',  //#366633',           
