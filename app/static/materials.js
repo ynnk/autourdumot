@@ -72,7 +72,7 @@ define(['cello_gviz'], function(gviz) {
                         
                         'opacity'   : 1.,
                         
-                        'fontScale'  :  0.17,
+                        'fontScale'  :  0.14,
                         'line_max_length': 12,
                         'font' : "normal 10px",
                         'fontFillStyle'  : '#333',  //#366633',           
@@ -132,11 +132,11 @@ define(['cello_gviz'], function(gviz) {
                     { '.target': {
                             'shape': 'triangle',
                             'lineJoin' : 'bevel',
-                            'scale':2,
+                            'scale':1.2,
                             'strokeStyle': "#EEEEEE",
-                            'fontScale'  :  0.3,
-                            'textPaddingY'  : 12,
-
+                            'fontScale'  :  0.17,
+                            'textPaddingY'  : 6,
+                            'textAlign'     : 'center',
                             'font' : "normal 10px sans",
                             'fontFillStyle'  : '#111',  //#366633',      
                             //'fontStrokeStyle'  : null, // '#333',
