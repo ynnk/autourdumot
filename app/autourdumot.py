@@ -86,10 +86,9 @@ def l(text, count=200):
 
 def liste(text, count, inline=False, ext=""):
 
-    print "liste1", text, count, inline, "`%s`" % ext, ext =='txt',  ext == ""
-    
     tri = request.args.get('tri', 'score') # score/form
     count = int(request.args.get('count', count))
+
     l = []
     
     for t in text.split(',') : 
@@ -103,16 +102,12 @@ def liste(text, count, inline=False, ext=""):
     l.sort( key=lambda e : e[tri], reverse= tri == 'score' )
     for i,e in enumerate(l) : e['rank']=i+1
 
-    
-    print "liste2", text, count, inline, "`%s`" % ext, ext =='txt',  ext == ""
-
     if ext == "":
         ROWS = 30
         COLS = 3
         for i,e in enumerate(l) : e['rank']=i+1
         l = [ l[ROWS*i:ROWS*(i+1)]  for i in range( int(count/ROWS)+1 ) ]
         l = [ l[COLS*i:COLS*(i+1)]  for i in range( int(len(l)/COLS)+1 )]
-        print "should not be there"
         return render_template( "liste.html", query=text, data=l, tri=tri, count=count)
         
     else :
