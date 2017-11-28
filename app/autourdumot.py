@@ -59,7 +59,7 @@ def index(text=None, count = 50):
 
     if request.args.get("t") == "l":
         inline = request.args.get("i") == "1"
-        ext = request.args.get("ext", "") 
+        ext = request.args.get("e", "") 
         return liste(text, count, inline, ext)
 
     return render_template(
@@ -77,7 +77,7 @@ def index(text=None, count = 50):
 @app.route("/export/<string:text>")
 @app.route("/export/<string:text>/<int:count>")
 def dl(text, count=200, ):
-    return liste(text, count, True)
+    return liste(text, count, inline=True)
 
 @app.route("/liste/<string:text>")
 @app.route("/liste/<string:text>/<int:count>")
@@ -86,8 +86,7 @@ def l(text, count=200):
 
 def liste(text, count, inline=False, ext=""):
 
-    
-    print "liste", text
+    print "liste1", text, count, inline, "`%s`" % ext, ext =='txt',  ext == ""
     
     tri = request.args.get('tri', 'score') # score/form
     count = int(request.args.get('count', count))
@@ -95,8 +94,7 @@ def liste(text, count, inline=False, ext=""):
     
     for t in text.split(',') : 
         q = t.split(".") + ['']
-        print "liste", t
-        lang, pos, form , ext = q[:4]
+        lang, pos, form = q[:3]
         if ext not in ('', 'txt', 'csv', 'tsv') : return abort(404)
 
         query = QueryUnit(lang=lang, pos=pos, form=form)
@@ -104,7 +102,9 @@ def liste(text, count, inline=False, ext=""):
     
     l.sort( key=lambda e : e[tri], reverse= tri == 'score' )
     for i,e in enumerate(l) : e['rank']=i+1
+
     
+    print "liste2", text, count, inline, "`%s`" % ext, ext =='txt',  ext == ""
 
     if ext == "":
         ROWS = 30
@@ -112,6 +112,7 @@ def liste(text, count, inline=False, ext=""):
         for i,e in enumerate(l) : e['rank']=i+1
         l = [ l[ROWS*i:ROWS*(i+1)]  for i in range( int(count/ROWS)+1 ) ]
         l = [ l[COLS*i:COLS*(i+1)]  for i in range( int(len(l)/COLS)+1 )]
+        print "should not be there"
         return render_template( "liste.html", query=text, data=l, tri=tri, count=count)
         
     else :
@@ -120,6 +121,8 @@ def liste(text, count, inline=False, ext=""):
         
         txt = "\n".join([ "%s%s%s%s%s" % (e['rank'],sep, e['form'],sep, e['score']) for e in l ])
         response = make_response(txt)
+
+        print "inline", inline
 
         if inline : 
             response.headers['Content-Type'] = 'application/%s' % "text"
