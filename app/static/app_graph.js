@@ -68,7 +68,8 @@ define([
               .dropdown({
                   on: "hover",
                 onChange: function(value, text, $selectedItem) {
-                  _this.shortdesc = $("#wkdef nav .menu a.item.active").data('desc') == "short";
+                  console.log (value, text, $selectedItem); 
+                  _this.shortdesc = $selectedItem.context.dataset.desc == "short";
                   _this.update_desc();
                   
                 }

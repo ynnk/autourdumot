@@ -214,7 +214,7 @@ line-height: 1.3em;
 }
 
 #wkdef .def-content {
-    overflow-y: scroll;
+    overflow-y: auto;
     height: 100%;
 }
 

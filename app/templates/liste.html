@@ -13,7 +13,7 @@
 
     
     <!--  SemUI CSS    -->
-    <link rel="stylesheet" href="{{url_for('static', filename='lib/semantic-UI-1.8.1-dist/semantic.min.css')}}" type="text/css" />
+    <link rel="stylesheet" href="{{url_for('static', filename='semantic/semantic.min.css')}}" type="text/css" />
 
     <!--  our CSS    -->
     <link rel="stylesheet" href="{{url_for('static', filename='app_graph.css')}}" type="text/css" />
@@ -29,6 +29,9 @@
     }
     h1.liste { color:#333 }
 
+    span.score {
+        float:right;
+    }
     .disable-score span.score {
         display:none;
     }
@@ -37,7 +40,7 @@
 <body>
 
         
-    <div class="ui page grid">
+    <div class="ui grid container">
         <div class="row entete">
             <div class="five wide column ">
                     <h2 class="ui  header teal ">Autour<span style='color:lightgrey'>du</span>mot.<span style='color:lightgrey'>fr</span>
@@ -55,30 +58,57 @@
             <div class="column center aligned">
                 <div class="ui tab itemview active" data-tab="graph">
                     <div class="ui menu">
-                      <a class="header item" href="?">{{query}}</a>
-                      <div class="right compact menu">
-                          <div class="item">
-                              <div class="ui form">
-                                  <div class="inline field">
-                                    <div class="ui">
-                                      <input id="chkscore" type="checkbox" tabindex="0" class="hidden" onclick="toggle()">
-                                      <label>Afficher les scores</label>
-                                    </div>
-                                  </div>
+                      <a class="header item" href="../{{query}}?" title="explorer le graphe">
+                          <i class="cube icon"></i>{{query}}</a>
+                      <div class="item">
+                          <div class="ui form">
+                              <div class="inline field">
+                                <div class="ui">
+                                  <input id="chkscore" type="checkbox" tabindex="0" class="hidden" onclick="toggle()">
+                                  <label>Afficher les scores</label>
+                                </div>
                               </div>
-                          </div> 
+                          </div>
+                      </div> 
+                      <div class="ui right compact menu">
 
-                          <a class="item" href="{{query}}?t=l&tri=score&count={{count}}"><i class="list ordered icon"></i>score</a>
+                          <div class="ui item">
+                            <div id="select" class="ui simple dropdown ">
+                                <i class="tags icon"></i>
+                                Tri
+                                <div class="menu">
+                                  <a class="{{ "active" if tri =="score" else ""}} item" href="{{query}}?t=l&tri=score&count={{count}}"><i class="list ordered icon"></i>score</a>
 
-                          <a class="item" href="{{query}}?t=l&tri=form&count={{count}}"><i class="list ordered icon"></i>alphabétique</a>
+                                  <a class="{{ "active" if tri =="form" else ""}} item" href="{{query}}?t=l&tri=form&count={{count}}"><i class="list ordered icon"></i>alphabétique</a>
+                                </div>
+                            </div>
+                          </div>  
 
-                          <div class="ui simple dropdown item">
+                          <div class="ui item">
+                            <div id="select" class="ui simple dropdown ">
+                                <i class="tags icon"></i>
+                                Résultats
+                                <div class="menu">
+                              <div class="header">Nombre de mots</div>
+                                {% for a in results_count %}
+                                  <a class="item" href="{{query}}?t=l&tri=score&count={{a}}">{{a}}</a>
+                                {%endfor%}
+                                </div>
+                            </div>
+                          </div>  
+
+                          <div class="ui item">
+                           <div class="ui simple dropdown">
                             <i class="save icon"></i>téléchargement
                             <div class="menu">
+                                
+                              <div class="header">Format</div>
+                                  
                               <a class="item" href="{{query}}?e=txt&i=1&t=l&tri=score&count={{count}}">txt ` `</a>
                               <a class="item" href="{{query}}?e=csv&i=1&t=l&tri=score&count={{count}}">csv `,`</a>
                               <a class="item" href="{{query}}?e=tsv&i=1&t=l&tri=score&count={{count}}">tsv `tab`</a>
                             </div>
+                           </div>
                           </div>
                           
                       </div>  
@@ -95,7 +125,7 @@
                             {% for e in col %}
                             <li class="form">
                             <div class="puce" style="background-color:#eee;"></div>
-                            <a draggable="true" class="draggable" href="{{e.lang}}.{{e.pos}}.{{e.form}}?tri={{tri}}&count={{count}}">{{e.rank}}. {{e.form}}</a>
+                            <a draggable="true" class="draggable" href="/liste/{{e.lang}}.{{e.pos}}.{{e.form}}?tri={{tri}}&count={{count}}">{{e.rank}}. {{e.form}}</a>
                             <span class="score">{{e.score}}</span>
                             </li>
                             {%endfor%}

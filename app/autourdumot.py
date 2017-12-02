@@ -54,13 +54,10 @@ app.add_url_rule('/_routes', 'routes', lambda : app_routes(app) ,  methods=["GET
 # index page
 @app.route("/")
 @app.route("/<string:text>")
-@app.route("/<string:text>/<int:count>")
 def index(text=None, count = 50):
 
     if request.args.get("t") == "l":
-        inline = request.args.get("i") == "1"
-        ext = request.args.get("e", "") 
-        return liste(text, count, inline, ext)
+        return liste(text, count)
 
     return render_template(
          "index_nav.html",
@@ -75,17 +72,19 @@ def index(text=None, count = 50):
 
 
 @app.route("/export/<string:text>")
-@app.route("/export/<string:text>/<int:count>")
-def dl(text, count=200, ):
-    return liste(text, count, inline=True)
+def dl(text ):
+    return liste(text)
 
 @app.route("/liste/<string:text>")
-@app.route("/liste/<string:text>/<int:count>")
-def l(text, count=200):
-    return liste(text, count, False)
+@app.route("/liste/<string:text>/<string:ext>")
+@app.route("/liste/<string:text>/<string:ext>/<int:count>")
+def l(text, ext="", count=200):
+    return liste(text, count, ext)
 
-def liste(text, count, inline=False, ext=""):
+def liste(text, count=200, ext=""):
 
+    inline = request.args.get("i") == "1"
+    ext = request.args.get("e", ext) 
     tri = request.args.get('tri', 'score') # score/form
     count = int(request.args.get('count', count))
 
@@ -98,9 +97,14 @@ def liste(text, count, inline=False, ext=""):
 
         query = QueryUnit(lang=lang, pos=pos, form=form)
         l.extend(proxlist(esindex, query, count))
-    
-    l.sort( key=lambda e : e[tri], reverse= tri == 'score' )
-    for i,e in enumerate(l) : e['rank']=i+1
+
+    if len(l):
+        smax = sorted(l, key=lambda e : e['score'], reverse= True )[0]['score']
+        l.sort( key=lambda e : e[tri], reverse= tri == 'score' )
+        for i,e in enumerate(l) :
+            s = e['score'] / smax
+            e['score']= str(s)[:8]
+            e['rank']=i+1
 
     if ext == "":
         ROWS = 30
@@ -108,20 +112,27 @@ def liste(text, count, inline=False, ext=""):
         for i,e in enumerate(l) : e['rank']=i+1
         l = [ l[ROWS*i:ROWS*(i+1)]  for i in range( int(count/ROWS)+1 ) ]
         l = [ l[COLS*i:COLS*(i+1)]  for i in range( int(len(l)/COLS)+1 )]
-        return render_template( "liste.html", query=text, data=l, tri=tri, count=count)
+        r = [ "%s" % e for e in (20,30, 50, 100, 200, 300, 500)]
+        return render_template( "liste.html",
+            query=text, data=l,
+            tri=tri, count=count, results_count=r)
         
     else :
-        separators = {'txt':" ", 'csv': "," , 'tsv' : '\t'}
-        sep = separators[ext]
+        conf = {'txt': { "sep":" ", "content": "text/text"},
+                'tsv': { "sep":"\t", "content": "text/tsv"},
+                'csv': { "sep":",", "content": "text/csv"},
+               }
+        sep = conf[ext]['sep']
+        content = conf[ext]['content']
         
         txt = "\n".join([ "%s%s%s%s%s" % (e['rank'],sep, e['form'],sep, e['score']) for e in l ])
         response = make_response(txt)
 
-        print "inline", inline
-
-        if inline : 
-            response.headers['Content-Type'] = 'application/%s' % "text"
-            response.headers['Content-Disposition'] = 'inline; filename=%s' % (text)
+        if inline :
+            filename = '%s.%s' % (text, ext)
+            response.mimetype = content
+            #response.headers['Content-Type'] = '%s; charset=utf-8; name="%s"' % (content, filename)
+            response.headers['Content-Disposition'] = 'inline; filename=%s' % filename
 
         return response
 
