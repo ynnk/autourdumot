@@ -102,9 +102,10 @@ def liste(text, count=200, ext=""):
         smax = sorted(l, key=lambda e : e['score'], reverse= True )[0]['score']
         l.sort( key=lambda e : e[tri], reverse= tri == 'score' )
         for i,e in enumerate(l) :
-            s = e['score'] / smax
-            e['score']= str(s)[:8]
-            e['rank']=i+1
+            s = e['score']
+            e['score_smax'] = s / smax
+            e['score_str']  = str(s)[:8]
+            e['rank'] = i+1
 
     if ext == "":
         ROWS = 30

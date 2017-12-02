@@ -69,10 +69,13 @@
                                 </div>
                               </div>
                           </div>
-                      </div> 
+                      </div>
+                      
+<!--
                       <div class="ui right compact menu">
+-->
 
-                          <div class="ui item">
+                          <div class="ui right item">
                             <div id="select" class="ui simple dropdown ">
                                 <i class="tags icon"></i>
                                 Tri
@@ -111,12 +114,14 @@
                            </div>
                           </div>
                           
+<!--
                       </div>  
+-->
                     </div>
 
                     <div id="proxemy_items" class="ui left aligned segment subitem disable-score">
 
-                      <div class="ui three column grid" STYLE="margin:12px">
+                      <div class="ui stackable three column grid" STYLE="margin:12px">
                         {% for grid in data %}
                         
                         {% for col in grid %}
@@ -126,13 +131,15 @@
                             <li class="form">
                             <div class="puce" style="background-color:#eee;"></div>
                             <a draggable="true" class="draggable" href="/liste/{{e.lang}}.{{e.pos}}.{{e.form}}?tri={{tri}}&count={{count}}">{{e.rank}}. {{e.form}}</a>
-                            <span class="score">{{e.score}}</span>
+                            <span class="score">{{e.score_str}}</span>
                             </li>
                             {%endfor%}
                             </ul>
+<!--
+                            <div class="ui divider"></div>
+-->
                         </div>
                         {%endfor%}
-                        <div class="ui divider"></div>
                         {%endfor%}
                       </div>
                     </div>
