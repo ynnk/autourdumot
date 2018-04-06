@@ -83,7 +83,7 @@ Disallow: /tmuse_v1/
 
 @app.route("/robots.txt")
 def robots():
-    response = make_response(
+    response = make_response(ROBOTS)
     response.headers["content-type"] = "text/plain"
     return response
 
