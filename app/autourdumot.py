@@ -71,6 +71,23 @@ def index(text=None, count = 50):
     )
 
 
+
+
+ROBOTS = """
+User-agent: *
+Disallow: /export/
+Disallow: /list/
+Disallow: /def/
+Disallow: /tmuse_v1/
+"""
+
+@app.route("/robots.txt")
+def robots():
+    response = make_response(
+    response.headers["content-type"] = "text/plain"
+    return response
+
+
 @app.route("/export/<string:text>")
 def dl(text ):
     return liste(text)
