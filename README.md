@@ -18,19 +18,19 @@ Full install
 Install and run ElasticSearch (you may do otherwise for a production env):
 
 ```bash
-$ wget https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.0.0/elasticsearch-2.0.0.tar.gz
-$ tar xvf elasticsearch-2.0.0.tar.gz
-$ cd elasticsearch-2.0.0/
-$ # then run it:
-$ ./bin/elasticsearch
+wget https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.0.0/elasticsearch-2.0.0.tar.gz
+tar xvf elasticsearch-2.0.0.tar.gz
+cd elasticsearch-2.0.0/
+# then run it:
+./bin/elasticsearch
 ```
 
 Install virtualenv and requirements :
 
 ```bash
-$ virtualenv --system-site-packages venv
-$ source venv/bin/activate
-$ pip install -r requirements.txt
+virtualenv --system-site-packages venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
 Get cello_libjs dep:
@@ -42,8 +42,8 @@ $ make link_libjs
 Create index (~5 minutes on my laptop):
 
 ```bash
-$ export PYTHONPATH=./:$PYTHONPATH
-$ make index
+export PYTHONPATH=./:$PYTHONPATH
+make index
 ```
 
 it loads jdm & dicosyn graphs, computes proxemies and stores in elasticsearch
@@ -83,23 +83,23 @@ Install for prod
 Clone the repository:
 
 ```bash
-$ git clone git@git.kodexlab.com:kodexlab/autourdumot.git
-$ cd autourdumot.git
+git clone git@github.com:ynnk/autourdumot.git
+cd autourdumot.git
 ```
 
 Setup python virtualenv:
 
 ```bash
-$ virtualenv --system-site-packages venv
-$ source venv/bin/activate
-$ pip install -r requirements.txt
-$ pip install -I gunicorn   # Force local install for gunicorn
+virtualenv --system-site-packages venv
+source venv/bin/activate
+pip install -r requirements.txt
+pip install -I gunicorn   # Force local install for gunicorn
 ```
 
 Get cellojs:
 
 ```bash
-$ make get_libjs
+make get_libjs
 ```
 
 Then:
